@@ -1,29 +1,23 @@
 # KOS2
 
-KOS2 is an Ollama-first Obsidian plugin for turning messy notes into usable work.
+![KOS2 hero](images/kos2-hero.png)
 
-It is built for a simple loop:
+**KOS2 is a Knowledge Operating System for Obsidian. Open, local-first, built for excellence in boring work.**
 
-- organise raw notes into clearer artifacts
-- extract next steps from projects and areas
+It helps you move from note entropy to useful work:
+
+- organise messy intake into stabilised draft artifacts with traceability
+- extract real next steps from projects and areas
 - draft decisions from evidence
 - review outcomes and close loops
 
-KOS2 starts from the `obsidian-copilot` codebase, but the product direction is different: local-first, workflow-first, and designed around KOS rather than a generic multi-provider chatbot.
-
-![KOS2 hero](images/kos2-hero.png)
-
 If you want the mental model behind the product, read [KOS Philosophy](docs/kos-philosophy.md).
-
-The simplest promise of KOS2 is:
-
-`point at a note -> KOS2 organises the material -> useful work artifacts appear -> later you can find them again`
 
 ## Why KOS2
 
 Most AI note tools are good at answering questions and bad at helping you run an operating system for your own work.
 
-KOS2 is meant to feel different:
+KOS2 keeps the loop simple:
 
 - `Ollama-first` for local chat and local embeddings
 - `fully local` if you want your note work, embeddings, and decisions to stay on your machine
@@ -32,7 +26,7 @@ KOS2 is meant to feel different:
 - semantic search for your vault when you choose to enable it
 - optional `Ollama Cloud` only for web search and web fetch flows
 
-## If You're In A Hurry
+## Fast Start
 
 1. Install KOS2 from source and enable it in Obsidian.
 2. Start local Ollama.
@@ -49,32 +43,9 @@ KOS2 is meant to feel different:
 - local embedding path for vault search
 - KOS starter surface in the chat UI
 - first-pass workflow commands for `organise`, `next-steps`, `decision`, and `review`
-- safe intake routing: `organise` recognizes the current artifact, preserves traceability, and recommends the next safe move instead of inventing structure
+- stronger intake: `organise` extracts intake signals, ranks stable routes, and previews a stabilised draft artifact before any write
 - optional cloud web tooling through `Ollama Cloud`
 - transcript setup guidance for Supadata and local tooling preparation
-
-## Current Intake Status
-
-KOS2 is already good at `safe intake routing`.
-
-That means:
-
-- it can inspect the current note
-- recognize whether it looks like inbox, project, analysis, decision, review, or outcome material
-- preserve traceability
-- recommend the next safe workflow step
-
-What it does **not** claim yet is full parity with the stronger intake promise from the `kos` repo, where the ideal path is:
-
-`drop material -> organise -> stable work artifact`
-
-Today, KOS2 is strongest at:
-
-- safe routing
-- explicit refusal when context is too weak
-- workflow previews before mutation
-
-That is the right direction, but it is still an earlier stage than the more mature KOS repo contract.
 
 ## Product Preview
 
@@ -195,10 +166,28 @@ KOS2 is most useful when you use it as an operator for a note workflow instead o
 
 Current paths:
 
-- `Organise`: turn a raw note into a cleaner routed artifact
+- `Organise`: inspect intake, rank stable routes, and preview a cleaner artifact draft
 - `Next steps`: extract pending work from a project, area, or note
 - `Decision`: draft a decision from evidence and analysis
 - `Review`: capture what happened, what changed, and what should happen next
+
+## Intake Maturity
+
+KOS2 now does more than safe routing.
+
+Today `Organise` can:
+
+- inspect tasks, bullets, and selected excerpts from the current note
+- recognize inbox, project, area, resource, analysis, decision, review, and outcome material
+- rank candidate routes for raw intake
+- preview a stabilised draft artifact with traceability
+- avoid silent writes while still giving you something concrete to promote
+
+What it does **not** claim yet is full parity with the stronger intake contract from the separate `kos` repo, where the north star is:
+
+`drop material -> organise -> stable work artifact`
+
+KOS2 is moving in that direction, but the current plugin is still intentionally more conservative.
 
 ## Optional Cloud And Transcripts
 

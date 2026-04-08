@@ -192,8 +192,37 @@ status: in-progress
 
     expect(result.status).toBe("ready");
     expect(result.markdown).toContain("Recognized artifact: inbox intake");
-    expect(result.recommendedNextStep).toContain("next-steps");
+    expect(result.markdown).toContain("## Intake Signals");
+    expect(result.markdown).toContain("## Ranked Routes");
+    expect(result.markdown).toContain("## Draft Stabilized Artifact");
+    expect(result.draftArtifactMarkdown).toBeDefined();
+    expect(result.draftArtifactMarkdown ?? "").toContain("# Analysis: alpha launch notes");
+    expect(result.draftArtifactMarkdown ?? "").toContain("## Evidence Signals");
+    expect(result.recommendedNextStep).toContain("decision");
     expect(result.sources.some((source) => source.reason === "selected excerpt")).toBe(true);
+  });
+
+  it("recognizes resource notes as stable PARA artifacts", () => {
+    const resourceNote = buildNote({
+      path: "30_Resources/launch-reference.md",
+      title: "Launch reference",
+      tags: ["resource"],
+      content: `---
+tags:
+  - resource
+---
+
+# Launch reference
+
+- Keep this as reference material.
+`,
+    });
+
+    const result = runOrganiseWorkflow(buildContext(resourceNote));
+
+    expect(resourceNote.artifactKind).toBe("resource");
+    expect(result.markdown).toContain("Recognized artifact: resource note");
+    expect(result.recommendedNextStep).toContain("next-steps");
   });
 
   it("collects pending items with traceability across project-linked notes", () => {

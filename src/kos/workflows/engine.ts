@@ -11,7 +11,20 @@ import {
 
 const NON_TERMINAL_STATUSES = new Set(["active", "draft", "pending", "in-progress", "unprocessed"]);
 const TITLE_PREFIX_PATTERN =
-  /^(analysis|decision|review|outcome|project|raw intake)\s*(?::|-)?\s*/i;
+  /^(analysis|decision|review|outcome|project|area|resource|raw intake)\s*(?::|-)?\s*/i;
+
+type KOSOrganiseDraftKind = "project" | "area" | "resource" | "analysis";
+
+interface KOSOrganiseRouteCandidate {
+  kind: KOSOrganiseDraftKind;
+  score: number;
+  reasons: string[];
+}
+
+interface KOSOrganiseSignal {
+  text: string;
+  source: KOSWorkflowSource;
+}
 
 /**
  * Convert a vault path into an Obsidian wikilink target.
@@ -266,6 +279,307 @@ export function formatTraceabilitySection(sources: KOSWorkflowSource[]): string 
 }
 
 /**
+ * Format a single intake signal with source context.
+ *
+ * @param signal - Intake signal to render
+ * @returns Markdown bullet line
+ */
+export function formatOrganiseSignal(signal: KOSOrganiseSignal): string {
+  return `- ${signal.text} | source: [[${toWorkflowLinkTarget(signal.source.path)}]]${
+    signal.source.section ? ` | section: ${signal.source.section}` : ""
+  }`;
+}
+
+/**
+ * Collect a stable list of intake signals from the target note.
+ *
+ * @param note - Note being organized
+ * @param selectedText - Optional selected excerpt
+ * @param limit - Maximum signal count
+ * @returns Intake signals with traceability
+ */
+export function collectOrganiseSignals(
+  note: KOSWorkflowNoteRecord,
+  selectedText?: string,
+  limit = 6
+): KOSOrganiseSignal[] {
+  const signals: KOSOrganiseSignal[] = [];
+
+  if (selectedText) {
+    signals.push({
+      text: shortenWorkflowText(selectedText, 120),
+      source: createWorkflowSource(note, "selected excerpt", undefined, selectedText),
+    });
+  }
+
+  note.tasks
+    .filter((task) => !task.completed)
+    .slice(0, limit)
+    .forEach((task) => {
+      signals.push({
+        text: task.text,
+        source: createWorkflowSource(note, "open task", task.section, task.text),
+      });
+    });
+
+  if (signals.length < limit) {
+    note.bullets.slice(0, limit - signals.length).forEach((bullet) => {
+      signals.push({
+        text: bullet.text,
+        source: createWorkflowSource(note, "signal", bullet.section, bullet.text),
+      });
+    });
+  }
+
+  return signals.slice(0, limit);
+}
+
+/**
+ * Build ranked route candidates for raw intake based on stable structural signals.
+ *
+ * @param note - Note being organized
+ * @param selectedText - Optional selected excerpt
+ * @returns Ranked route candidates
+ */
+export function inferOrganiseRouteCandidates(
+  note: KOSWorkflowNoteRecord,
+  selectedText?: string
+): KOSOrganiseRouteCandidate[] {
+  const openTaskCount = note.tasks.filter((task) => !task.completed).length;
+  const bulletCount = note.bullets.length;
+  const linkedCount = note.linkedPaths.length;
+  const sectionCount = note.headings.length;
+
+  const candidates: KOSOrganiseRouteCandidate[] = [];
+
+  const projectReasons: string[] = [];
+  let projectScore = 0;
+  if (openTaskCount > 0) {
+    projectScore += 6 + Math.min(openTaskCount, 3);
+    projectReasons.push(`contains ${openTaskCount} open task(s)`);
+  }
+  if (linkedCount > 0) {
+    projectScore += 1;
+    projectReasons.push(`already links to ${linkedCount} note(s)`);
+  }
+  if (sectionCount > 1) {
+    projectScore += 1;
+    projectReasons.push(`has ${sectionCount} structured section(s)`);
+  }
+  if (projectScore > 0) {
+    candidates.push({ kind: "project", score: projectScore, reasons: projectReasons });
+  }
+
+  const analysisReasons: string[] = [];
+  let analysisScore = 0;
+  if (bulletCount > 0) {
+    analysisScore += 3 + Math.min(bulletCount, 3);
+    analysisReasons.push(`captures ${bulletCount} bullet signal(s)`);
+  }
+  if (sectionCount > 1) {
+    analysisScore += 1;
+    analysisReasons.push(`has ${sectionCount} structured section(s)`);
+  }
+  if (selectedText) {
+    analysisScore += 1;
+    analysisReasons.push("includes a selected excerpt worth preserving");
+  }
+  if (analysisScore > 0) {
+    candidates.push({ kind: "analysis", score: analysisScore, reasons: analysisReasons });
+  }
+
+  const resourceReasons: string[] = [];
+  let resourceScore = 0;
+  if (openTaskCount === 0) {
+    resourceScore += 2;
+    resourceReasons.push("does not expose explicit open tasks");
+  }
+  if (bulletCount > 0) {
+    resourceScore += 2;
+    resourceReasons.push(`contains ${bulletCount} reusable reference signal(s)`);
+  }
+  if (linkedCount === 0) {
+    resourceScore += 1;
+    resourceReasons.push("is not already anchored to another artifact");
+  }
+  if (resourceScore > 0) {
+    candidates.push({ kind: "resource", score: resourceScore, reasons: resourceReasons });
+  }
+
+  const areaReasons: string[] = [];
+  let areaScore = 0;
+  if (openTaskCount > 0 && linkedCount === 0) {
+    areaScore += 2;
+    areaReasons.push("contains open maintenance work without a linked project context");
+  }
+  if (sectionCount > 1 && openTaskCount > 0) {
+    areaScore += 1;
+    areaReasons.push(`has ${sectionCount} sections that may indicate an ongoing responsibility`);
+  }
+  if (areaScore > 0) {
+    candidates.push({ kind: "area", score: areaScore, reasons: areaReasons });
+  }
+
+  if (candidates.length === 0) {
+    return [
+      {
+        kind: "resource",
+        score: 1,
+        reasons: ["preserve the intake in a stable note before promoting it further"],
+      },
+    ];
+  }
+
+  return candidates.sort((left, right) => right.score - left.score);
+}
+
+/**
+ * Convert a draft kind into a stable title prefix.
+ *
+ * @param kind - Draft artifact kind
+ * @returns Draft title prefix
+ */
+export function getOrganiseDraftTitlePrefix(kind: KOSOrganiseDraftKind): string {
+  switch (kind) {
+    case "project":
+      return "Project";
+    case "area":
+      return "Area";
+    case "resource":
+      return "Resource";
+    case "analysis":
+      return "Analysis";
+  }
+}
+
+/**
+ * Build the frontmatter `source:` lines for a stabilized draft.
+ *
+ * @param sources - Sources to serialize
+ * @returns Frontmatter source lines
+ */
+export function buildWorkflowFrontmatterSourceLines(sources: KOSWorkflowSource[]): string[] {
+  return dedupeWorkflowSources(sources).map(
+    (source) => `  - "[[${toWorkflowLinkTarget(source.path)}]]"`
+  );
+}
+
+/**
+ * Build a stabilized artifact draft from raw intake without writing silently.
+ *
+ * @param note - Source note
+ * @param kind - Draft artifact kind
+ * @param signals - Intake signals
+ * @param sources - Supporting traceability sources
+ * @returns Draft artifact markdown
+ */
+export function buildOrganiseDraftArtifact(
+  note: KOSWorkflowNoteRecord,
+  kind: KOSOrganiseDraftKind,
+  signals: KOSOrganiseSignal[],
+  sources: KOSWorkflowSource[]
+): string {
+  const topic = getWorkflowTopic(note.title);
+  const signalLines =
+    signals.length > 0
+      ? signals.map((signal) => `- ${signal.text}`)
+      : ["- No explicit intake signals were extracted from the current note."];
+  const sourceLines = buildWorkflowFrontmatterSourceLines(sources);
+
+  switch (kind) {
+    case "project":
+      return [
+        "---",
+        "tags:",
+        "  - project",
+        "status: active",
+        "source:",
+        ...sourceLines,
+        "---",
+        "",
+        `# Project: ${topic}`,
+        "",
+        "## Objective",
+        "- Clarify the concrete outcome this project should produce.",
+        "",
+        "## Intake Signals",
+        ...signalLines,
+        "",
+        "## Open Tasks",
+        ...(note.tasks.filter((task) => !task.completed).length > 0
+          ? note.tasks
+              .filter((task) => !task.completed)
+              .slice(0, 5)
+              .map((task) => `- [ ] ${task.text}`)
+          : ["- [ ] Confirm the next concrete project step."]),
+      ].join("\n");
+    case "area":
+      return [
+        "---",
+        "tags:",
+        "  - area",
+        "status: active",
+        "source:",
+        ...sourceLines,
+        "---",
+        "",
+        `# Area: ${topic}`,
+        "",
+        "## Responsibility",
+        "- Clarify the ongoing responsibility this note should stabilize.",
+        "",
+        "## Current Signals",
+        ...signalLines,
+        "",
+        "## Standing Follow-Ups",
+        "- [ ] Confirm whether any part of this should instead become a project.",
+      ].join("\n");
+    case "resource":
+      return [
+        "---",
+        "tags:",
+        "  - resource",
+        "source:",
+        ...sourceLines,
+        "---",
+        "",
+        `# Resource: ${topic}`,
+        "",
+        "## Summary",
+        "- Preserve the useful reference material from this intake in a stable note.",
+        "",
+        "## Key Signals",
+        ...signalLines,
+        "",
+        "## Source",
+        `- [[${toWorkflowLinkTarget(note.path)}]]`,
+      ].join("\n");
+    case "analysis":
+      return [
+        "---",
+        "tags:",
+        "  - analysis",
+        "  - draft",
+        "status: draft",
+        "source:",
+        ...sourceLines,
+        "---",
+        "",
+        `# Analysis: ${topic}`,
+        "",
+        "## Intake Summary",
+        "- Convert the raw material into explicit findings before making a decision.",
+        "",
+        "## Evidence Signals",
+        ...signalLines,
+        "",
+        "## Open Questions",
+        "- What should be decided, acted on, or escalated next?",
+      ].join("\n");
+  }
+}
+
+/**
  * Build a normalized workflow result object.
  *
  * @param workflowId - Workflow identifier
@@ -287,6 +601,7 @@ export function createWorkflowResult(params: {
   markdown: string;
   recommendedNextStep: string;
   sources: KOSWorkflowSource[];
+  draftArtifactMarkdown?: string;
   capabilityGap?: string;
   pendingItems?: KOSWorkflowPendingItem[];
 }): KOSWorkflowResult {
@@ -298,6 +613,7 @@ export function createWorkflowResult(params: {
     markdown: params.markdown,
     recommendedNextStep: params.recommendedNextStep,
     sources: dedupeWorkflowSources(params.sources),
+    draftArtifactMarkdown: params.draftArtifactMarkdown,
     capabilityGap: params.capabilityGap,
     pendingItems: params.pendingItems,
   };
@@ -317,6 +633,8 @@ export function getArtifactKindLabel(artifactKind: KOSArtifactKind): string {
       return "project note";
     case "area":
       return "area note";
+    case "resource":
+      return "resource note";
     case "analysis":
       return "analysis artifact";
     case "decision":
@@ -339,6 +657,8 @@ export function getArtifactKindLabel(artifactKind: KOSArtifactKind): string {
 export function runOrganiseWorkflow(context: KOSWorkflowContext): KOSWorkflowResult {
   const { targetNote, inputType, selectedText } = context;
   const sources = [createWorkflowSource(targetNote, "target note")];
+  const intakeSignals = collectOrganiseSignals(targetNote, selectedText);
+  intakeSignals.forEach((signal) => sources.push(signal.source));
 
   if (selectedText) {
     sources.push(createWorkflowSource(targetNote, "selected excerpt", undefined, selectedText));
@@ -348,15 +668,28 @@ export function runOrganiseWorkflow(context: KOSWorkflowContext): KOSWorkflowRes
   let recommendedNextStep = "";
   let status: KOSWorkflowResultStatus = "ready";
   let capabilityGap: string | undefined;
+  let routeCandidates: KOSOrganiseRouteCandidate[] = [];
+  let draftArtifactMarkdown: string | undefined;
 
   switch (targetNote.artifactKind) {
-    case "inbox":
-      proposedRouting = "Capture the intake into the correct project, area, or resource artifact.";
-      recommendedNextStep =
-        "Create or update the destination KOS note, then run `next-steps` on the stabilized artifact.";
+    case "inbox": {
+      routeCandidates = inferOrganiseRouteCandidates(targetNote, selectedText);
+      const primaryRoute = routeCandidates[0];
+      proposedRouting = `Capture the intake into a stabilized ${getArtifactKindLabel(primaryRoute.kind)}.`;
+      recommendedNextStep = `Create or update the draft ${getArtifactKindLabel(primaryRoute.kind)}, then run \`${
+        primaryRoute.kind === "analysis" ? "decision" : "next-steps"
+      }\` on the stabilized artifact.`;
+      draftArtifactMarkdown = buildOrganiseDraftArtifact(
+        targetNote,
+        primaryRoute.kind,
+        intakeSignals,
+        sources
+      );
       break;
+    }
     case "project":
     case "area":
+    case "resource":
       proposedRouting = "Route into the `next-steps` workflow.";
       recommendedNextStep =
         "Run `next-steps` to extract real pending work with traceability before editing any artifact.";
@@ -398,13 +731,33 @@ export function runOrganiseWorkflow(context: KOSWorkflowContext): KOSWorkflowRes
     `- Recognized artifact: ${getArtifactKindLabel(targetNote.artifactKind)}`,
     `- Current status: ${targetNote.status ?? "not set"}`,
     "",
+    "## Intake Signals",
+    ...(intakeSignals.length > 0
+      ? intakeSignals.map(formatOrganiseSignal)
+      : ["- No explicit tasks or bullet signals were extracted from the current note."]),
+    "",
     "## Routing",
     `- Proposed routing: ${proposedRouting}`,
     `- Recommended next step: ${recommendedNextStep}`,
   ];
 
+  if (routeCandidates.length > 0) {
+    markdownLines.push(
+      "",
+      "## Ranked Routes",
+      ...routeCandidates.map(
+        (candidate) =>
+          `- ${getArtifactKindLabel(candidate.kind)} | score: ${candidate.score} | reasons: ${candidate.reasons.join("; ")}`
+      )
+    );
+  }
+
   if (capabilityGap) {
     markdownLines.push("", "## Capability Gap", `- ${capabilityGap}`);
+  }
+
+  if (draftArtifactMarkdown) {
+    markdownLines.push("", "## Draft Stabilized Artifact", "```md", draftArtifactMarkdown, "```");
   }
 
   markdownLines.push("", formatTraceabilitySection(sources));
@@ -413,10 +766,13 @@ export function runOrganiseWorkflow(context: KOSWorkflowContext): KOSWorkflowRes
     workflowId: "organise",
     status,
     title: `Organise: ${targetNote.title}`,
-    summary: `Recognized ${getArtifactKindLabel(targetNote.artifactKind)} from the current input and prepared the next safe routing step.`,
+    summary: `Recognized ${getArtifactKindLabel(targetNote.artifactKind)} from the current input and prepared the next safe routing step${
+      draftArtifactMarkdown ? " with a stabilised draft artifact preview" : ""
+    }.`,
     markdown: markdownLines.join("\n"),
     recommendedNextStep,
     sources,
+    draftArtifactMarkdown,
     capabilityGap,
   });
 }

@@ -91,7 +91,7 @@ A good KOS2 workflow looks like this:
 4. make or update a decision when the evidence is sufficient
 5. review outcomes and feed the result back into the system
 
-In the current KOS2 plugin, this loop is already visible, but not yet fully as strong as the more mature `kos` repo contract. The strongest part today is safe routing with traceability and explicit next workflow guidance.
+In the current KOS2 plugin, this loop is already visible, but not yet fully as strong as the more mature `kos` repo contract. The strongest part today is intake analysis with traceability, ranked routes, stabilised draft previews, and explicit next workflow guidance.
 
 The goal is not more AI.
 

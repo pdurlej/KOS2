@@ -193,6 +193,9 @@ export function inferWorkflowArtifactKind(tags: string[], status?: string): KOSA
   if (tags.includes("area")) {
     return "area";
   }
+  if (tags.includes("resource")) {
+    return "resource";
+  }
   if (tags.includes("inbox") || tags.includes("raw") || status === "unprocessed") {
     return "inbox";
   }

@@ -10,6 +10,7 @@ export type KOSArtifactKind =
   | "inbox"
   | "project"
   | "area"
+  | "resource"
   | "analysis"
   | "decision"
   | "review"
@@ -113,6 +114,7 @@ export interface KOSWorkflowResult {
   markdown: string;
   recommendedNextStep: string;
   sources: KOSWorkflowSource[];
+  draftArtifactMarkdown?: string;
   pendingItems?: KOSWorkflowPendingItem[];
   capabilityGap?: string;
 }

@@ -110,7 +110,7 @@ Use one of the workflow paths:
 - `Decision` for drafting a decision from evidence
 - `Review` for outcome reflection and follow-up capture
 
-Important: today `Organise` is best understood as a safe intake routing tool, not yet a universal artifact generator. It is strong at recognizing the current artifact, keeping traceability, and pointing you to the next safe workflow step.
+Important: today `Organise` is stronger than simple routing. It extracts intake signals, ranks stable artifact routes, and previews a stabilised draft artifact without writing silently. It is still not yet a universal intake pipeline with full parity to the more mature `kos` repo contract.
 
 ## Local vs Cloud
 

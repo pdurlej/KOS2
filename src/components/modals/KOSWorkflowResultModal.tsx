@@ -45,6 +45,15 @@ export class KOSWorkflowResultModal extends Modal {
       void this.copyResultToClipboard();
     });
 
+    if (this.result.draftArtifactMarkdown) {
+      const copyDraftButton = actionRow.createEl("button", {
+        text: "Copy Draft Artifact",
+      });
+      copyDraftButton.addEventListener("click", () => {
+        void this.copyDraftArtifactToClipboard();
+      });
+    }
+
     const previewEl = contentEl.createDiv({
       cls: "markdown-rendered",
     });
@@ -79,6 +88,23 @@ export class KOSWorkflowResultModal extends Modal {
     } catch (error) {
       logError("Failed to copy KOS workflow result", error);
       new Notice("Failed to copy the workflow result.");
+    }
+  }
+
+  /**
+   * Copy only the draft artifact preview to the clipboard.
+   */
+  private async copyDraftArtifactToClipboard(): Promise<void> {
+    if (!this.result.draftArtifactMarkdown) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(this.result.draftArtifactMarkdown);
+      new Notice("KOS draft artifact copied to clipboard.");
+    } catch (error) {
+      logError("Failed to copy KOS draft artifact", error);
+      new Notice("Failed to copy the draft artifact.");
     }
   }
 }
