@@ -15,6 +15,10 @@ KOS2 starts from the `obsidian-copilot` codebase, but the product direction is d
 
 If you want the mental model behind the product, read [KOS Philosophy](docs/kos-philosophy.md).
 
+The simplest promise of KOS2 is:
+
+`point at a note -> KOS2 organises the material -> useful work artifacts appear -> later you can find them again`
+
 ## Why KOS2
 
 Most AI note tools are good at answering questions and bad at helping you run an operating system for your own work.
@@ -26,6 +30,16 @@ KOS2 is meant to feel different:
 - workflow paths for `Organise`, `Next steps`, `Decision`, and `Review`
 - semantic search for your vault when you choose to enable it
 - optional `Ollama Cloud` only for web search and web fetch flows
+
+## If You're In A Hurry
+
+1. Install KOS2 from source and enable it in Obsidian.
+2. Start local Ollama.
+3. Pull one chat model and one embedding model.
+4. Open `Settings -> KOS2 -> Setup`.
+5. Turn on `Privacy (local) Mode` if you want the default path to stay local.
+6. Open `Knowledge`, sync models, and choose a local embedding model.
+7. Use the `KOS starter` paths: `Organise`, `Next steps`, `Decision`, `Review`.
 
 ## What KOS2 Does Today
 
