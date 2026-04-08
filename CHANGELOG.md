@@ -4,7 +4,7 @@ All notable changes to KOS2 will be tracked in this file.
 
 The versioning line now follows `YY.MM.release-in-month`.
 
-## 26.4.1 - Unreleased
+## 26.4.2 - 2026-04-09
 
 ### Planned release line
 
@@ -18,6 +18,7 @@ The versioning line now follows `YY.MM.release-in-month`.
 - `KOS2 Local Agent` for default local-first operation
 - simplified desktop setup, knowledge, and workflow UX
 - updated public docs, philosophy, and repo landing assets
+- fixed release-line CI lint failure caused by invalid Tailwind accent border class names
 
 ### Release follow-up
 
