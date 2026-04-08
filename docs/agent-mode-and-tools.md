@@ -58,6 +58,8 @@ That gives you a cleaner split:
 - local model for note work
 - optional cloud only when you deliberately want web search or web fetch
 
+KOS2 can operate fully local. The cloud path exists only when you explicitly want help with current web information or web fetch flows.
+
 ## File Editing Behavior
 
 When the agent writes or edits notes, the intended path is preview-first note operations rather than silent mutation.

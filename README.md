@@ -26,7 +26,8 @@ Most AI note tools are good at answering questions and bad at helping you run an
 KOS2 is meant to feel different:
 
 - `Ollama-first` for local chat and local embeddings
-- `Privacy (local) Mode` when you want the valuable parts to stay on your machine
+- `fully local` if you want your note work, embeddings, and decisions to stay on your machine
+- `Privacy (local) Mode` when you want the valuable parts to stay on the local path by default
 - workflow paths for `Organise`, `Next steps`, `Decision`, and `Review`
 - semantic search for your vault when you choose to enable it
 - optional `Ollama Cloud` only for web search and web fetch flows
@@ -48,8 +49,32 @@ KOS2 is meant to feel different:
 - local embedding path for vault search
 - KOS starter surface in the chat UI
 - first-pass workflow commands for `organise`, `next-steps`, `decision`, and `review`
+- safe intake routing: `organise` recognizes the current artifact, preserves traceability, and recommends the next safe move instead of inventing structure
 - optional cloud web tooling through `Ollama Cloud`
 - transcript setup guidance for Supadata and local tooling preparation
+
+## Current Intake Status
+
+KOS2 is already good at `safe intake routing`.
+
+That means:
+
+- it can inspect the current note
+- recognize whether it looks like inbox, project, analysis, decision, review, or outcome material
+- preserve traceability
+- recommend the next safe workflow step
+
+What it does **not** claim yet is full parity with the stronger intake promise from the `kos` repo, where the ideal path is:
+
+`drop material -> organise -> stable work artifact`
+
+Today, KOS2 is strongest at:
+
+- safe routing
+- explicit refusal when context is too weak
+- workflow previews before mutation
+
+That is the right direction, but it is still an earlier stage than the more mature KOS repo contract.
 
 ## Product Preview
 
@@ -156,6 +181,13 @@ If you care about keeping your most valuable context local, use:
 - `Privacy (local) Mode`
 - `KOS2 Local Agent`
 - local embeddings in `Knowledge`
+
+If you want, KOS2 can run fully local:
+
+- local Ollama for chat
+- local Ollama for embeddings
+- no Ollama Cloud key configured
+- no transcript API configured
 
 ## Workflow Paths
 

@@ -10,6 +10,13 @@ The shortest happy path is:
 4. turn on `Privacy (local) Mode` if that matches how you want to work
 5. use the `KOS starter` paths instead of treating the product like a blank chatbot
 
+KOS2 can run fully local if you want:
+
+- local Ollama for chat
+- local Ollama for embeddings
+- no cloud key
+- no transcript API
+
 ## Install from source
 
 ### 1. Clone and build
@@ -102,6 +109,8 @@ Use one of the workflow paths:
 - `Next steps` for turning a note or project into pending actions
 - `Decision` for drafting a decision from evidence
 - `Review` for outcome reflection and follow-up capture
+
+Important: today `Organise` is best understood as a safe intake routing tool, not yet a universal artifact generator. It is strong at recognizing the current artifact, keeping traceability, and pointing you to the next safe workflow step.
 
 ## Local vs Cloud
 

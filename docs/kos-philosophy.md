@@ -72,6 +72,15 @@ KOS2 separates those concerns:
 
 This is why `Privacy (local) Mode` and `KOS2 Local Agent` exist. They are not just UX toggles. They express the intended operating model.
 
+KOS2 can be run fully local:
+
+- local chat
+- local embeddings
+- local vault retrieval
+- no cloud dependency unless you explicitly want web help
+
+In other words, “hybrid” is supported, but it is not forced. Local is a first-class path, not a fallback.
+
 ## What “Good” Looks Like
 
 A good KOS2 workflow looks like this:
@@ -81,6 +90,8 @@ A good KOS2 workflow looks like this:
 3. extract the next meaningful action
 4. make or update a decision when the evidence is sufficient
 5. review outcomes and feed the result back into the system
+
+In the current KOS2 plugin, this loop is already visible, but not yet fully as strong as the more mature `kos` repo contract. The strongest part today is safe routing with traceability and explicit next workflow guidance.
 
 The goal is not more AI.
 
