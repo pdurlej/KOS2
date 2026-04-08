@@ -47,10 +47,6 @@ KOS2 keeps the loop simple:
 - optional cloud web tooling through `Ollama Cloud`
 - transcript setup guidance for Supadata and local tooling preparation
 
-## Product Preview
-
-![KOS2 product screenshot](images/product-ui-screenshot.png)
-
 ## Install
 
 Right now the supported install path is from source.
