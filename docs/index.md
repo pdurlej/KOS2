@@ -17,13 +17,20 @@ This docs index is intentionally lighter than the upstream Copilot docs. Start w
 
 ## Planning And Product Docs
 
-| Document                                               | What it covers                                |
-| ------------------------------------------------------ | --------------------------------------------- |
-| [Discovery context](bmad/00-discovery-context.md)      | Initial audit and repo context                |
-| [Soft fork audit](bmad/01-soft-fork-audit.md)          | Upstream inheritance and what changed in KOS2 |
-| [PRD](bmad/10-prd-kos2.md)                             | Product intent and scope                      |
-| [Architecture](bmad/11-architecture-kos2.md)           | Technical direction and major constraints     |
-| [Epics and stories](bmad/12-epics-and-stories-kos2.md) | Roadmap decomposition                         |
+| Document                                                            | What it covers                                                   |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [PRD](bmad/10-prd-kos2.md)                                          | Product intent and scope                                         |
+| [Architecture](bmad/11-architecture-kos2.md)                        | Technical direction and major constraints                        |
+| [Epics and stories](bmad/12-epics-and-stories-kos2.md)              | Roadmap decomposition                                            |
+| [Test strategy](bmad/13-test-strategy-kos2.md)                      | Runtime, smoke, integration, and benchmark gates                 |
+| [Workflow contracts](bmad/17-workflow-contracts-kos2.md)            | Current contracts for organise, next-steps, decision, and review |
+| [Release QA checklist](bmad/18-manual-acceptance-checklist-kos2.md) | Current manual acceptance for the release line                   |
+
+## BMAD Archive
+
+| Document                               | What it covers                                       |
+| -------------------------------------- | ---------------------------------------------------- |
+| [BMAD Archive](bmad/archive/README.md) | Historical planning snapshots and early fork context |
 
 ## Legacy And Migration Docs
 

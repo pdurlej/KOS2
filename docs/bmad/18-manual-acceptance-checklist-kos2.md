@@ -1,24 +1,10 @@
-# KOS2 Manual Acceptance Checklist
+# KOS2 Release QA Checklist
 
 ## Cel
 
-To jest ręczna checklista dla `Milestone 0`, `Milestone 1` i pierwszego wdrożenia `Milestone 2`. Służy do szybkiej walidacji runtime, settings, gates i workflow surface zanim zespół przejdzie do następnych stories.
+To jest aktualna ręczna checklista dla release line KOS2. Służy do walidacji runtime, settings, workflow surface i public release quality po ostatnich poprawkach, a nie do planowania `Milestone 0/1`.
 
-## M0 Readiness
-
-- [ ] `TODO.md` istnieje i odzwierciedla bieżący stan prac.
-- [ ] `docs/bmad/15-implementation-readiness-kos2.md` zawiera aktualny status i blokery.
-- [ ] `docs/bmad/17-workflow-contracts-kos2.md` opisuje kontrakty `organise`, `next-steps`, `decision`, `review`.
-- [ ] `src/integration_tests/fixtures/kos2-vault/` zawiera:
-  - [ ] `01_Inbox`
-  - [ ] `10_Projects`
-  - [ ] `20_Areas`
-  - [ ] `30_Resources`
-  - [ ] seeded analysis/decision/outcome notes
-  - [ ] note oznaczoną `needs-review`
-- [ ] `scripts/benchmark-kos2.sh` uruchamia minimalny pomiar i wypisuje JSON.
-
-## M1 Runtime: Local-Only Path
+## Core Runtime
 
 - [ ] Plugin buduje się lokalnie.
 - [ ] Domyślny chat model wskazuje na Ollamę.
@@ -28,29 +14,46 @@ To jest ręczna checklista dla `Milestone 0`, `Milestone 1` i pierwszego wdroże
 - [ ] Brak Ollama Cloud key nie wygląda jak awaria całego runtime.
 - [ ] Główne settings i onboarding nie mówią o zakupie, subskrypcji ani renew.
 
-## M1 Runtime: Cloud-Ready Path
+## Privacy And Cloud Split
 
+- [ ] `Privacy (local) Mode` utrzymuje lokalną ścieżkę jako domyślną.
+- [ ] `KOS2 Local Agent` wskazuje wyłącznie lokalny model Ollamy.
+- [ ] UI jasno rozróżnia `Ollama Local` od `Ollama Cloud`.
 - [ ] `ollamaCloudApiKey` można zapisać w settings.
 - [ ] `OLLAMA_API_KEY` jest rozpoznawany jako alternatywne źródło.
 - [ ] macOS Keychain item `cos2-ollama-cloud` jest opisany jako fallback.
 - [ ] Web search działa po skonfigurowaniu klucza.
-- [ ] UI nadal jasno rozróżnia local runtime od optional cloud tools.
 
-## M2 Workflow Surface
+## Knowledge And Embeddings
 
-- [ ] Command palette pokazuje:
-  - [ ] `KOS Workflow: Organise current note`
-  - [ ] `KOS Workflow: Next steps from current note`
-  - [ ] `KOS Workflow: Draft decision from current note`
-  - [ ] `KOS Workflow: Draft review from current note`
+- [ ] `Knowledge` pokazuje lokalny inventory modeli po `Refresh Ollama Models`.
+- [ ] Lokalny embedding model jest widoczny i wybieralny.
+- [ ] Semantic search można włączyć z lokalnym embedding model path.
+- [ ] Brak cloud key nie blokuje lokalnych embeddingów ani local retrieval.
+
+## Workflow Surface
+
+- [ ] Command palette pokazuje cztery workflowy KOS.
 - [ ] `organise` działa na aktywnej notatce i zwraca routing + recommended next step.
-- [ ] `organise` na surowym intake nie generuje sztucznego decision/review draftu.
+- [ ] `organise` na surowym intake pokazuje intake signals.
+- [ ] `organise` na surowym intake pokazuje ranked routes, jeśli istnieje więcej niż jedna sensowna ścieżka.
+- [ ] `organise` pokazuje draft stabilizowanego artefaktu bez silent write.
+- [ ] `organise` nie generuje sztucznego decision/review draftu.
 - [ ] `next-steps` zwraca realne pending items z path traceability.
 - [ ] `decision` tworzy draft decision artifact tylko wtedy, gdy istnieje analysis/evidence context.
 - [ ] `decision` odmawia, jeśli aktywna notatka nie ma podstaw do draftu.
 - [ ] `review` tworzy draft review/outcome update tylko przy istniejącym decision/review/outcome context.
 - [ ] `review` odmawia, jeśli aktywna notatka nie ma takiego kontekstu.
-- [ ] Workflow modal pozwala skopiować wynik i nie zapisuje nic do vaulta bez jawnej akcji usera.
+- [ ] Workflow modal pozwala skopiować wynik.
+- [ ] Workflow modal pozwala skopiować draft artefaktu, jeśli workflow go zwrócił.
+- [ ] Workflow nie zapisuje nic do vaulta bez jawnej akcji usera.
+
+## Release And Public Surface
+
+- [ ] `README.md` pokazuje aktualny produkt, a nie inherited preview assets.
+- [ ] Release artifacts zawierają `main.js`, `manifest.json`, `styles.css`.
+- [ ] Social preview repo jest ustawiony.
+- [ ] Nie ma publicznych API keyów ani śledzonych `.env`.
 
 ## Commands And Evidence
 
@@ -65,4 +68,5 @@ Zalecane evidence do zapisania po walidacji:
 - wynik build/test/lint,
 - wynik smoke lokalnego,
 - wynik smoke cloud-ready, jeśli klucz był dostępny,
-- krótki opis ręcznego przejścia przez settings i onboarding.
+- krótki opis ręcznego przejścia przez setup, knowledge i onboarding,
+- potwierdzenie działania `organise` z draft artifact preview.

@@ -217,15 +217,13 @@ The cloud key is read in this order:
 
 ## Planning And Design Docs
 
-- [Discovery context](docs/bmad/00-discovery-context.md)
-- [Soft fork audit](docs/bmad/01-soft-fork-audit.md)
-- [Capability map](docs/bmad/02-capability-map.md)
-- [Planning entry](docs/bmad/03-planning-entry.md)
 - [PRD](docs/bmad/10-prd-kos2.md)
 - [Architecture](docs/bmad/11-architecture-kos2.md)
 - [Epics and stories](docs/bmad/12-epics-and-stories-kos2.md)
 - [Test strategy](docs/bmad/13-test-strategy-kos2.md)
-- [Sprint plan](docs/bmad/14-sprint-plan-kos2.md)
+- [Workflow contracts](docs/bmad/17-workflow-contracts-kos2.md)
+- [Release QA checklist](docs/bmad/18-manual-acceptance-checklist-kos2.md)
+- [BMAD archive](docs/bmad/archive/README.md)
 
 ## License And Attribution
 

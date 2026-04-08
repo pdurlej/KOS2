@@ -21,17 +21,29 @@ Ten dokument zamyka kontrakty wejścia/wyjścia dla czterech workflowów V1, tak
 
 ### Processing contract
 
-- Workflow klasyfikuje materiał na sensowny kolejny krok KOS.
+- Workflow wyciąga sygnały intake z notatki:
+  - otwarte taski,
+  - bullets,
+  - zaznaczony fragment, jeśli user go podał.
+- Workflow klasyfikuje materiał na sensowny kolejny krok KOS i może rankować kilka kandydatów trasy.
 - Jeśli obecny bootstrap nie ma capability do pełnego wykonania flow, musi nazwać `capability gap`.
-- Workflow nie generuje sztucznego `analysis`, jeśli nie ma podstaw lub parsera.
+- Workflow nie generuje sztucznego decision/review draftu bez podstaw.
+- Workflow może przygotować stabilizowany draft artefaktu do dalszej promocji, ale nie zapisuje go po cichu.
 
 ### Output contract
 
 - Wynik zawiera:
   - rozpoznany typ wejścia,
+  - intake signals,
   - proponowany routing,
+  - ranked routes, jeśli istnieje więcej niż jedna sensowna ścieżka,
   - rekomendowany następny krok,
   - źródła/ścieżki, na których routing został oparty.
+- Dla surowego intake workflow może zwrócić:
+  - draft `analysis`,
+  - draft `project`,
+  - draft `area`,
+  - draft `resource`.
 - Jeśli brak capability:
   - wynik nazywa lukę,
   - wskazuje bezpieczny następny krok,
@@ -115,4 +127,5 @@ Ten dokument zamyka kontrakty wejścia/wyjścia dla czterech workflowów V1, tak
   - traceability,
   - refusal/capability-gap behavior,
   - brak cichych zapisów,
-  - przewidywalny output contract.
+  - przewidywalny output contract,
+  - ranked routing i draft artifact preview dla `organise`.
