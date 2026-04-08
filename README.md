@@ -13,6 +13,8 @@ KOS2 starts from the `obsidian-copilot` codebase, but the product direction is d
 
 ![KOS2 screenshot](images/product-ui-screenshot.png)
 
+If you want the mental model behind the product, read [KOS Philosophy](docs/kos-philosophy.md).
+
 ## Why KOS2
 
 Most AI note tools are good at answering questions and bad at helping you run an operating system for your own work.

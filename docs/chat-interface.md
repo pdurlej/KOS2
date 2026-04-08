@@ -1,29 +1,30 @@
 # Chat Interface
 
-The Copilot chat panel is the main way you interact with AI in Obsidian. This guide covers everything about the chat UI: modes, message controls, history, settings, and advanced features like auto-compact.
+The KOS2 chat panel is the main way you interact with the plugin in Obsidian. This guide covers the current chat UI: modes, message controls, history, settings, and the workflow-oriented surfaces that matter most.
 
 ---
 
 ## Chat Modes
 
-Copilot offers four modes. You can switch between them using the mode selector at the top of the chat panel.
+KOS2 currently exposes four top-level paths. You can switch between them using the selector at the top of the chat panel.
 
 ### Chat
 
 General-purpose conversation. Good for writing, brainstorming, summarizing, or any task where you want to talk to an AI. Your currently open note and selected text are automatically included as context.
 
-### Vault QA (Basic)
+### Knowledge
 
-Ask questions about your vault content. Copilot uses lexical search (keyword matching) to find relevant notes and passes them as context to the AI. No indexing required. Good for quick questions about your notes.
+Ask questions about your vault content. KOS2 uses lexical search by default and semantic search when you enable a local embedding model and build the index.
 
-### Copilot Plus
+### KOS2 Agent
 
-The most powerful mode. Requires a [Copilot Plus](copilot-plus-and-self-host.md) license. Combines Chat and Vault QA with an autonomous agent that can:
+The workflow-heavy path. Use this when the task needs tools instead of only a direct answer:
 
 - Search your vault and the web
 - Read and edit notes
-- Remember things across conversations
-- Use a growing set of tools automatically
+- Use the available tools automatically
+
+Web and transcript capabilities still depend on explicit setup.
 
 ### Projects (alpha)
 
@@ -71,7 +72,7 @@ Each AI response has action buttons:
 
 ### Autosave
 
-By default, Copilot automatically saves your conversations as markdown files in your vault. Each saved chat appears in the `copilot/copilot-conversations/` folder.
+By default, KOS2 automatically saves your conversations as markdown files in your vault. The save path now lives under the KOS2 system root instead of the old upstream folder layout.
 
 You can turn off autosave in Settings → Basic. When you start a new chat, any unsaved conversation is saved automatically.
 
@@ -93,7 +94,7 @@ All three variables are required. You can customize the format in Settings → B
 
 ### AI-Generated Titles
 
-When **Generate AI chat title on save** is enabled (default), Copilot asks the AI to generate a short, descriptive title for the conversation when saving. When disabled, the first 10 words of your first message are used instead.
+When **Generate AI chat title on save** is enabled (default), KOS2 asks the AI to generate a short, descriptive title for the conversation when saving. When disabled, the first 10 words of your first message are used instead.
 
 ### Loading Previous Chats
 
@@ -119,7 +120,7 @@ Click the **gear icon** inside the chat panel to open per-session settings. Thes
 
 ## Token Counter
 
-Copilot shows a token count indicator at the bottom of the chat. This estimates how many tokens are being used by your current context. Useful for knowing when you're approaching context limits.
+KOS2 can show a token count indicator at the bottom of the chat. This estimates how many tokens are being used by your current context. Useful when you're approaching context limits, but it is no longer a primary UX element.
 
 ---
 
@@ -135,13 +136,13 @@ When auto-compact triggers, you'll see a "Compacting" indicator in the chat. The
 
 ## Suggested Prompts
 
-When starting a new chat, Copilot may show suggested prompts based on your active note or previous conversations. You can enable or disable this in Settings → Basic → **Show suggested prompts**.
+When starting a new chat, KOS2 may show workflow starter paths instead of generic prompt spam. You can still enable or disable the prompt surface from settings if needed.
 
 ## Relevant Notes
 
-Copilot can display a list of notes related to your currently active note in the chat panel. This helps surface notes you might want to reference without manually searching.
+KOS2 can display a list of notes related to your currently active note in the chat panel. This helps surface notes you might want to reference without manually searching.
 
-Enable in **Settings → Copilot → Basic → Relevant Notes** (on by default).
+Enable in `Settings -> KOS2 -> Setup -> Relevant Notes` if you want it visible.
 
 ## Saving a Chat Manually
 
@@ -157,7 +158,7 @@ Click the **pencil/new chat icon** to start a fresh conversation. This:
 2. Clears the chat window
 3. Resets the context to your currently active note
 
-You can also use the command palette: **New Copilot Chat**.
+You can also use the command palette: **New KOS2 Chat**.
 
 ---
 
@@ -165,5 +166,6 @@ You can also use the command palette: **New Copilot Chat**.
 
 - [Context and Mentions](context-and-mentions.md) — Control what context the AI sees
 - [System Prompts](system-prompts.md) — Customize AI behavior with system prompts
-- [Agent Mode and Tools](agent-mode-and-tools.md) — What Plus mode can do
+- [Agent Mode and Tools](agent-mode-and-tools.md) — What the KOS2 agent can do
+- [KOS Philosophy](kos-philosophy.md) — Why the product is shaped around workflow paths
 - [Projects](projects.md) — Isolated workspaces with separate histories

@@ -1,29 +1,39 @@
-# Copilot for Obsidian — Documentation
+# KOS2 Documentation
 
-Welcome to the official documentation for **Copilot for Obsidian**, an AI-powered assistant plugin that brings the power of large language models directly into your note-taking workflow.
+KOS2 is an Ollama-first Obsidian plugin built around note operations, not generic chat.
 
-## Table of Contents
+This docs index is intentionally lighter than the upstream Copilot docs. Start with the KOS2-specific material first, then only go deeper into legacy docs if you need implementation detail or migration context.
 
-| Document                                                    | What it covers                                                                  |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [Getting Started](getting-started.md)                       | Installation, first-time setup, opening the chat panel, keyboard shortcuts      |
-| [Chat Interface](chat-interface.md)                         | Chat modes, sending messages, history, settings, auto-compact                   |
-| [LLM Providers](llm-providers.md)                           | All 16+ supported providers and how to set them up                              |
-| [Models and Parameters](models-and-parameters.md)           | Chat models, embedding models, temperature, max tokens, and other parameters    |
-| [Context and Mentions](context-and-mentions.md)             | Active note context, @-mentions, URLs, tags, and the web viewer                 |
-| [Custom Commands](custom-commands.md)                       | Creating and using preset prompts, template variables, Quick Command, Quick Ask |
-| [Vault Search and Indexing](vault-search-and-indexing.md)   | Lexical search, semantic search, index management, exclusions                   |
-| [Agent Mode and Tools](agent-mode-and-tools.md)             | Autonomous agent, all 13 tools, file editing, web search                        |
-| [Projects](projects.md)                                     | Focused workspaces with isolated context, model, and chat history               |
-| [System Prompts](system-prompts.md)                         | Customizing AI behavior with built-in and custom system prompts                 |
-| [Copilot Plus and Self-Host](copilot-plus-and-self-host.md) | Copilot Plus features, memory system, self-host mode, Miyo                      |
-| [Troubleshooting and FAQ](troubleshooting-and-faq.md)       | Common errors, provider-specific issues, performance, FAQ                       |
+## Start Here
 
-## Quick Start
+| Document                                                  | What it covers                                                                             |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [Getting Started](getting-started.md)                     | Install from source, first-run Ollama setup, and the fastest path to a working local setup |
+| [KOS Philosophy](kos-philosophy.md)                       | Why KOS2 exists, how PARA fits in, and what `SI` adds on top                               |
+| [Chat Interface](chat-interface.md)                       | How the chat surface works today, including startup paths and workflow prompts             |
+| [Agent Mode and Tools](agent-mode-and-tools.md)           | What the KOS2 agent can actually do now, and what still requires explicit setup            |
+| [Vault Search and Indexing](vault-search-and-indexing.md) | Local semantic search, indexing, and how knowledge retrieval works                         |
+| [Custom Commands](custom-commands.md)                     | Reusable commands and how to shape KOS-specific prompt flows                               |
 
-1. Install Copilot from Obsidian Community Plugins
-2. Add an API key in Settings → Copilot → Basic → API Keys
-3. Open the chat panel with the robot icon in the left ribbon
-4. Start chatting!
+## Planning And Product Docs
 
-For a full walkthrough, see [Getting Started](getting-started.md).
+| Document                                               | What it covers                                |
+| ------------------------------------------------------ | --------------------------------------------- |
+| [Discovery context](bmad/00-discovery-context.md)      | Initial audit and repo context                |
+| [Soft fork audit](bmad/01-soft-fork-audit.md)          | Upstream inheritance and what changed in KOS2 |
+| [PRD](bmad/10-prd-kos2.md)                             | Product intent and scope                      |
+| [Architecture](bmad/11-architecture-kos2.md)           | Technical direction and major constraints     |
+| [Epics and stories](bmad/12-epics-and-stories-kos2.md) | Roadmap decomposition                         |
+
+## Legacy And Migration Docs
+
+These documents still exist because parts of the codebase were inherited from `obsidian-copilot`, but they should not be treated as the primary product narrative for KOS2.
+
+| Document                                                       | What it covers                                                               |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [Cloud and Legacy Integrations](copilot-plus-and-self-host.md) | What remains from the old Plus/self-host model and how it maps to KOS2 today |
+| [LLM Providers](llm-providers.md)                              | Upstream provider-oriented architecture reference                            |
+| [Models and Parameters](models-and-parameters.md)              | Detailed model and tuning notes from the broader base plugin                 |
+| [Projects](projects.md)                                        | Inherited projects/workspaces surface                                        |
+| [System Prompts](system-prompts.md)                            | System prompt management and customization                                   |
+| [Troubleshooting and FAQ](troubleshooting-and-faq.md)          | Useful implementation notes, some still written in legacy product language   |

@@ -1,190 +1,85 @@
 # Agent Mode and Tools
 
-Copilot Plus includes an **autonomous agent** that can reason step-by-step and decide which tools to use to answer your question. Instead of you specifying every step, the agent figures out what to do on its own.
+KOS2 includes an agent path for more complex note and web tasks.
 
-This feature requires a [Copilot Plus](copilot-plus-and-self-host.md) license.
+This document is intentionally lighter than the old upstream “Copilot Plus” explanation. It describes what KOS2 can do now and where setup is still required.
 
----
+## What the KOS2 Agent Is For
 
-## Overview
+Use the agent when the job is more than a single answer and needs a short workflow:
 
-When the autonomous agent is enabled, Copilot can:
+- search the vault and inspect relevant notes
+- search the web when current information matters
+- create or edit notes with previewable changes
+- combine evidence into a useful response
 
-1. Break down your request into sub-tasks
-2. Use tools to gather information (search your vault, search the web, read a note)
-3. Create or edit notes
-4. Combine results and give you a comprehensive answer
+If the task is simple, normal chat is usually enough.
 
-**Example**: Ask "What did I work on last week?" and the agent will automatically search your vault for dated notes from the past 7 days, read the relevant ones, and summarize your week.
+## What the Agent Can Use
 
----
+### Core note tools
 
-## Enabling Agent Mode
+- vault search
+- read note
+- write to file
+- edit file
 
-1. Go to **Settings → Copilot → Plus**
-2. Turn on **Enable Autonomous Agent**
+These are the tools that matter most for KOS-style note work.
 
-The agent activates automatically when you're in **Copilot Plus** mode. You don't need to do anything special — just ask your question.
+### Optional web tool
 
-### Max Iterations
+- web search
 
-The agent works in iteration cycles (think → use a tool → think → use a tool → answer). You can control the maximum number of iterations before the agent stops:
+In KOS2 this should be treated as optional. It is not the default center of gravity. Web search is most useful when the task clearly depends on current external information.
 
-- **Default**: 4 iterations
-- **Maximum**: 16 iterations
-- **Setting**: **Settings → Copilot → Plus → Autonomous Agent Max Iterations**
+### Optional transcript tool
 
-The agent also has a maximum runtime of 5 minutes per response, regardless of iteration count.
+- YouTube transcription
 
----
+This now depends on explicit setup. KOS2 surfaces transcript setup in the plugin and currently points users toward:
 
-## Available Tools
+- `Supadata` for transcript API access
+- local preparation with `yt-dlp` and `whisper`
 
-Copilot Plus has 13 built-in tools. Some are always active; others can be enabled or disabled.
+### Experimental desktop controls
 
-### Always-Enabled Tools
+Some inherited desktop or CLI-oriented tools still exist in the codebase, but they are not the primary product story and should be treated as advanced or experimental.
 
-These tools are always available and cannot be disabled:
+## Privacy And Local Defaults
 
-#### Get Current Time
+If you want the default agent path to stay local:
 
-Gets the current time in any timezone. Useful for time-aware queries like "what should I do today?"
+1. enable `Privacy (local) Mode`
+2. set the default chat model to `KOS2 Local Agent`
+3. keep embeddings on a local Ollama model
 
-#### Get Time Range
+That gives you a cleaner split:
 
-Converts natural time expressions (like "last week" or "yesterday") into exact date ranges. Usually called automatically before a time-based vault search.
+- local model for note work
+- optional cloud only when you deliberately want web search or web fetch
 
-#### Get Time Info
+## File Editing Behavior
 
-Converts an epoch timestamp to a human-readable date and time.
+When the agent writes or edits notes, the intended path is preview-first note operations rather than silent mutation.
 
-#### Convert Timezones
+Use the agent for:
 
-Converts a time from one timezone to another. Ask: "What time is 3pm EST in Tokyo?"
+- creating a note draft
+- updating an existing note
+- turning rough material into a clearer artifact
 
-#### Read Note
+Treat it as an operator with guardrails, not as an invisible background process.
 
-Reads the content of a specific note. The agent uses this to inspect a note it found via search, or that you mentioned explicitly. Works on large notes by reading them in chunks.
+## When To Use Which Mode
 
-#### File Tree
-
-Browses the file structure of your vault. The agent uses this to find folder paths before creating new notes or to count files in a folder.
-
-#### Tag List
-
-Lists all tags in your vault with usage statistics. Useful for tag reorganization or finding notes by tag patterns.
-
-#### Update Memory
-
-Saves information to your memory when you explicitly ask the AI to remember something. See [Copilot Plus and Self-Host](copilot-plus-and-self-host.md#memory-system) for details.
-
-> **Requires**: **Settings → Copilot → Plus → Reference Saved Memories** must be enabled. If this setting is off, the tool is not registered and memory commands will not work.
-
-### Configurable Tools
-
-These tools can be individually enabled or disabled in **Settings → Copilot → Plus → Tool Settings**:
-
-#### Vault Search
-
-Searches your vault notes by content. The agent uses this to find notes relevant to your question.
-
-- **Trigger**: Automatically for vault-related questions, or explicitly with `@vault`
-- **Uses**: Both semantic search (if enabled) and lexical search
-
-#### Web Search
-
-Searches the internet for current information.
-
-- **Trigger**: Automatically when your question implies web/online content, or explicitly with `@websearch` or `@web`
-- **Requires**: A web search service configured (Firecrawl or Perplexity in self-host mode, or handled by Plus)
-
-#### Write to File
-
-Creates a new note or overwrites an existing one entirely.
-
-- **Trigger**: Automatically for "create a note" requests, or explicitly with `@composer` (available in both Copilot Plus and Projects mode)
-- **Behavior**: Shows a preview of the content before writing. You can review and accept or reject the change.
-- **Auto-accept**: Enable **Settings → Copilot → Plus → Auto-accept edits** to skip the preview
-
-#### Replace in File
-
-Makes targeted changes to an existing note using search-and-replace blocks.
-
-- **Use case**: Small edits (adding a bullet, updating a section) — more precise than rewriting the whole note
-- **Behavior**: Shows a diff preview before applying the change
-- **Auto-accept**: Same setting as Write to File
-
-#### YouTube Transcription
-
-Fetches the transcript of a YouTube video.
-
-- **Trigger**: Automatically when you paste a YouTube URL in your message
-- **No extra setup needed**: Just include the URL in your message
-- **Self-host option**: Use your own Supadata API key for transcription in self-host mode
-
----
-
-## Tool Settings
-
-Go to **Settings → Copilot → Plus → Tool Settings** to:
-
-- See all available tools
-- Enable or disable individual configurable tools
-- View what each tool does
-
----
-
-## Using Tools Explicitly
-
-While the agent automatically decides when to use tools, you can also trigger them explicitly with @-mentions:
-
-```
-@vault find all notes about my reading list
-@websearch what is the latest version of Python?
-@composer create a new meeting notes template
-@memory remember that I prefer bullet points for lists
-```
-
-See [Context and Mentions](context-and-mentions.md) for the full @-mention reference.
-
----
-
-## Tool Call Indicators
-
-While the agent is working, the chat shows status indicators for each tool call:
-
-- "Reading files"
-- "Searching the web"
-- "Reading file tree"
-- "Compacting"
-
-This lets you see what the agent is doing as it works.
-
----
-
-## File Editing: Preview and Diff
-
-When the agent uses **Write to File** or **Replace in File**, it shows a preview before making changes:
-
-- **Split view**: Before/after shown side by side
-- **Side-by-side view**: Changes highlighted inline
-
-You can choose your preferred diff view in **Settings → Copilot → Plus → Diff View Mode**.
-
-Review the proposed change and click:
-
-- **Accept** — Apply the change to your note
-- **Reject** — Discard without making any changes
-- **Revert** — Undo a change that was already accepted
-
-### Auto-Accept Edits
-
-If you trust the agent and don't want to review every file change, enable **Auto-accept edits** in **Settings → Copilot → Plus**. File changes will be applied immediately without a confirmation step.
-
----
+- `Chat`: simple reasoning, rewriting, summarization, or conversation
+- `Knowledge`: when note retrieval matters and you want search-backed help
+- `KOS2 Agent`: when the request involves note work plus tools plus a small workflow
+- `Projects`: inherited workspace isolation when you need separated chat state
 
 ## Related
 
-- [Copilot Plus and Self-Host](copilot-plus-and-self-host.md) — Licensing and memory
-- [Vault Search and Indexing](vault-search-and-indexing.md) — How vault search works
-- [Context and Mentions](context-and-mentions.md) — @-mention triggers for tools
+- [Getting Started](getting-started.md)
+- [KOS Philosophy](kos-philosophy.md)
+- [Vault Search and Indexing](vault-search-and-indexing.md)
+- [Custom Commands](custom-commands.md)

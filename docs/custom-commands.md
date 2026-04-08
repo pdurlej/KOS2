@@ -22,7 +22,7 @@ A custom command is like a template prompt. You write an instruction (with optio
 
 ### From Settings
 
-1. Go to **Settings → Copilot → Command**
+1. Go to `Settings -> KOS2 -> Labs -> Commands`
 2. Click **Add new command**
 3. Fill in the fields:
    - **Name** — What the command is called (also becomes its ID)
@@ -78,7 +78,7 @@ Compare my notes on {[[Product Roadmap]]} and {[[Competitor Analysis]]} and iden
 Rewrite this in a more formal tone: {selected_text}
 ```
 
-Variable substitution must be enabled in **Settings → Copilot → Command → Enable custom prompt templating** (on by default).
+Variable substitution must be enabled in the command settings if you want templating active.
 
 ---
 
@@ -90,7 +90,7 @@ If a command has **Show in context menu** enabled:
 
 1. Select some text in a note (optional)
 2. Right-click to open the context menu
-3. Hover over **Copilot** → select your command
+3. Hover over **KOS2** → select your command
 4. The AI processes your selection or note and shows the result
 
 ### From the Command Palette
@@ -110,13 +110,13 @@ Inside the chat input, type `/` followed by the command name to run it:
 
 The command runs in the context of your current chat session and active note.
 
-> **Note**: The `@composer` mention (for AI note editing) requires Copilot Plus. In free modes, `@composer` will not be available.
+> **Note**: KOS2 is no longer framed around the old “Copilot Plus” license model. Availability of note-editing flows depends on your current tool configuration and mode.
 
 ---
 
 ## Managing Commands
 
-Go to **Settings → Copilot → Command** to manage all your custom commands:
+Go to `Settings -> KOS2 -> Labs -> Commands` to manage all your custom commands:
 
 - **Edit** — Click the edit icon next to any command
 - **Reorder** — Drag commands to change their order (affects the context menu and command list)
@@ -126,7 +126,7 @@ Go to **Settings → Copilot → Command** to manage all your custom commands:
 
 ### Custom Prompts Folder
 
-Commands are stored as markdown files in your vault. The default folder is `copilot/copilot-custom-prompts/`. You can change this in **Settings → Copilot → Basic → Custom prompts folder**.
+Commands are stored as markdown files in your vault. In KOS2 the intended default lives under the KOS2 system root rather than the old upstream prompt folder.
 
 ---
 
@@ -156,4 +156,5 @@ Quick Ask is great for things like "rephrase this sentence," "what does this ter
 
 - [Chat Interface](chat-interface.md) — Using slash commands in chat
 - [Context and Mentions](context-and-mentions.md) — How context is passed to commands
-- [Agent Mode and Tools](agent-mode-and-tools.md) — More powerful note editing with @composer
+- [Agent Mode and Tools](agent-mode-and-tools.md) — More powerful note editing and tool use
+- [KOS Philosophy](kos-philosophy.md) — Why KOS2 favors reusable operational commands over generic prompt collections
