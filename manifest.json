@@ -1,0 +1,9 @@
+{
+  "id": "kos2",
+  "name": "KOS2",
+  "version": "3.2.6",
+  "minAppVersion": "0.15.0",
+  "description": "Ollama-first Obsidian plugin for KOS workflows, local retrieval, and cloud web tools.",
+  "author": "pd",
+  "authorUrl": "https://github.com/pdurlej"
+}
