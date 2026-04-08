@@ -11,7 +11,7 @@ It is built for a simple loop:
 
 KOS2 starts from the `obsidian-copilot` codebase, but the product direction is different: local-first, workflow-first, and designed around KOS rather than a generic multi-provider chatbot.
 
-![KOS2 screenshot](images/product-ui-screenshot.png)
+![KOS2 hero](images/kos2-hero.png)
 
 If you want the mental model behind the product, read [KOS Philosophy](docs/kos-philosophy.md).
 
@@ -36,6 +36,10 @@ KOS2 is meant to feel different:
 - first-pass workflow commands for `organise`, `next-steps`, `decision`, and `review`
 - optional cloud web tooling through `Ollama Cloud`
 - transcript setup guidance for Supadata and local tooling preparation
+
+## Product Preview
+
+![KOS2 product screenshot](images/product-ui-screenshot.png)
 
 ## Install
 
