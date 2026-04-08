@@ -49,7 +49,7 @@ const ToolChip = React.forwardRef<
       {...props}
       className={cn(
         "tw-h-8 tw-rounded-full tw-border tw-border-border tw-px-3 tw-text-xs tw-font-medium tw-text-normal tw-transition-colors",
-        active && "tw-border-accent tw-text-accent tw-bg-accent/10",
+        active && "tw-border-interactive-accent tw-text-accent tw-bg-accent/10",
         className
       )}
     >

@@ -134,7 +134,7 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onClick }) =
                 key={path.title}
                 type="button"
                 onClick={() => onClick(path.prompt)}
-                className="hover:tw-border-accent tw-group tw-flex tw-min-h-[104px] tw-flex-col tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-border-border tw-p-4 tw-text-left tw-transition-colors tw-bg-secondary/20 hover:tw-bg-accent/10"
+                className="tw-group tw-flex tw-min-h-[104px] tw-flex-col tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-border-border tw-p-4 tw-text-left tw-transition-colors tw-bg-secondary/20 hover:tw-border-interactive-accent hover:tw-bg-accent/10"
               >
                 <div className="tw-flex tw-items-start tw-justify-between tw-gap-3">
                   <div className="tw-flex tw-flex-col tw-gap-1">
