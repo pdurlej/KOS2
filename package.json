@@ -22,7 +22,15 @@
     "smoke:ollama": "bash scripts/smoke-ollama.sh",
     "benchmark:kos2": "bash scripts/benchmark-kos2.sh"
   },
-  "keywords": [],
+  "keywords": [
+    "obsidian-plugin",
+    "obsidian-md",
+    "ollama",
+    "local-first",
+    "knowledge-management",
+    "pkm",
+    "productivity"
+  ],
   "author": "pd",
   "repository": {
     "type": "git",

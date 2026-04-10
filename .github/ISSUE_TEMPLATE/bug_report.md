@@ -1,28 +1,36 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a bug in KOS2
 title: ""
 labels: ""
 assignees: ""
 ---
 
-- [ ] Disable all other plugins besides Copilot **(required)**
-- [ ] Log file generated via "Copilot: Create Log File" command or Settings -> Advanced -> Create Log File **(required)**
-- [ ] Screenshot of note + Copilot chat pane + dev console added **(optional)**
+- [ ] I tested with KOS2 as the main active plugin for this flow
+- [ ] I included my KOS2 version, Obsidian version, and OS
+- [ ] I included the install path used (`BRAT`, `release assets`, or `source`)
+- [ ] I included the model used, if the issue is model-related
 
-Copilot version:
-Model used:
+**What happened**
+A clear description of the bug.
 
-(Bug reports missing the required items above will be closed)
+**How to reproduce**
+List the exact steps that trigger it.
 
-**Describe how to reproduce**
-A clear and concise description of what the bug is. Clear steps to reproduce the behavior
+**What you expected**
+A clear description of what should have happened.
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Environment**
 
-**Screenshots**
-Add screenshots to help explain your problem. Please turn on debug mode in Copilot settings, turn off other plugins to leave only Copilot dev messages as necessary.
+- OS:
+- Machine:
+- Obsidian version:
+- KOS2 version:
+- Install path:
+- Local model used:
+
+**Screenshots or console output**
+Add screenshots, relevant settings, or Obsidian dev console output if helpful.
 
 **Additional context**
-Add any other context about the problem here.
+Anything else that would help reproduce the issue.

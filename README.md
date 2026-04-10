@@ -4,190 +4,123 @@
 
 **KOS2 is a Knowledge Operating System for Obsidian. Open, local-first, built for excellence in boring work.**
 
-It helps you move from note entropy to useful work:
+![KOS2 knowledge runtime](images/kos2-knowledge-runtime.png)
 
-- organise messy intake into stabilised draft artifacts with traceability
-- extract real next steps from projects and areas
-- draft decisions from evidence
-- review outcomes and close loops
+KOS2 helps you move from note entropy to useful work:
+
+- **Organise** intake notes into stabilised draft artifacts with traceability
+- **Next steps** from projects, areas, and messy notes
+- **Decision** drafts from evidence, not vibes
+- **Review** loops that capture outcomes and missing follow-ups
 
 If you want the mental model behind the product, read [KOS Philosophy](docs/kos-philosophy.md).
 
-## Why KOS2
+## If You're In A Hurry
 
-Most AI note tools are good at answering questions and bad at helping you run an operating system for your own work.
-
-KOS2 keeps the loop simple:
-
-- `Ollama-first` for local chat and local embeddings
-- `fully local` if you want your note work, embeddings, and decisions to stay on your machine
-- `Privacy (local) Mode` when you want the valuable parts to stay on the local path by default
-- workflow paths for `Organise`, `Next steps`, `Decision`, and `Review`
-- semantic search for your vault when you choose to enable it
-- optional `Ollama Cloud` only for web search and web fetch flows
-
-## Fast Start
-
-1. Install KOS2 from source and enable it in Obsidian.
-2. Start local Ollama.
-3. Pull one chat model and one embedding model.
-4. Open `Settings -> KOS2 -> Setup`.
-5. Turn on `Privacy (local) Mode` if you want the default path to stay local.
-6. Open `Knowledge`, sync models, and choose a local embedding model.
-7. Use the `KOS starter` paths: `Organise`, `Next steps`, `Decision`, `Review`.
-
-## What KOS2 Does Today
-
-- local Ollama model discovery and sync
-- local chat with verified Ollama models
-- local embedding path for vault search
-- KOS starter surface in the chat UI
-- first-pass workflow commands for `organise`, `next-steps`, `decision`, and `review`
-- stronger intake: `organise` extracts intake signals, ranks stable routes, and previews a stabilised draft artifact before any write
-- optional cloud web tooling through `Ollama Cloud`
-- transcript setup guidance for Supadata and local tooling preparation
+1. Install KOS2 with BRAT using `pdurlej/KOS2`
+2. Start Ollama locally
+3. Pull `qwen3:8b` and `bge-m3`
+4. Turn on `Privacy (local) Mode`
+5. Run `Organise` from the KOS starter or command palette
 
 ## Install
 
-Right now the supported install path is from source.
+### Install with BRAT (recommended beta path)
 
-### 1. Clone the repo
+1. Install the `BRAT` plugin in Obsidian from Community Plugins
+2. Open the command palette and run `BRAT: Add a beta plugin for testing`
+3. Enter the GitHub repo: `pdurlej/KOS2`
+4. Install the latest release and enable `KOS2`
+
+BRAT is the easiest way to test new KOS2 releases without manually copying files.
+
+### Install from release assets
+
+1. Download the latest release from [GitHub Releases](https://github.com/pdurlej/KOS2/releases/latest)
+2. Create the plugin folder in your vault:
+
+```bash
+mkdir -p "/path/to/YourVault/.obsidian/plugins/kos2"
+```
+
+3. Copy these three files into that folder:
+
+- `main.js`
+- `manifest.json`
+- `styles.css`
+
+4. In Obsidian:
+   - open `Settings -> Community plugins`
+   - turn off `Restricted mode` if needed
+   - reload plugins or restart Obsidian
+   - enable `KOS2`
+
+### Install from source (contributors)
 
 ```bash
 git clone https://github.com/pdurlej/KOS2.git
 cd KOS2
-```
-
-### 2. Build the plugin
-
-```bash
 npm install
 npm run build
-```
-
-### 3. Copy the plugin into your Obsidian vault
-
-Replace `/path/to/YourVault` with your vault path:
-
-```bash
 mkdir -p "/path/to/YourVault/.obsidian/plugins/kos2"
 cp main.js manifest.json styles.css "/path/to/YourVault/.obsidian/plugins/kos2/"
 ```
 
-### 4. Enable it in Obsidian
+## Privacy Modes
 
-1. Open `Settings -> Community plugins`
-2. Turn off `Restricted mode` if needed
-3. Reload plugins or restart Obsidian
-4. Enable `KOS2`
+| Mode       | What stays local                                | What uses cloud                              |
+| ---------- | ----------------------------------------------- | -------------------------------------------- |
+| Local-only | Ollama chat, Ollama embeddings, vault workflows | Nothing                                      |
+| Hybrid     | Local chat, local embeddings, vault workflows   | Optional `Ollama Cloud` for web search/fetch |
 
-## First Run
+For the strongest local path, use:
 
-KOS2 is best when you start with local Ollama.
+- `Privacy (local) Mode`
+- `KOS2 Local Agent`
+- local embeddings in `Knowledge`
+- no `Ollama Cloud` key configured
 
-### Install and start Ollama
+KOS2 can run fully local if you want your notes, embeddings, and decisions to stay on your machine.
 
-See [ollama.com](https://ollama.com/) for the official installer.
+## What KOS2 Is Not
 
-If you use Homebrew on macOS:
+- not a generic chat sidebar for everything
+- not a multi-provider playground
+- not a promise of fully autonomous vault control
 
-```bash
-brew install --cask ollama
-open -a Ollama
-```
+KOS2 is most useful when you use it as a local workflow layer for note operations.
 
-### Pull at least one chat model
-
-Pick one to start:
-
-```bash
-ollama pull qwen3:8b
-```
-
-or:
-
-```bash
-ollama pull gemma3:12b
-```
-
-### Pull one embedding model
-
-```bash
-ollama pull bge-m3
-```
-
-### Then in KOS2
-
-1. Open `Settings -> KOS2 -> Setup`
-2. Confirm local Ollama is reachable
-3. Turn on `Privacy (local) Mode` if you want KOS2 to stay on the local path by default
-4. Use `KOS2 Local Agent` or pick a specific local chat model
-5. Open `Knowledge` and sync models
-6. Choose a local embedding model if you want semantic search
-
-## Recommended Local Models
+## Local Model Starting Points
 
 These are practical starting points, not hard requirements:
 
 - `Fast`: smaller Qwen or Gemma models
 - `Balanced`: `qwen3:8b`
-- `Best local quality`: larger Gemma or Qwen models if your machine can handle them
+- `Best local quality`: larger Qwen or Gemma models if your machine can handle them
 - `Embeddings`: `bge-m3`
 
-KOS2 also surfaces recommendations inside the plugin based on what is actually installed locally and what your machine looks capable of running.
+Inside the plugin, `Knowledge` surfaces recommendations based on what is actually installed and what your machine looks capable of running.
 
-## Privacy Model
+## First Local Setup
 
-KOS2 separates two paths clearly:
+Install Ollama from [ollama.com](https://ollama.com/), then run:
 
-- `Ollama Local`: chat, embeddings, and vault work that can stay on your machine
-- `Ollama Cloud`: optional helper path for web search and web fetch
+```bash
+ollama pull qwen3:8b
+ollama pull bge-m3
+```
 
-If you care about keeping your most valuable context local, use:
+Then in KOS2:
 
-- `Privacy (local) Mode`
-- `KOS2 Local Agent`
-- local embeddings in `Knowledge`
-
-If you want, KOS2 can run fully local:
-
-- local Ollama for chat
-- local Ollama for embeddings
-- no Ollama Cloud key configured
-- no transcript API configured
-
-## Workflow Paths
-
-KOS2 is most useful when you use it as an operator for a note workflow instead of a generic chat box.
-
-Current paths:
-
-- `Organise`: inspect intake, rank stable routes, and preview a cleaner artifact draft
-- `Next steps`: extract pending work from a project, area, or note
-- `Decision`: draft a decision from evidence and analysis
-- `Review`: capture what happened, what changed, and what should happen next
-
-## Intake Maturity
-
-KOS2 now does more than safe routing.
-
-Today `Organise` can:
-
-- inspect tasks, bullets, and selected excerpts from the current note
-- recognize inbox, project, area, resource, analysis, decision, review, and outcome material
-- rank candidate routes for raw intake
-- preview a stabilised draft artifact with traceability
-- avoid silent writes while still giving you something concrete to promote
-
-What it does **not** claim yet is full parity with the stronger intake contract from the separate `kos` repo, where the north star is:
-
-`drop material -> organise -> stable work artifact`
-
-KOS2 is moving in that direction, but the current plugin is still intentionally more conservative.
+1. Open `Settings -> KOS2 -> Setup`
+2. Confirm local Ollama is reachable
+3. Turn on `Privacy (local) Mode` if you want the default path to stay local
+4. Use `KOS2 Local Agent` or pick a specific local chat model
+5. Open `Knowledge`, sync models, and choose a local embedding model
 
 ## Optional Cloud And Transcripts
 
-KOS2 can use `Ollama Cloud` for web search and web fetch. This is optional.
+KOS2 uses `Ollama Cloud` only for web search and web fetch. It is optional.
 
 For YouTube transcripts, the current setup path is:
 
@@ -196,24 +129,49 @@ For YouTube transcripts, the current setup path is:
 
 Transcript UX is present in the plugin, but this is still an evolving capability rather than a fully finished media pipeline.
 
-## Local Smoke Check
+## Troubleshooting
 
-```bash
-npm run smoke:ollama
-```
+### Ollama is not running
 
-This checks:
+- Start Ollama and make sure `http://127.0.0.1:11434` is reachable
+- Confirm `ollama list` shows installed models
 
-- local Ollama model discovery
-- local chat inference
-- local embeddings
-- Ollama Cloud web search
+### No models found after sync
 
-The cloud key is read in this order:
+- Open `Settings -> KOS2 -> Knowledge`
+- Click `Refresh Ollama Models`
+- Confirm the host matches your local Ollama address
 
-1. plugin setting
-2. `OLLAMA_API_KEY`
-3. macOS Keychain item `cos2-ollama-cloud`
+### Embeddings are not showing
+
+- Make sure you actually pulled an embedding model such as `bge-m3`
+- Refresh models again in `Knowledge`
+- If chat models show up but embeddings do not, try re-pulling the model and refreshing
+
+### No cloud key configured
+
+- Local chat and local embeddings still work
+- Only web search and web fetch flows stay unavailable until `Ollama Cloud` is configured
+
+## Help Test KOS2
+
+If you try KOS2, the most useful feedback right now is:
+
+- install friction
+- model sync issues
+- whether `Organise` is genuinely useful
+- whether the privacy model matches your expectations
+
+Open an issue here: [github.com/pdurlej/KOS2/issues/new/choose](https://github.com/pdurlej/KOS2/issues/new/choose)
+
+## More Docs
+
+- [Getting Started](docs/getting-started.md)
+- [KOS Philosophy](docs/kos-philosophy.md)
+- [Chat Interface](docs/chat-interface.md)
+- [Agent Mode and Tools](docs/agent-mode-and-tools.md)
+- [Vault Search and Indexing](docs/vault-search-and-indexing.md)
+- [Troubleshooting and FAQ](docs/troubleshooting-and-faq.md)
 
 ## Planning And Design Docs
 

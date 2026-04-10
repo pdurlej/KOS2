@@ -6,14 +6,15 @@ This docs index is intentionally lighter than the upstream Copilot docs. Start w
 
 ## Start Here
 
-| Document                                                  | What it covers                                                                             |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| [Getting Started](getting-started.md)                     | Install from source, first-run Ollama setup, and the fastest path to a working local setup |
-| [KOS Philosophy](kos-philosophy.md)                       | Why KOS2 exists, how PARA fits in, and what `SI` adds on top                               |
-| [Chat Interface](chat-interface.md)                       | How the chat surface works today, including startup paths and workflow prompts             |
-| [Agent Mode and Tools](agent-mode-and-tools.md)           | What the KOS2 agent can actually do now, and what still requires explicit setup            |
-| [Vault Search and Indexing](vault-search-and-indexing.md) | Local semantic search, indexing, and how knowledge retrieval works                         |
-| [Custom Commands](custom-commands.md)                     | Reusable commands and how to shape KOS-specific prompt flows                               |
+| Document                                                  | What it covers                                                                            |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [Getting Started](getting-started.md)                     | BRAT-first install, first-run Ollama setup, and the fastest path to a working local setup |
+| [KOS Philosophy](kos-philosophy.md)                       | Why KOS2 exists, how PARA fits in, and what `SI` adds on top                              |
+| [Chat Interface](chat-interface.md)                       | How the chat surface works today, including startup paths and workflow prompts            |
+| [Agent Mode and Tools](agent-mode-and-tools.md)           | What the KOS2 agent can actually do now, and what still requires explicit setup           |
+| [Vault Search and Indexing](vault-search-and-indexing.md) | Local semantic search, indexing, and how knowledge retrieval works                        |
+| [Custom Commands](custom-commands.md)                     | Reusable commands and how to shape KOS-specific prompt flows                              |
+| [Troubleshooting and FAQ](troubleshooting-and-faq.md)     | KOS2-first fixes for local Ollama, embeddings, privacy mode, and install issues           |
 
 ## Planning And Product Docs
 
@@ -43,4 +44,3 @@ These documents still exist because parts of the codebase were inherited from `o
 | [Models and Parameters](models-and-parameters.md)              | Detailed model and tuning notes from the broader base plugin                 |
 | [Projects](projects.md)                                        | Inherited projects/workspaces surface                                        |
 | [System Prompts](system-prompts.md)                            | System prompt management and customization                                   |
-| [Troubleshooting and FAQ](troubleshooting-and-faq.md)          | Useful implementation notes, some still written in legacy product language   |
