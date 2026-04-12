@@ -18,7 +18,7 @@ export {
 } from "@/kos/workflows/engine";
 export { createWorkflowNoteRecord } from "@/kos/workflows/parser";
 export { getKOSWorkflowDefinition, KOS_WORKFLOW_REGISTRY } from "@/kos/workflows/registry";
-export { runWorkflowCommand } from "@/kos/workflows/runner";
+export { launchKOSWorkflow, runWorkflowCommand } from "@/kos/workflows/runner";
 export type {
   KOSArtifactKind,
   KOSWorkflowContext,

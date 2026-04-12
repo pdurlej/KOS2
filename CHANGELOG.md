@@ -4,6 +4,20 @@ All notable changes to KOS2 will be tracked in this file.
 
 The versioning line now follows `YY.MM.release-in-month`.
 
+## 26.4.3 - 2026-04-12
+
+### Reliability hotfix
+
+- `KOS starter` cards now launch the deterministic `organise`, `next-steps`, `decision`, and `review` workflows instead of injecting agent prompts into chat
+- starter workflows now require an active markdown note and make that requirement explicit in the UI
+- structured tool timeout classification now distinguishes `timeout` from other tool failures
+- the autonomous agent now hard-stops after `readNote` or `localSearch` time out, and returns a protective refusal instead of improvising unsupported analysis
+
+### Release focus
+
+- restore trust in `KOS starter` as a workflow surface
+- prevent hallucinated next steps or evidence summaries after vault evidence tools fail
+
 ## 26.4.2 - 2026-04-09
 
 ### Planned release line

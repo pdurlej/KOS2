@@ -3,6 +3,7 @@ import { RelevantNotes } from "@/components/chat-components/RelevantNotes";
 import { SuggestedPrompts } from "@/components/chat-components/SuggestedPrompts";
 import { USER_SENDER } from "@/constants";
 import { useChatScrolling } from "@/hooks/useChatScrolling";
+import { KOSWorkflowId } from "@/kos/workflows";
 import { useSettingsValue } from "@/settings/model";
 import { ChatMessage } from "@/types/message";
 import { App } from "obsidian";
@@ -19,7 +20,7 @@ interface ChatMessagesProps {
   onRegenerate: (messageIndex: number) => void;
   onEdit: (messageIndex: number, newMessage: string) => void;
   onDelete: (messageIndex: number) => void;
-  onReplaceChat: (prompt: string) => void;
+  onRunWorkflow: (workflowId: KOSWorkflowId) => void;
   showHelperComponents: boolean;
 }
 
@@ -34,7 +35,7 @@ const ChatMessages = memo(
     onRegenerate,
     onEdit,
     onDelete,
-    onReplaceChat,
+    onRunWorkflow,
     showHelperComponents = true,
   }: ChatMessagesProps) => {
     const [loadingDots, setLoadingDots] = useState("");
@@ -65,7 +66,7 @@ const ChatMessages = memo(
             <RelevantNotes defaultOpen={true} key="relevant-notes-before-chat" />
           )}
           {showHelperComponents && settings.showSuggestedPrompts && (
-            <SuggestedPrompts onClick={onReplaceChat} />
+            <SuggestedPrompts app={app} onRunWorkflow={onRunWorkflow} />
           )}
         </div>
       );

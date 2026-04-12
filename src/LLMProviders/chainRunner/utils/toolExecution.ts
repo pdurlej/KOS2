@@ -3,6 +3,7 @@ import { checkIsPlusUser, isSelfHostModeValid } from "@/plusUtils";
 import { getSettings } from "@/settings/model";
 import { ToolManager } from "@/tools/toolManager";
 import { ToolRegistry } from "@/tools/ToolRegistry";
+import { TimeoutError } from "@/error";
 import { err2String } from "@/utils";
 
 /**
@@ -14,6 +15,13 @@ export interface ToolCall {
   args: Record<string, unknown>;
 }
 
+export type ToolExecutionErrorType =
+  | "invalid_call"
+  | "tool_not_found"
+  | "subscription_required"
+  | "timeout"
+  | "execution_error";
+
 export interface ToolExecutionResult {
   toolName: string;
   result: string;
@@ -23,6 +31,47 @@ export interface ToolExecutionResult {
    * When absent, fallback to `result` for display purposes.
    */
   displayResult?: string;
+  /**
+   * Structured failure classification for safer agent handling.
+   */
+  errorType?: ToolExecutionErrorType;
+  /**
+   * Indicates the tool failed because it exceeded its execution timeout.
+   */
+  timedOut?: boolean;
+}
+
+const CRITICAL_EVIDENCE_TOOL_NAMES = new Set(["readNote", "localSearch"]);
+
+/**
+ * Determine whether a failed tool result represents a critical evidence timeout.
+ *
+ * @param toolName - Tool name returned by the agent loop
+ * @param result - Structured tool execution result
+ * @returns True when the timeout should hard-stop the agent
+ */
+export function isCriticalEvidenceTimeout(
+  toolName: string,
+  result: Pick<ToolExecutionResult, "success" | "timedOut">
+): boolean {
+  return !result.success && !!result.timedOut && CRITICAL_EVIDENCE_TOOL_NAMES.has(toolName);
+}
+
+/**
+ * Build the protective message shown when evidence lookup timed out.
+ *
+ * @param toolName - Tool that timed out
+ * @returns User-facing refusal copy
+ */
+export function getCriticalEvidenceTimeoutMessage(toolName: string): string {
+  const evidenceStepLabel =
+    toolName === "readNote" ? "read the active note" : "search the vault for supporting notes";
+
+  return [
+    `I couldn't ${evidenceStepLabel} because that evidence step timed out.`,
+    "I do not have a reliable note read/search result, so I will not guess the answer.",
+    "Retry once the vault is responsive, or run the dedicated KOS workflow again on the active note.",
+  ].join(" ");
 }
 
 /**
@@ -42,6 +91,7 @@ export async function executeSequentialToolCall(
         toolName: toolCall?.name || "unknown",
         result: "Error: Invalid tool call - missing tool name",
         success: false,
+        errorType: "invalid_call",
       };
     }
 
@@ -54,6 +104,7 @@ export async function executeSequentialToolCall(
         toolName: toolCall.name,
         result: `Error: Tool '${toolCall.name}' not found. Available tools: ${availableToolNames}. Make sure you have the tool enabled in the Agent settings.`,
         success: false,
+        errorType: "tool_not_found",
       };
     }
 
@@ -69,6 +120,7 @@ export async function executeSequentialToolCall(
           toolName: toolCall.name,
           result: `Error: ${getToolDisplayName(toolCall.name)} requires a Copilot Plus subscription`,
           success: false,
+          errorType: "subscription_required",
         };
       }
     }
@@ -96,10 +148,7 @@ export async function executeSequentialToolCall(
       result = await Promise.race([
         ToolManager.callTool(tool, toolArgs),
         new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error(`Tool execution timed out after ${timeout}ms`)),
-            timeout
-          )
+          setTimeout(() => reject(new TimeoutError(`Tool "${toolCall.name}"`, timeout)), timeout)
         ),
       ]);
     }
@@ -127,6 +176,7 @@ export async function executeSequentialToolCall(
     // Log actionable error with args for debugging schema mismatches
     const errorMsg = err2String(error);
     const isSchemaError = errorMsg.includes("schema");
+    const timedOut = error instanceof TimeoutError || (error as Error)?.name === "TimeoutError";
     if (isSchemaError) {
       logError(
         `[ToolCall] Schema validation failed for "${toolCall.name}". Args: ${JSON.stringify(toolCall.args, null, 2)}`
@@ -138,6 +188,8 @@ export async function executeSequentialToolCall(
       toolName: toolCall.name,
       result: `Error: ${errorMsg}`,
       success: false,
+      errorType: timedOut ? "timeout" : "execution_error",
+      timedOut,
     };
   }
 }

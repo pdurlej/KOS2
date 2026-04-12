@@ -9,12 +9,12 @@ import { Notice } from "obsidian";
 import type CopilotPlugin from "@/main";
 
 /**
- * Execute a KOS workflow from the command palette surface.
+ * Resolve context, run a deterministic KOS workflow, and open the result modal.
  *
  * @param plugin - Active plugin instance
  * @param workflowId - Workflow identifier to execute
  */
-export async function runWorkflowCommand(
+export async function launchKOSWorkflow(
   plugin: CopilotPlugin,
   workflowId: KOSWorkflowId
 ): Promise<void> {
@@ -33,4 +33,17 @@ export async function runWorkflowCommand(
     logError(`Failed to run KOS workflow ${workflow.id}`, error);
     new Notice(`Failed to run the ${workflow.label} workflow. Check the log for details.`);
   }
+}
+
+/**
+ * Execute a KOS workflow from the command palette surface.
+ *
+ * @param plugin - Active plugin instance
+ * @param workflowId - Workflow identifier to execute
+ */
+export async function runWorkflowCommand(
+  plugin: CopilotPlugin,
+  workflowId: KOSWorkflowId
+): Promise<void> {
+  await launchKOSWorkflow(plugin, workflowId);
 }

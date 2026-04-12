@@ -19,6 +19,8 @@ import { ThinkBlockStreamer } from "./utils/ThinkBlockStreamer";
 import {
   deduplicateSources,
   executeSequentialToolCall,
+  getCriticalEvidenceTimeoutMessage,
+  isCriticalEvidenceTimeout,
   logToolCall,
   logToolResult,
 } from "./utils/toolExecution";
@@ -858,6 +860,30 @@ export class AutonomousAgentChainRunner extends CopilotPlusChainRunner {
         }
 
         logToolResult(tc.name, result);
+
+        if (isCriticalEvidenceTimeout(tc.name, result)) {
+          logWarn(
+            `[Agent] Critical evidence tool "${tc.name}" timed out. Stopping to avoid unsupported synthesis.`
+          );
+
+          this.addReasoningStep("Evidence lookup timed out. Stopping to avoid guessing.", tc.name);
+          this.stopReasoningTimer();
+          this.reasoningState.status = "complete";
+
+          const reasoningBlock = this.buildReasoningBlockMarkup();
+          const finalContent = getCriticalEvidenceTimeoutMessage(tc.name);
+          const finalResponse = reasoningBlock
+            ? reasoningBlock + "\n\n" + finalContent
+            : finalContent;
+
+          updateCurrentAiMessage(finalResponse);
+
+          return {
+            finalResponse,
+            sources: collectedSources,
+            responseMetadata,
+          };
+        }
 
         // Track the executed query only on success so transient failures remain retryable.
         // A failed localSearch means no results were retrieved; the model should be able

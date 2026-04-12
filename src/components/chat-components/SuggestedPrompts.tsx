@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { KOSWorkflowId } from "@/kos/workflows";
 import { cn } from "@/lib/utils";
 import {
   getVisibleChatModels,
@@ -7,40 +8,49 @@ import {
   useSettingsValue,
 } from "@/settings/model";
 import { ArrowRight, PlusCircle, TriangleAlert } from "lucide-react";
+import { App, MarkdownView } from "obsidian";
 import React, { useMemo } from "react";
 
 interface StarterPath {
+  workflowId: KOSWorkflowId;
   title: string;
   summary: string;
-  prompt: string;
 }
 
 const STARTER_PATHS: StarterPath[] = [
   {
+    workflowId: "organise",
     title: "Organise",
     summary: "Sort a note into PARA.",
-    prompt:
-      "Organise this note using PARA and tell me what belongs in Inbox, Project, Area, or Resource.",
   },
   {
+    workflowId: "next-steps",
     title: "Next steps",
     summary: "Extract actions and blockers.",
-    prompt:
-      "Read this note and extract the real next steps, blockers, and open questions with traceability.",
   },
   {
+    workflowId: "decision",
     title: "Decision",
     summary: "Draft a decision from evidence.",
-    prompt:
-      "Draft a decision artifact from this analysis with explicit evidence, rationale, and source traceability.",
   },
   {
+    workflowId: "review",
     title: "Review",
     summary: "Close the loop on outcomes.",
-    prompt:
-      "Review this outcome and capture unresolved follow-ups, risks, and the next action to close the loop.",
   },
 ];
+
+/**
+ * Check whether the current workspace state can support deterministic KOS workflows.
+ *
+ * @param app - Obsidian app instance
+ * @returns True when an active markdown note is available
+ */
+function hasRunnableWorkflowNote(app: App): boolean {
+  const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+  const activeFile = activeView?.file ?? app.workspace.getActiveFile();
+  return typeof activeFile?.extension === "string" && activeFile.extension === "md";
+}
 
 function ReadinessBadge({
   label,
@@ -67,13 +77,15 @@ function ReadinessBadge({
 }
 
 interface SuggestedPromptsProps {
-  onClick: (text: string) => void;
+  app: App;
+  onRunWorkflow: (workflowId: KOSWorkflowId) => void;
 }
 
-export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onClick }) => {
+export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ app, onRunWorkflow }) => {
   const settings = useSettingsValue();
   const chatModels = getVisibleChatModels(settings);
   const embeddingModels = getVisibleEmbeddingModels(settings);
+  const hasActiveMarkdownNote = hasRunnableWorkflowNote(app);
 
   const readiness = useMemo(
     () => ({
@@ -123,8 +135,9 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onClick }) =
               </div>
             </div>
             <p className="tw-max-w-2xl tw-text-sm tw-leading-relaxed tw-text-muted">
-              Choose a path that matches the work. KOS2 is most useful when you ask it to organise
-              notes, extract next steps, draft decisions, or close review loops.
+              Run a deterministic workflow on the active note. KOS2 is strongest when it can
+              organise notes, extract next steps, draft decisions, or close review loops from real
+              vault context.
             </p>
           </div>
 
@@ -133,8 +146,13 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onClick }) =
               <button
                 key={path.title}
                 type="button"
-                onClick={() => onClick(path.prompt)}
-                className="tw-group tw-flex tw-min-h-[104px] tw-flex-col tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-border-border tw-p-4 tw-text-left tw-transition-colors tw-bg-secondary/20 hover:tw-border-interactive-accent hover:tw-bg-accent/10"
+                disabled={!hasActiveMarkdownNote}
+                onClick={() => onRunWorkflow(path.workflowId)}
+                className={cn(
+                  "tw-group tw-flex tw-min-h-[104px] tw-flex-col tw-justify-between tw-gap-3 tw-rounded-xl tw-border tw-border-border tw-p-4 tw-text-left tw-transition-colors tw-bg-secondary/20 hover:tw-border-interactive-accent hover:tw-bg-accent/10",
+                  !hasActiveMarkdownNote &&
+                    "tw-cursor-not-allowed tw-opacity-60 hover:tw-border-border hover:tw-bg-secondary/20"
+                )}
               >
                 <div className="tw-flex tw-items-start tw-justify-between tw-gap-3">
                   <div className="tw-flex tw-flex-col tw-gap-1">
@@ -144,7 +162,7 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onClick }) =
                   <PlusCircle className="tw-size-4 tw-shrink-0 tw-text-muted group-hover:tw-text-accent" />
                 </div>
                 <div className="tw-flex tw-items-center tw-gap-2 tw-text-xs tw-font-medium tw-text-accent">
-                  <span>Use path</span>
+                  <span>{hasActiveMarkdownNote ? "Run workflow" : "Open a note to run"}</span>
                   <ArrowRight className="tw-size-3.5" />
                 </div>
               </button>
@@ -174,6 +192,13 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onClick }) =
                 Sync local Ollama models in Settings before relying on chat. KOS2 can still help you
                 map the vault structure and prepare the workflow.
               </span>
+            </div>
+          )}
+
+          {!hasActiveMarkdownNote && (
+            <div className="tw-flex tw-items-start tw-gap-2 tw-rounded-lg tw-border tw-p-3 tw-text-sm tw-text-warning tw-bg-warning/10 tw-border-warning/50">
+              <TriangleAlert className="tw-mt-0.5 tw-size-4 tw-shrink-0" />
+              <span>Open a markdown note first. KOS workflows run on the active note context.</span>
             </div>
           )}
         </CardContent>

@@ -1,4 +1,8 @@
-import { executeSequentialToolCall } from "./toolExecution";
+import {
+  executeSequentialToolCall,
+  getCriticalEvidenceTimeoutMessage,
+  isCriticalEvidenceTimeout,
+} from "./toolExecution";
 import { createLangChainTool } from "@/tools/createLangChainTool";
 import { ToolRegistry } from "@/tools/ToolRegistry";
 import { z } from "zod";
@@ -97,6 +101,7 @@ describe("toolExecution", () => {
         toolName: "plusTool",
         result: "Error: plusTool requires a Copilot Plus subscription",
         success: false,
+        errorType: "subscription_required",
       });
       expect(mockCallTool).not.toHaveBeenCalled();
     });
@@ -143,6 +148,7 @@ describe("toolExecution", () => {
         result:
           "Error: Tool 'unknownTool' not found. Available tools: . Make sure you have the tool enabled in the Agent settings.",
         success: false,
+        errorType: "tool_not_found",
       });
     });
 
@@ -153,6 +159,7 @@ describe("toolExecution", () => {
         toolName: "unknown",
         result: "Error: Invalid tool call - missing tool name",
         success: false,
+        errorType: "invalid_call",
       });
     });
 
@@ -184,6 +191,41 @@ describe("toolExecution", () => {
 
       expect(result.success).toBe(true);
       expect(mockCallTool).toHaveBeenCalled();
+    });
+
+    it("should classify timed out tools and flag critical evidence timeouts", async () => {
+      const localSearchTool = createLangChainTool({
+        name: "localSearch",
+        description: "Local search",
+        schema: z.object({ query: z.string() }),
+        func: async () => "This should not resolve in time",
+      });
+
+      ToolRegistry.getInstance().register({
+        tool: localSearchTool,
+        metadata: {
+          id: "localSearch",
+          displayName: "Local Search",
+          description: "Search the vault",
+          category: "search",
+          timeoutMs: 1,
+        },
+      });
+
+      mockCallTool.mockImplementationOnce(() => new Promise(() => {}));
+
+      const result = await executeSequentialToolCall(
+        { name: "localSearch", args: { query: "reliability" } },
+        [localSearchTool]
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.errorType).toBe("timeout");
+      expect(result.timedOut).toBe(true);
+      expect(isCriticalEvidenceTimeout("localSearch", result)).toBe(true);
+      expect(isCriticalEvidenceTimeout("webSearch", result)).toBe(false);
+      expect(getCriticalEvidenceTimeoutMessage("localSearch")).toContain("will not guess");
+      expect(getCriticalEvidenceTimeoutMessage("readNote")).not.toContain("Let's try manually");
     });
   });
 });

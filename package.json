@@ -1,6 +1,6 @@
 {
   "name": "kos2",
-  "version": "26.4.2",
+  "version": "26.4.3",
   "description": "KOS2: Ollama-first Obsidian plugin for KOS workflows.",
   "main": "main.js",
   "scripts": {

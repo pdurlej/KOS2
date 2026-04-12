@@ -41,6 +41,7 @@ import ChainManager from "@/LLMProviders/chainManager";
 import { clearRecordedPromptPayload } from "@/LLMProviders/chainRunner/utils/promptPayloadRecorder";
 import { logFileManager } from "@/logFileManager";
 import CopilotPlugin from "@/main";
+import { KOSWorkflowId, launchKOSWorkflow } from "@/kos/workflows";
 import { useIsPlusUser } from "@/plusUtils";
 import { updateSetting, useSettingsValue } from "@/settings/model";
 import { ChatUIState } from "@/state/ChatUIState";
@@ -806,6 +807,18 @@ const ChatInternal: React.FC<ChatProps & { chatInput: ReturnType<typeof useChatI
     [plugin]
   );
 
+  /**
+   * Run a deterministic KOS workflow from the starter surface.
+   *
+   * @param workflowId - Workflow identifier selected in the starter UI
+   */
+  const handleRunKOSWorkflow = useCallback(
+    async (workflowId: KOSWorkflowId) => {
+      await launchKOSWorkflow(plugin, workflowId);
+    },
+    [plugin]
+  );
+
   // Event listener for abort stream events
   useEffect(() => {
     const handleAbortStream = (event: CustomEvent) => {
@@ -852,7 +865,7 @@ const ChatInternal: React.FC<ChatProps & { chatInput: ReturnType<typeof useChatI
           onRegenerate={handleRegenerate}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          onReplaceChat={setInputMessage}
+          onRunWorkflow={handleRunKOSWorkflow}
           showHelperComponents={selectedChain !== ChainType.PROJECT_CHAIN}
         />
         {shouldShowProgressCard() ? (
