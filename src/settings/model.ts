@@ -15,6 +15,8 @@ import {
   LEGACY_COPILOT_FOLDER_ROOT,
   SEND_SHORTCUT,
 } from "@/constants";
+import { DEFAULT_CLEANUP_FOLDER_CONFIG, normalizeCleanupFolderConfig } from "@/kos/cleanup/config";
+import { CleanupFolderConfig, CleanupLearnedRule } from "@/kos/cleanup/types";
 
 /**
  * We used to store commands in the settings file with the following interface.
@@ -206,6 +208,10 @@ export interface CopilotSettings {
   autoCompactThreshold: number;
   /** Folder where converted document markdown files are saved */
   convertedDocOutputFolder: string;
+  /** Cleanup workflow folder mapping, configurable from v2 onwards. */
+  cleanupFolderConfig: CleanupFolderConfig;
+  /** User-managed learned cleanup rules for recurring inbox routing. */
+  cleanupLearnedRules: CleanupLearnedRule[];
 }
 
 export const settingsStore = createStore();
@@ -740,6 +746,32 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
     legacyConvertedDocOutputFolder,
     DEFAULT_SETTINGS.convertedDocOutputFolder
   );
+
+  sanitizedSettings.cleanupFolderConfig = normalizeCleanupFolderConfig(
+    typeof settingsToSanitize.cleanupFolderConfig === "object" &&
+      settingsToSanitize.cleanupFolderConfig !== null
+      ? (settingsToSanitize.cleanupFolderConfig as Partial<CleanupFolderConfig>)
+      : DEFAULT_CLEANUP_FOLDER_CONFIG
+  );
+
+  sanitizedSettings.cleanupLearnedRules = Array.isArray(settingsToSanitize.cleanupLearnedRules)
+    ? settingsToSanitize.cleanupLearnedRules
+        .filter(
+          (rule): rule is CleanupLearnedRule =>
+            !!rule &&
+            typeof rule.id === "string" &&
+            typeof rule.matcherType === "string" &&
+            typeof rule.matchMode === "string" &&
+            typeof rule.pattern === "string" &&
+            typeof rule.action === "string"
+        )
+        .map((rule) => ({
+          ...rule,
+          destinationPath: rule.destinationPath?.trim() || undefined,
+          neverHardDelete: !!rule.neverHardDelete,
+          notes: rule.notes?.trim() || undefined,
+        }))
+    : DEFAULT_SETTINGS.cleanupLearnedRules;
 
   sanitizedSettings.qaExclusions = sanitizeQaExclusions(settingsToSanitize.qaExclusions);
 

@@ -1,7 +1,12 @@
 /**
  * Supported KOS workflow identifiers.
  */
-export type KOSWorkflowId = "organise" | "next-steps" | "decision" | "review";
+export type KOSWorkflowId = "organise" | "next-steps" | "decision" | "review" | "cleanup";
+
+/**
+ * KOS workflow identifiers that require an active note context.
+ */
+export type NoteScopedKOSWorkflowId = Exclude<KOSWorkflowId, "cleanup">;
 
 /**
  * Known KOS artifact kinds inferred from note metadata and structure.

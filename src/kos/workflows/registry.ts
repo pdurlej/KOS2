@@ -29,6 +29,12 @@ export const KOS_WORKFLOW_REGISTRY: Record<KOSWorkflowId, KOSWorkflowDefinition>
     summary: "Draft a review or outcome update from decision context.",
     commandId: COMMAND_IDS.KOS_REVIEW,
   },
+  cleanup: {
+    id: "cleanup",
+    label: "Cleanup Inbox",
+    summary: "Scan 01 Inbox, propose PARA routing, and execute only after approval.",
+    commandId: COMMAND_IDS.KOS_CLEANUP,
+  },
 };
 
 /**

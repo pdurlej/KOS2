@@ -160,6 +160,10 @@ export function registerCommands(
     void runWorkflowCommand(plugin, "review");
   });
 
+  addCommand(plugin, COMMAND_IDS.KOS_CLEANUP, () => {
+    void runWorkflowCommand(plugin, "cleanup");
+  });
+
   // Quick Command - opens a modal dialog for quick interactions
   // Note: For inline floating panel experience, use Quick Ask instead
   addCheckCommand(plugin, COMMAND_IDS.TRIGGER_QUICK_COMMAND, (checking: boolean) => {

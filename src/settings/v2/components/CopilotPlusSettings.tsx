@@ -17,6 +17,7 @@ import { updateSetting, useSettingsValue } from "@/settings/model";
 import { Copy, ExternalLink } from "lucide-react";
 import { Notice } from "obsidian";
 import React, { useEffect, useState } from "react";
+import { CleanupSettingsSection } from "./CleanupSettingsSection";
 import { ToolSettingsSection } from "./ToolSettingsSection";
 
 /**
@@ -144,6 +145,8 @@ export const CopilotPlusSettings: React.FC = () => {
         />
 
         {settings.enableAutonomousAgent && <ToolSettingsSection />}
+
+        <CleanupSettingsSection />
 
         <div className="tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20">
           <div className="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row sm:tw-items-start sm:tw-justify-between">

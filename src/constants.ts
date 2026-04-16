@@ -1,4 +1,5 @@
 import { CustomModel } from "@/aiParams";
+import { DEFAULT_CLEANUP_FOLDER_CONFIG } from "@/kos/cleanup/config";
 import { type CopilotSettings } from "@/settings/model";
 import { v4 as uuidv4 } from "uuid";
 import { ChainType } from "./chainFactory";
@@ -520,6 +521,7 @@ export const COMMAND_IDS = {
   KOS_NEXT_STEPS: "kos-next-steps",
   KOS_DECISION: "kos-decision",
   KOS_REVIEW: "kos-review",
+  KOS_CLEANUP: "kos-cleanup",
   TRIGGER_QUICK_COMMAND: "trigger-quick-command",
   CLEAR_LOCAL_COPILOT_INDEX: "clear-local-copilot-index",
   CLEAR_COPILOT_CACHE: "clear-copilot-cache",
@@ -552,6 +554,7 @@ export const COMMAND_NAMES: Record<CommandId, string> = {
   [COMMAND_IDS.KOS_NEXT_STEPS]: "KOS Workflow: Next steps from current note",
   [COMMAND_IDS.KOS_DECISION]: "KOS Workflow: Draft decision from current note",
   [COMMAND_IDS.KOS_REVIEW]: "KOS Workflow: Draft review from current note",
+  [COMMAND_IDS.KOS_CLEANUP]: "KOS Workflow: Cleanup 01 Inbox",
   [COMMAND_IDS.TRIGGER_QUICK_COMMAND]: "Trigger quick command",
   [COMMAND_IDS.CLEAR_LOCAL_COPILOT_INDEX]: "Clear local KOS2 index",
   [COMMAND_IDS.CLEAR_COPILOT_CACHE]: "Clear KOS2 cache",
@@ -591,6 +594,7 @@ export const COMMAND_ICONS: Partial<Record<CommandId, string>> = {
   [COMMAND_IDS.KOS_NEXT_STEPS]: "list-todo",
   [COMMAND_IDS.KOS_DECISION]: "git-branch-plus",
   [COMMAND_IDS.KOS_REVIEW]: "clipboard-check",
+  [COMMAND_IDS.KOS_CLEANUP]: "archive-restore",
   [COMMAND_IDS.NEW_CHAT]: "message-square-plus",
   [COMMAND_IDS.OPEN_COPILOT_CHAT_WINDOW]: "message-square",
   [COMMAND_IDS.TOGGLE_COPILOT_CHAT_WINDOW]: "message-square",
@@ -757,6 +761,8 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   defaultSystemPromptTitle: "",
   autoCompactThreshold: 128000,
   convertedDocOutputFolder: DEFAULT_CONVERTED_DOC_OUTPUT_FOLDER,
+  cleanupFolderConfig: DEFAULT_CLEANUP_FOLDER_CONFIG,
+  cleanupLearnedRules: [],
 };
 
 export const EVENT_NAMES = {

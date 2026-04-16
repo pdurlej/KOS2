@@ -1042,5 +1042,7 @@ export function runKOSWorkflow(
       return runDecisionWorkflow(context);
     case "review":
       return runReviewWorkflow(context);
+    case "cleanup":
+      throw new Error("Cleanup workflow is handled by the dedicated inbox cleanup runner.");
   }
 }

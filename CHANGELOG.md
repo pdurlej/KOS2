@@ -4,6 +4,26 @@ All notable changes to KOS2 will be tracked in this file.
 
 The versioning line now follows `YY.MM.release-in-month`.
 
+## 26.4.6 - 2026-04-16
+
+### Cleanup inbox workflow
+
+- added a new `cleanup` workflow and command: `KOS Workflow: Cleanup 01 Inbox`
+- cleanup now scans `01 Inbox`, discovers existing PARA destinations, groups likely duplicates, and builds a proposal-first action plan instead of mutating files silently
+- cleanup proposal runs in its own dedicated modal with per-item skip, destination override, delete-mode flip, dry-run, and grouped review sections
+
+### Safe execution model
+
+- cleanup execution now stages most removals into `40 Archive/_trash/YYYY-MM-DD` instead of hard-deleting by default
+- added preflight collision checks, shared asset detection, cleanup logs in `99 System/cleanup-logs`, and empty-folder pruning under `01 Inbox`
+- added safe markdown relative-link repair after moves for deterministic cases only; unresolved links stay warnings rather than silent rewrites
+
+### Cleanup v2 controls
+
+- added settings-backed cleanup folder mapping for inbox, projects, areas, resources, archive, and trash roots
+- added a user-managed learned-rules store for recurring cleanup routing without mutating prompts or source files
+- richer cleanup classification now reuses KOS note heuristics, HTML clipping detection, and converted PDF previews when they already exist locally
+
 ## 26.4.3 - 2026-04-12
 
 ### Reliability hotfix
