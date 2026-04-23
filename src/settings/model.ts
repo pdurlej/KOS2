@@ -125,6 +125,10 @@ export interface CopilotSettings {
   showRelevantNotes: boolean;
   /** Whether the one-time Ollama-first onboarding surface has already been shown. */
   hasSeenOllamaOnboarding: boolean;
+  /** Last manual setup check timestamp. This is diagnostic state, not runtime truth. */
+  lastKOSSetupCheckAt: number | null;
+  /** Last manual setup check summary. This is diagnostic state, not runtime truth. */
+  lastKOSSetupCheckStatus: "pass" | "warn" | "fail" | null;
   numPartitions: number;
   defaultConversationNoteName: string;
   // undefined means never checked
@@ -679,6 +683,22 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
   // Ensure onboarding visibility has a default value
   if (typeof sanitizedSettings.hasSeenOllamaOnboarding !== "boolean") {
     sanitizedSettings.hasSeenOllamaOnboarding = DEFAULT_SETTINGS.hasSeenOllamaOnboarding;
+  }
+
+  if (
+    typeof sanitizedSettings.lastKOSSetupCheckAt !== "number" &&
+    sanitizedSettings.lastKOSSetupCheckAt !== null
+  ) {
+    sanitizedSettings.lastKOSSetupCheckAt = DEFAULT_SETTINGS.lastKOSSetupCheckAt;
+  }
+
+  if (
+    sanitizedSettings.lastKOSSetupCheckStatus !== "pass" &&
+    sanitizedSettings.lastKOSSetupCheckStatus !== "warn" &&
+    sanitizedSettings.lastKOSSetupCheckStatus !== "fail" &&
+    sanitizedSettings.lastKOSSetupCheckStatus !== null
+  ) {
+    sanitizedSettings.lastKOSSetupCheckStatus = DEFAULT_SETTINGS.lastKOSSetupCheckStatus;
   }
 
   if (typeof sanitizedSettings.privacyLocalMode !== "boolean") {

@@ -20,13 +20,15 @@ import { CustomCommandChatModal } from "@/commands/CustomCommandChatModal";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { ApplyCustomCommandModal } from "@/components/modals/ApplyCustomCommandModal";
 import { YoutubeTranscriptModal } from "@/components/modals/YoutubeTranscriptModal";
+import { KOSDoctorModal } from "@/components/modals/KOSDoctorModal";
+import { buildDisableAdvancedFeaturesPatch, buildResetSetupStatePatch } from "@/kos/recovery";
 import { runWorkflowCommand } from "@/kos/workflows";
 import { checkIsPlusUser } from "@/plusUtils";
 // Debug modals removed with search v3
 import CopilotPlugin from "@/main";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
 import { getAllQAMarkdownContent } from "@/search/searchUtils";
-import { CopilotSettings } from "@/settings/model";
+import { CopilotSettings, getSettings, setSettings } from "@/settings/model";
 import { NoteSelectedTextContext, WebSelectedTextContext } from "@/types/message";
 import { ensureFolderExists, isSourceModeOn } from "@/utils";
 import { Editor, MarkdownView, Notice, TFile } from "obsidian";
@@ -83,6 +85,32 @@ export function registerCommands(
   prev: CopilotSettings | undefined,
   next: CopilotSettings
 ) {
+  /**
+   * Open the diagnostics log after flushing pending prompt payload details.
+   */
+  async function openDiagnosticsLog(): Promise<void> {
+    await flushRecordedPromptPayloadToLog();
+    await logFileManager.flush();
+    await logFileManager.openLogFile();
+  }
+
+  /**
+   * Reset only first-run readiness flags without touching API keys or model inventory.
+   */
+  function resetSetupState(): void {
+    setSettings(buildResetSetupStatePatch());
+    new Notice("KOS2 setup state reset. Existing keys and models were preserved.");
+  }
+
+  /**
+   * Disable optional advanced features while preserving local model and API key settings.
+   */
+  function disableAdvancedFeatures(): void {
+    const settings = getSettings();
+    setSettings(buildDisableAdvancedFeaturesPatch(settings));
+    new Notice("KOS2 advanced features disabled. Local models and API keys were preserved.");
+  }
+
   /**
    * Check whether a markdown note is active before enabling workflow commands.
    *
@@ -163,6 +191,18 @@ export function registerCommands(
   addCommand(plugin, COMMAND_IDS.KOS_CLEANUP, () => {
     void runWorkflowCommand(plugin, "cleanup");
   });
+
+  addCommand(plugin, COMMAND_IDS.KOS_RUN_SETUP_CHECK, () => {
+    new KOSDoctorModal(plugin.app).open();
+  });
+
+  addCommand(plugin, COMMAND_IDS.KOS_OPEN_DIAGNOSTICS_LOG, () => {
+    void openDiagnosticsLog();
+  });
+
+  addCommand(plugin, COMMAND_IDS.KOS_RESET_SETUP_STATE, resetSetupState);
+
+  addCommand(plugin, COMMAND_IDS.KOS_DISABLE_ADVANCED_FEATURES, disableAdvancedFeatures);
 
   // Quick Command - opens a modal dialog for quick interactions
   // Note: For inline floating panel experience, use Quick Ask instead

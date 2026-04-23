@@ -127,11 +127,33 @@ export const CopilotPlusSettings: React.FC = () => {
         </div>
 
         <div>
-          <div className="tw-text-xl tw-font-bold">Workflow Agent</div>
+          <div className="tw-text-xl tw-font-bold">Workflows</div>
           <div className="tw-text-sm tw-text-muted">
-            Keep this surface small and honest: only expose tools that map to the current KOS2
-            runtime and real vault work.
+            Keep the default path deterministic. The agent loop is available, but it is an advanced
+            path after the core workflows are clear.
           </div>
+        </div>
+
+        <div className="tw-grid tw-gap-3 md:tw-grid-cols-2">
+          {[
+            ["Organise", "Single-note intake into PARA."],
+            ["Next steps", "Extract actions, blockers, and open questions."],
+            ["Decision", "Draft a decision artifact from evidence."],
+            ["Review", "Close the loop on outcomes."],
+          ].map(([title, description]) => (
+            <div
+              key={title}
+              className="tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20"
+            >
+              <div className="tw-font-semibold tw-text-normal">{title}</div>
+              <div className="tw-mt-2 tw-text-sm tw-leading-relaxed tw-text-muted">
+                {description}
+              </div>
+              <Badge variant="outline" className="tw-mt-3">
+                Needs active markdown note
+              </Badge>
+            </div>
+          ))}
         </div>
 
         <SettingItem
@@ -144,7 +166,18 @@ export const CopilotPlusSettings: React.FC = () => {
           }}
         />
 
-        {settings.enableAutonomousAgent && <ToolSettingsSection />}
+        {settings.enableAutonomousAgent && (
+          <div className="tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20">
+            <details>
+              <summary className="tw-cursor-pointer tw-select-none tw-text-sm tw-font-semibold">
+                Advanced agent tools
+              </summary>
+              <div className="tw-mt-4">
+                <ToolSettingsSection />
+              </div>
+            </details>
+          </div>
+        )}
 
         <CleanupSettingsSection />
 

@@ -4,6 +4,37 @@ All notable changes to KOS2 will be tracked in this file.
 
 The versioning line now follows `YY.MM.release-in-month`.
 
+## 26.4.8 - 2026-04-24
+
+### Desktop UX simplification
+
+- made the KOS starter lead with `Organise this note` as the primary first-success action
+- added a compact readiness strip for active note, local model, privacy mode, and knowledge state
+- simplified Knowledge copy around `Installed in Ollama`, `Verified for chat`, `Verified for embeddings`, and `Recommended`
+- moved advanced model tables and agent tool controls behind expandable advanced sections
+
+### Model and workflow clarity
+
+- model recommendations now point users toward copyable pull commands and an explicit rescan
+- Workflows now presents deterministic KOS paths before advanced agent tooling
+- copy now treats embeddings and Ollama Cloud as optional follow-up capabilities instead of startup blockers
+
+## 26.4.7 - 2026-04-24
+
+### Onboarding reliability hotfix
+
+- removed automatic Ollama discovery sync from plugin startup
+- changed onboarding and settings checks to manual-first actions so KOS2 does not probe Ollama when Obsidian starts
+- added `KOS2 Doctor`, a manual setup checklist for plugin load, settings, Ollama reachability, local chat models, local embeddings, semantic indexing, cloud key state, and diagnostics logs
+
+### Recovery commands
+
+- added `KOS2: Run Setup Check`
+- added `KOS2: Open Diagnostics Log`
+- added `KOS2: Reset Setup State`
+- added `KOS2: Disable Advanced Features`
+- added diagnostic setup-check state that records the last manual setup result without becoming runtime source of truth
+
 ## 26.4.6 - 2026-04-16
 
 ### Cleanup inbox workflow

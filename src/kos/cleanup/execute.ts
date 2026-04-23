@@ -176,9 +176,7 @@ function relativePathFromFile(fromFilePath: string, toPath: string): string {
  * @param moveMap - Final source-to-destination map for files and assets.
  * @returns Planned link rewrites and warning messages.
  */
-async function planMarkdownLinkRewrites(
-  moveMap: Record<string, string>
-): Promise<{
+async function planMarkdownLinkRewrites(moveMap: Record<string, string>): Promise<{
   rewrites: Record<string, string>;
   warnings: string[];
   changes: CleanupLinkRewrite[];

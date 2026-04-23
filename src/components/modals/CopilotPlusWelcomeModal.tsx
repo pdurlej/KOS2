@@ -2,8 +2,8 @@ import { PLUS_UTM_MEDIUMS } from "@/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  fetchOllamaModelNames,
   getConfiguredOllamaBaseUrl,
-  parseOllamaTagsResponse,
 } from "@/services/ollama/ollamaModelDiscovery";
 import { updateSetting, useSettingsValue } from "@/settings/model";
 import {
@@ -17,12 +17,12 @@ import {
   pickRecommendedOllamaEmbeddingModelName,
 } from "@/plusUtils";
 import { err2String } from "@/utils";
-import { ExternalLink, Loader2 } from "lucide-react";
-import { App, Modal, requestUrl } from "obsidian";
-import React, { useEffect, useState } from "react";
+import { CheckCircle2, Circle, ExternalLink, Loader2 } from "lucide-react";
+import { App, Modal } from "obsidian";
+import React, { useState } from "react";
 import { createRoot, Root } from "react-dom/client";
 
-type OllamaRuntimeState = "checking" | "unreachable" | "empty" | "ready";
+type OllamaRuntimeState = "idle" | "checking" | "unreachable" | "empty" | "ready";
 
 interface RuntimeSnapshot {
   state: OllamaRuntimeState;
@@ -33,6 +33,7 @@ interface RuntimeSnapshot {
 function RuntimeBadge({ state }: { state: OllamaRuntimeState }) {
   const labelMap: Record<OllamaRuntimeState, string> = {
     checking: "Checking",
+    idle: "Unchecked",
     unreachable: "Unavailable",
     empty: "No models",
     ready: "Ready",
@@ -40,6 +41,7 @@ function RuntimeBadge({ state }: { state: OllamaRuntimeState }) {
 
   const classNameMap: Record<OllamaRuntimeState, string> = {
     checking: "tw-text-muted",
+    idle: "tw-text-muted",
     unreachable: "tw-text-error",
     empty: "tw-text-warning",
     ready: "tw-text-success",
@@ -64,7 +66,7 @@ function CopilotPlusWelcomeModalContent({
   const profileLabel = getOllamaMachineProfileLabel(profile);
   const ollamaBaseUrl = getConfiguredOllamaBaseUrl(settings);
   const [runtime, setRuntime] = useState<RuntimeSnapshot>({
-    state: "checking",
+    state: "idle",
     message: "",
     modelNames: [],
   });
@@ -74,69 +76,71 @@ function CopilotPlusWelcomeModalContent({
   const recommendedEmbeddingModel = pickRecommendedOllamaEmbeddingModelName(runtime.modelNames);
 
   /**
-   * Inspect the local Ollama host so onboarding can show the correct next step.
+   * Inspect local Ollama only after the user asks for a setup check.
    */
-  useEffect(() => {
-    let isMounted = true;
+  const checkLocalOllama = async () => {
+    setRuntime({
+      state: "checking",
+      message: "",
+      modelNames: [],
+    });
 
-    const checkLocalOllama = async () => {
+    try {
+      const modelNames = await fetchOllamaModelNames(ollamaBaseUrl);
+      const nextState: OllamaRuntimeState = modelNames.length > 0 ? "ready" : "empty";
+
       setRuntime({
-        state: "checking",
-        message: "",
-        modelNames: [],
+        state: nextState,
+        modelNames,
+        message:
+          nextState === "ready"
+            ? `${modelNames.length} local model(s) detected.`
+            : "Ollama is reachable, but no local models are installed yet.",
       });
-
-      try {
-        const response = await requestUrl({
-          url: `${ollamaBaseUrl}/api/tags`,
-          method: "GET",
-        });
-        const modelNames = parseOllamaTagsResponse(response.json);
-        const nextState: OllamaRuntimeState = modelNames.length > 0 ? "ready" : "empty";
-
-        if (!isMounted) {
-          return;
-        }
-
-        setRuntime({
-          state: nextState,
-          modelNames,
-          message:
-            nextState === "ready"
-              ? `${modelNames.length} local model(s) detected.`
-              : "Ollama is reachable, but no local models are installed yet.",
-        });
-      } catch (error) {
-        if (!isMounted) {
-          return;
-        }
-
-        setRuntime({
-          state: "unreachable",
-          modelNames: [],
-          message: err2String(error),
-        });
-      }
-    };
-
-    void checkLocalOllama();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [ollamaBaseUrl]);
+    } catch (error) {
+      setRuntime({
+        state: "unreachable",
+        modelNames: [],
+        message: err2String(error),
+      });
+    }
+  };
 
   return (
     <div className="tw-flex tw-flex-col tw-gap-4">
       <div className="tw-flex tw-flex-col tw-gap-2">
         <p>
-          KOS2 works best when local Ollama is the default runtime for chat, embeddings, and the
-          workflow agent.
+          KOS2 starts in a startup-safe mode. It will not probe Ollama, sync models, or build an
+          index until you ask it to.
         </p>
         <p>
-          The setup below adjusts to the real state of your machine instead of assuming specific
-          models are already installed.
+          First prove the local chat path, then add embeddings, web tools, and advanced agent
+          workflows when you need them.
         </p>
+      </div>
+
+      <div className="tw-grid tw-gap-2 sm:tw-grid-cols-4">
+        {[
+          { label: "Plugin loaded", done: true },
+          { label: "Connect Ollama", done: runtime.state === "ready" || runtime.state === "empty" },
+          { label: "Verify chat model", done: runtime.state === "ready" },
+          { label: "Run Organise", done: false },
+        ].map((step, index) => (
+          <div
+            key={step.label}
+            className="tw-rounded-md tw-border tw-border-border tw-p-3 tw-bg-secondary/20"
+          >
+            <div className="tw-flex tw-items-center tw-gap-2 tw-text-xs tw-font-medium tw-text-normal">
+              {step.done ? (
+                <CheckCircle2 className="tw-size-4 tw-text-success" />
+              ) : (
+                <Circle className="tw-size-4 tw-text-muted" />
+              )}
+              Step {index + 1}
+            </div>
+            <div className="tw-mt-2 tw-text-sm tw-text-muted">{step.label}</div>
+          </div>
+        ))}
       </div>
 
       <div className="tw-flex tw-flex-col tw-gap-3 tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20">
@@ -161,6 +165,9 @@ function CopilotPlusWelcomeModalContent({
               <Loader2 className="tw-size-4 tw-animate-spin" />
               Checking your local Ollama runtime...
             </span>
+          )}
+          {runtime.state === "idle" && (
+            <>Run a setup check when you are ready. Nothing is checked automatically on startup.</>
           )}
           {runtime.state === "unreachable" && (
             <>Ollama is not reachable. Start the app or service first, then come back to KOS2.</>
@@ -223,9 +230,17 @@ function CopilotPlusWelcomeModalContent({
         )}
       </div>
 
-      <div className="tw-flex tw-w-full tw-justify-end tw-gap-2">
+      <div className="tw-flex tw-w-full tw-flex-wrap tw-justify-end tw-gap-2">
         <Button variant="ghost" onClick={onDismiss}>
           Close for now
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => void checkLocalOllama()}
+          disabled={runtime.state === "checking"}
+        >
+          {runtime.state === "checking" ? <Loader2 className="tw-size-4 tw-animate-spin" /> : null}
+          Run setup check
         </Button>
         {runtime.state === "ready" ? (
           <Button variant="default" onClick={onApplyDefaults}>

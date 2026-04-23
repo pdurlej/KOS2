@@ -1,4 +1,6 @@
 import { ChainType } from "@/chainFactory";
+import { KOSDoctorModal } from "@/components/modals/KOSDoctorModal";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import { Input } from "@/components/ui/input";
@@ -15,7 +17,7 @@ import {
 import { PlusSettings } from "@/settings/v2/components/PlusSettings";
 import { checkModelApiKey, formatDateTime } from "@/utils";
 import { Loader2 } from "lucide-react";
-import { Notice } from "obsidian";
+import { MarkdownView, Notice } from "obsidian";
 import React, { useState } from "react";
 
 const ChainType2Label: Record<ChainType, string> = {
@@ -92,6 +94,13 @@ export const BasicSettings: React.FC = () => {
     : defaultModelActivated
       ? settings.defaultModelKey
       : "Select Model";
+  const activeMarkdownFile =
+    app.workspace.getActiveViewOfType(MarkdownView)?.file ?? app.workspace.getActiveFile();
+  const hasActiveMarkdownNote = activeMarkdownFile?.extension === "md";
+  const lastSetupCheck =
+    settings.lastKOSSetupCheckAt && settings.lastKOSSetupCheckStatus
+      ? `${settings.lastKOSSetupCheckStatus} at ${new Date(settings.lastKOSSetupCheckAt).toLocaleTimeString()}`
+      : "not run yet";
 
   /**
    * Persist the default chat model preference from the setup surface.
@@ -122,6 +131,44 @@ export const BasicSettings: React.FC = () => {
 
   return (
     <div className="tw-space-y-6">
+      <section className="tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20">
+        <div className="tw-flex tw-flex-col tw-gap-4 lg:tw-flex-row lg:tw-items-start lg:tw-justify-between">
+          <div className="tw-space-y-2">
+            <div className="tw-text-xl tw-font-bold">First success</div>
+            <div className="tw-max-w-2xl tw-text-sm tw-leading-relaxed tw-text-muted">
+              KOS2 is ready when the plugin loads, local Ollama has one verified chat model, and you
+              can run Organise on the active note. Embeddings and cloud tools can wait.
+            </div>
+            <div className="tw-flex tw-flex-wrap tw-gap-2">
+              <Badge variant="outline" className="tw-text-success">
+                Plugin loaded
+              </Badge>
+              <Badge
+                variant="outline"
+                className={enabledChatModels.length > 0 ? "tw-text-success" : "tw-text-warning"}
+              >
+                Chat models: {enabledChatModels.length}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={hasActiveMarkdownNote ? "tw-text-success" : "tw-text-warning"}
+              >
+                Active note: {hasActiveMarkdownNote ? "ready" : "needed"}
+              </Badge>
+              <Badge variant="outline">Last check: {lastSetupCheck}</Badge>
+            </div>
+          </div>
+          <div className="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row lg:tw-flex-col">
+            <Button variant="default" onClick={() => new KOSDoctorModal(app).open()}>
+              Run setup check
+            </Button>
+            <Button variant="secondary" onClick={() => setSelectedTab("knowledge")}>
+              Sync local models
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <PlusSettings />
 
       <section className="tw-space-y-4">

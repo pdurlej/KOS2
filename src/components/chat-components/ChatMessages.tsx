@@ -21,6 +21,7 @@ interface ChatMessagesProps {
   onEdit: (messageIndex: number, newMessage: string) => void;
   onDelete: (messageIndex: number) => void;
   onRunWorkflow: (workflowId: KOSWorkflowId) => void;
+  onRunSetupCheck?: () => void;
   showHelperComponents: boolean;
 }
 
@@ -36,6 +37,7 @@ const ChatMessages = memo(
     onEdit,
     onDelete,
     onRunWorkflow,
+    onRunSetupCheck,
     showHelperComponents = true,
   }: ChatMessagesProps) => {
     const [loadingDots, setLoadingDots] = useState("");
@@ -66,7 +68,11 @@ const ChatMessages = memo(
             <RelevantNotes defaultOpen={true} key="relevant-notes-before-chat" />
           )}
           {showHelperComponents && settings.showSuggestedPrompts && (
-            <SuggestedPrompts app={app} onRunWorkflow={onRunWorkflow} />
+            <SuggestedPrompts
+              app={app}
+              onRunWorkflow={onRunWorkflow}
+              onRunSetupCheck={onRunSetupCheck}
+            />
           )}
         </div>
       );

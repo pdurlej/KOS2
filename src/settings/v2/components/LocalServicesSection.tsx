@@ -102,11 +102,6 @@ export function LocalServicesSection() {
     }
   };
 
-  useEffect(() => {
-    void checkLocalOllama();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- rerun when the resolved host changes
-  }, [baseUrl, configuredBaseUrl]);
-
   /**
    * Sync the discovery-managed Ollama inventory against the configured host.
    */
@@ -209,7 +204,8 @@ export function LocalServicesSection() {
             {runtime.state === "empty" && <>Ollama is running, but no models are installed yet.</>}
             {runtime.state === "ready" && runtime.message}
             {runtime.state === "checking" && "Checking the local Ollama host..."}
-            {runtime.state === "idle" && "Checking the local Ollama host..."}
+            {runtime.state === "idle" &&
+              "Unchecked. KOS2 will not contact Ollama until you choose Check or Sync."}
           </div>
 
           {runtime.state === "unreachable" && runtime.message && (

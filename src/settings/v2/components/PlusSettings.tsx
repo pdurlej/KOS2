@@ -80,6 +80,9 @@ export function PlusSettings() {
   const recommendedEmbeddingModel = pickRecommendedOllamaEmbeddingModelName(runtime.modelNames);
   const isPrivacyLocalMode = settings.privacyLocalMode;
 
+  /**
+   * Check the local Ollama host only after the user requests it.
+   */
   const checkLocalOllama = async () => {
     setRuntime((prev) => ({
       ...prev,
@@ -111,11 +114,6 @@ export function PlusSettings() {
       });
     }
   };
-
-  useEffect(() => {
-    void checkLocalOllama();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- runtime check should rerun when the resolved host changes
-  }, [ollamaBaseUrl]);
 
   const showRecommendation = runtime.state === "empty" || runtime.state === "ready";
 
@@ -153,7 +151,7 @@ export function PlusSettings() {
             ) : (
               <RefreshCw className="tw-size-4" />
             )}
-            Refresh
+            Check
           </Button>
         </div>
       </div>
@@ -182,7 +180,8 @@ export function PlusSettings() {
           )}
           {runtime.state === "ready" && runtime.message}
           {runtime.state === "checking" && "Checking the local Ollama host..."}
-          {runtime.state === "idle" && "Checking the local Ollama host..."}
+          {runtime.state === "idle" &&
+            "Unchecked. KOS2 will not contact Ollama until you run this check."}
         </div>
 
         {runtime.message && runtime.state === "unreachable" && (

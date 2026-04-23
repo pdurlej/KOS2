@@ -128,7 +128,6 @@ export default class CopilotPlugin extends Plugin {
 
     // Initialize ProjectManager
     this.projectManager = ProjectManager.getInstance(this.app, this);
-    this.scheduleDiscoveryManagedOllamaSync("startup");
 
     // Always construct VectorStoreManager; it internally no-ops when semantic search is disabled
     this.vectorStoreManager = VectorStoreManager.getInstance();
@@ -618,7 +617,7 @@ export default class CopilotPlugin extends Plugin {
    * @param settingsSnapshot - Optional explicit settings snapshot.
    */
   private async syncDiscoveryManagedOllamaModels(
-    reason: "startup" | "settings-change",
+    reason: "settings-change",
     settingsSnapshot = getSettings()
   ): Promise<void> {
     if (this.ollamaSyncPromise) {
@@ -648,13 +647,13 @@ export default class CopilotPlugin extends Plugin {
   }
 
   /**
-   * Run Ollama inventory sync in the background so plugin startup never blocks on network probes.
+   * Run Ollama inventory sync after an explicit settings change.
    *
    * @param reason - Why the sync was triggered.
    * @param settingsSnapshot - Optional explicit settings snapshot.
    */
   private scheduleDiscoveryManagedOllamaSync(
-    reason: "startup" | "settings-change",
+    reason: "settings-change",
     settingsSnapshot = getSettings()
   ): void {
     window.setTimeout(() => {

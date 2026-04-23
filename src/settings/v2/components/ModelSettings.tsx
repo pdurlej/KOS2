@@ -34,7 +34,7 @@ import { ModelTable } from "@/settings/v2/components/ModelTable";
 import { err2String } from "@/utils";
 import { Copy, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Notice } from "obsidian";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type LocalInventoryState = "idle" | "checking" | "unreachable" | "empty" | "ready";
 
@@ -191,11 +191,6 @@ export const ModelSettings: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    void refreshLocalInventory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- rerun when the resolved Ollama host changes
-  }, [ollamaBaseUrl]);
-
   const onDeleteModel = (modelKey: string) => {
     const [modelName, provider] = modelKey.split("|");
     const updatedActiveModels = settings.activeModels.filter(
@@ -299,10 +294,10 @@ export const ModelSettings: React.FC = () => {
       <section className="tw-space-y-4">
         <div className="tw-flex tw-flex-col tw-gap-3 lg:tw-flex-row lg:tw-items-start lg:tw-justify-between">
           <div>
-            <div className="tw-text-xl tw-font-bold">Knowledge Providers & Inventory</div>
+            <div className="tw-text-xl tw-font-bold">Local Models</div>
             <div className="tw-text-sm tw-text-muted">
-              Keep local and cloud roles obvious: Ollama Local powers chat and embeddings, while
-              Ollama Cloud stays optional for web search only.
+              Track what is installed in Ollama, what KOS2 has verified, and what this machine can
+              comfortably use.
             </div>
           </div>
           <div className="tw-flex tw-flex-wrap tw-gap-2">
@@ -317,7 +312,7 @@ export const ModelSettings: React.FC = () => {
               ) : (
                 <RefreshCw className="tw-size-4" />
               )}
-              Refresh local inventory
+              Check installed models
             </Button>
             <Button
               variant="secondary"
@@ -330,7 +325,7 @@ export const ModelSettings: React.FC = () => {
               ) : (
                 <RefreshCw className="tw-size-4" />
               )}
-              Sync verified models
+              Verify KOS2 models
             </Button>
             <Button variant="ghost" onClick={navigateToOllamaLibrary} className="tw-gap-2">
               Browse Ollama Library
@@ -364,7 +359,8 @@ export const ModelSettings: React.FC = () => {
               )}
               {localInventory.state === "ready" && localInventory.message}
               {localInventory.state === "checking" && "Checking the local Ollama host..."}
-              {localInventory.state === "idle" && "Checking the local Ollama host..."}
+              {localInventory.state === "idle" &&
+                "Unchecked. KOS2 will not contact Ollama until you refresh this inventory."}
             </div>
 
             {localInventory.state === "unreachable" && localInventory.message && (
@@ -374,7 +370,7 @@ export const ModelSettings: React.FC = () => {
             <div className="tw-mt-4 tw-grid tw-gap-3 md:tw-grid-cols-3">
               <div className="tw-rounded-md tw-border tw-p-3 tw-bg-secondary/20 tw-border-border/70">
                 <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-[0.16em] tw-text-muted">
-                  All local models
+                  Installed in Ollama
                 </div>
                 <div className="tw-mt-2 tw-text-2xl tw-font-semibold tw-text-normal">
                   {localInventory.modelNames.length}
@@ -382,7 +378,7 @@ export const ModelSettings: React.FC = () => {
               </div>
               <div className="tw-rounded-md tw-border tw-p-3 tw-bg-secondary/20 tw-border-border/70">
                 <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-[0.16em] tw-text-muted">
-                  Chat ready
+                  Verified for chat
                 </div>
                 <div className="tw-mt-2 tw-text-2xl tw-font-semibold tw-text-normal">
                   {visibleChatModels.length}
@@ -390,7 +386,7 @@ export const ModelSettings: React.FC = () => {
               </div>
               <div className="tw-rounded-md tw-border tw-p-3 tw-bg-secondary/20 tw-border-border/70">
                 <div className="tw-text-[11px] tw-font-semibold tw-uppercase tw-tracking-[0.16em] tw-text-muted">
-                  Embedding ready
+                  Verified for embeddings
                 </div>
                 <div className="tw-mt-2 tw-text-2xl tw-font-semibold tw-text-normal">
                   {visibleEmbeddingModels.length}
@@ -409,7 +405,7 @@ export const ModelSettings: React.FC = () => {
               <Badge variant="outline">Recommended for {profileLabel.toLowerCase()}</Badge>
             </div>
             <div className="tw-mt-2 tw-text-sm tw-text-muted">
-              Browse the full Ollama library or copy a ready-to-run pull command from this panel.
+              Copy a ready-to-run pull command, install the model in Ollama, then rescan.
             </div>
 
             <div className="tw-mt-4 tw-space-y-3">
@@ -445,7 +441,7 @@ export const ModelSettings: React.FC = () => {
                       }
                     >
                       <Copy className="tw-size-4" />
-                      Copy
+                      Copy pull
                     </Button>
                   </div>
                   <div className="tw-mt-2 tw-font-mono tw-text-xs tw-text-normal">
@@ -575,8 +571,8 @@ export const ModelSettings: React.FC = () => {
           <div className="tw-flex tw-flex-col tw-gap-1 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between">
             <div className="tw-font-semibold tw-text-normal">All local Ollama models</div>
             <div className="tw-text-xs tw-text-muted">
-              This list comes directly from <code>/api/tags</code>. KOS2 selectors only use the
-              verified local models below.
+              This list comes directly from <code>/api/tags</code>. KOS2 selectors only use models
+              after verification.
             </div>
           </div>
 
@@ -640,26 +636,35 @@ export const ModelSettings: React.FC = () => {
             <div className="tw-mt-4 tw-rounded-md tw-border tw-border-dashed tw-border-border tw-p-4 tw-text-sm tw-text-muted">
               {localInventory.state === "unreachable"
                 ? "KOS2 cannot reach the configured Ollama host yet."
-                : "No local models detected yet. Use the pull commands above, then refresh local inventory."}
+                : "No local models detected yet. Use the pull commands above, then check installed models."}
             </div>
           )}
         </div>
 
-        <ModelTable
-          models={visibleChatModels}
-          onEdit={(model) => handleEditModel(model)}
-          onDelete={onDeleteModel}
-          onUpdateModel={handleTableUpdate}
-          title="Verified Local Chat Models"
-        />
+        <section className="tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20">
+          <details>
+            <summary className="tw-cursor-pointer tw-select-none tw-text-sm tw-font-semibold">
+              Advanced verified model tables
+            </summary>
+            <div className="tw-mt-4 tw-space-y-4">
+              <ModelTable
+                models={visibleChatModels}
+                onEdit={(model) => handleEditModel(model)}
+                onDelete={onDeleteModel}
+                onUpdateModel={handleTableUpdate}
+                title="Verified Local Chat Models"
+              />
 
-        <ModelTable
-          models={visibleEmbeddingModels}
-          onEdit={(model) => handleEditModel(model, true)}
-          onDelete={onDeleteEmbeddingModel}
-          onUpdateModel={handleEmbeddingModelUpdate}
-          title="Local Embedding Models for KOS2"
-        />
+              <ModelTable
+                models={visibleEmbeddingModels}
+                onEdit={(model) => handleEditModel(model, true)}
+                onDelete={onDeleteEmbeddingModel}
+                onUpdateModel={handleEmbeddingModelUpdate}
+                title="Local Embedding Models for KOS2"
+              />
+            </div>
+          </details>
+        </section>
       </section>
 
       <section className="tw-rounded-lg tw-border tw-border-border tw-p-4 tw-bg-secondary/20">

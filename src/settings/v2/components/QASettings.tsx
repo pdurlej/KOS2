@@ -111,10 +111,7 @@ export const QASettings: React.FC = () => {
                   updateSetting("enableMiyo", false);
                 }
                 if (checked && !isMiyoSearchActive) {
-                  const VectorStoreManager = (await import("@/search/vectorStoreManager")).default;
-                  await VectorStoreManager.getInstance().indexVaultToVectorStore(false, {
-                    userInitiated: true,
-                  });
+                  new Notice("Semantic search enabled. Use Build Index when you are ready.");
                 }
               },
               checked

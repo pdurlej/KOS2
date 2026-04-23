@@ -20,6 +20,7 @@ import type { WebTabContext } from "@/types/message";
 import { ChatControls, reloadCurrentProject } from "@/components/chat-components/ChatControls";
 import ChatInput from "@/components/chat-components/ChatInput";
 import ChatMessages from "@/components/chat-components/ChatMessages";
+import { KOSDoctorModal } from "@/components/modals/KOSDoctorModal";
 import { NewVersionBanner } from "@/components/chat-components/NewVersionBanner";
 import { ProjectList } from "@/components/chat-components/ProjectList";
 import IndexingProgressCard from "@/components/IndexingProgressCard";
@@ -819,6 +820,13 @@ const ChatInternal: React.FC<ChatProps & { chatInput: ReturnType<typeof useChatI
     [plugin]
   );
 
+  /**
+   * Open the setup doctor from the starter surface.
+   */
+  const handleRunSetupCheck = useCallback(() => {
+    new KOSDoctorModal(plugin.app).open();
+  }, [plugin.app]);
+
   // Event listener for abort stream events
   useEffect(() => {
     const handleAbortStream = (event: CustomEvent) => {
@@ -866,6 +874,7 @@ const ChatInternal: React.FC<ChatProps & { chatInput: ReturnType<typeof useChatI
           onEdit={handleEdit}
           onDelete={handleDelete}
           onRunWorkflow={handleRunKOSWorkflow}
+          onRunSetupCheck={handleRunSetupCheck}
           showHelperComponents={selectedChain !== ChainType.PROJECT_CHAIN}
         />
         {shouldShowProgressCard() ? (

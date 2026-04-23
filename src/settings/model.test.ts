@@ -254,6 +254,30 @@ describe("sanitizeSettings - privacy and local agent defaults", () => {
   });
 });
 
+describe("sanitizeSettings - setup doctor state", () => {
+  it("falls back to default values for invalid setup doctor state", () => {
+    const sanitized = sanitizeSettings({
+      ...DEFAULT_SETTINGS,
+      lastKOSSetupCheckAt: "yesterday" as any,
+      lastKOSSetupCheckStatus: "unknown" as any,
+    });
+
+    expect(sanitized.lastKOSSetupCheckAt).toBeNull();
+    expect(sanitized.lastKOSSetupCheckStatus).toBeNull();
+  });
+
+  it("preserves valid setup doctor state", () => {
+    const sanitized = sanitizeSettings({
+      ...DEFAULT_SETTINGS,
+      lastKOSSetupCheckAt: 123,
+      lastKOSSetupCheckStatus: "warn",
+    });
+
+    expect(sanitized.lastKOSSetupCheckAt).toBe(123);
+    expect(sanitized.lastKOSSetupCheckStatus).toBe("warn");
+  });
+});
+
 describe("setSettings - KOS2 local agent default model", () => {
   beforeEach(() => {
     resetSettings();
