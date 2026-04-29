@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write  # required to create GitHub releases and tags
+      contents: write # required to create GitHub releases and tags
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,7 +48,7 @@ jobs:
       # ── Step 2: Checkout the merge commit on master ─────────────────────────
       - name: Checkout
         if: steps.semver.outputs.is_release == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Pin to the exact merge commit SHA so concurrent PRs merging to
           # master don't cause this workflow to build the wrong code.
@@ -70,7 +70,7 @@ jobs:
       # ── Step 4: Set up Node.js ───────────────────────────────────────────────
       - name: Setup Node.js 22.x
         if: steps.semver.outputs.is_release == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.x
           cache: npm
