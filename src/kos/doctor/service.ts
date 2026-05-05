@@ -18,6 +18,55 @@ interface RunKOSDoctorOptions {
 }
 
 /**
+ * Normalize an Ollama model name for readiness comparisons.
+ *
+ * @param modelName - Model name from settings or `/api/tags`.
+ * @returns Trimmed model name.
+ */
+function normalizeOllamaModelName(modelName: string): string {
+  return modelName.trim();
+}
+
+/**
+ * Return equivalent local Ollama names for readiness checks.
+ *
+ * Ollama often treats an omitted tag as `:latest`, while `/api/tags` returns the explicit tag.
+ *
+ * @param modelName - Model name from settings.
+ * @returns Candidate names that can refer to the same local model.
+ */
+function getOllamaModelNameCandidates(modelName: string): string[] {
+  const normalizedName = normalizeOllamaModelName(modelName);
+
+  if (!normalizedName) {
+    return [];
+  }
+
+  if (normalizedName.includes(":")) {
+    return [normalizedName];
+  }
+
+  return [normalizedName, `${normalizedName}:latest`];
+}
+
+/**
+ * Check whether a configured Ollama model is still installed locally.
+ *
+ * @param modelName - Configured model name.
+ * @param installedModelNames - Names returned by local Ollama `/api/tags`.
+ * @returns True when the configured model is present in the local inventory.
+ */
+function isInstalledOllamaModel(
+  modelName: string,
+  installedModelNames: readonly string[]
+): boolean {
+  const installedNameSet = new Set(installedModelNames.map(normalizeOllamaModelName));
+  return getOllamaModelNameCandidates(modelName).some((candidate) =>
+    installedNameSet.has(candidate)
+  );
+}
+
+/**
  * Summarize individual doctor checks into a single status.
  *
  * @param checks - Doctor checks to summarize.
@@ -59,6 +108,18 @@ export async function runKOSDoctor(options: RunKOSDoctorOptions = {}): Promise<K
   }
 
   const ollamaReachable = !ollamaError;
+  const verifiedInstalledChatModels = ollamaReachable
+    ? visibleChatModels.filter((model) => isInstalledOllamaModel(model.name, installedModelNames))
+    : [];
+  const verifiedInstalledEmbeddingModels = ollamaReachable
+    ? visibleEmbeddingModels.filter((model) =>
+        isInstalledOllamaModel(model.name, installedModelNames)
+      )
+    : [];
+  const staleChatModelCount = visibleChatModels.length - verifiedInstalledChatModels.length;
+  const staleEmbeddingModelCount =
+    visibleEmbeddingModels.length - verifiedInstalledEmbeddingModels.length;
+
   const checks: KOSDoctorCheck[] = [
     {
       id: "plugin-loaded",
@@ -93,42 +154,56 @@ export async function runKOSDoctor(options: RunKOSDoctorOptions = {}): Promise<K
     {
       id: "local-chat-model",
       label: "Local chat model",
-      status: visibleChatModels.length > 0 ? "pass" : "fail",
+      status: verifiedInstalledChatModels.length > 0 ? "pass" : "fail",
       severity: "required",
-      message:
-        visibleChatModels.length > 0
-          ? `${visibleChatModels.length} verified local chat model(s) ready.`
-          : "No verified local chat model is selected yet. Chat and first workflows need one local model.",
+      message: !ollamaReachable
+        ? "Local chat model cannot be verified because local Ollama is unreachable."
+        : verifiedInstalledChatModels.length > 0
+          ? staleChatModelCount > 0
+            ? `${verifiedInstalledChatModels.length} local chat model(s) ready. ${staleChatModelCount} saved model(s) are no longer installed; sync models to clean them up.`
+            : `${verifiedInstalledChatModels.length} local chat model(s) ready.`
+          : visibleChatModels.length > 0
+            ? "Saved chat model(s) are not installed in local Ollama anymore. Sync models or pull a local chat model before running KOS2 workflows."
+            : "No verified local chat model is selected yet. Chat and first workflows need one local model.",
       action:
-        visibleChatModels.length > 0
+        verifiedInstalledChatModels.length > 0
           ? { label: "No action needed", type: "none" }
-          : { label: "Open models", type: "open-settings", targetTab: "knowledge" },
+          : ollamaReachable
+            ? { label: "Sync models", type: "sync-models", targetTab: "knowledge" }
+            : { label: "Retry", type: "retry" },
     },
     {
       id: "local-embedding-model",
       label: "Local embedding model",
-      status: visibleEmbeddingModels.length > 0 ? "pass" : "warn",
+      status: verifiedInstalledEmbeddingModels.length > 0 ? "pass" : "warn",
       severity: "recommended",
-      message:
-        visibleEmbeddingModels.length > 0
-          ? `${visibleEmbeddingModels.length} verified local embedding model(s) ready.`
-          : "No local embedding model is verified. Chat and Organise still work; semantic search waits.",
+      message: !ollamaReachable
+        ? "Local embedding model cannot be verified because local Ollama is unreachable. Chat setup is checked first."
+        : verifiedInstalledEmbeddingModels.length > 0
+          ? staleEmbeddingModelCount > 0
+            ? `${verifiedInstalledEmbeddingModels.length} local embedding model(s) ready. ${staleEmbeddingModelCount} saved embedding model(s) are no longer installed; sync models to clean them up.`
+            : `${verifiedInstalledEmbeddingModels.length} local embedding model(s) ready.`
+          : visibleEmbeddingModels.length > 0
+            ? "Saved embedding model(s) are not installed in local Ollama anymore. Chat still works; semantic search needs a synced local embedding model."
+            : "No local embedding model is verified. Chat and Organise still work; semantic search waits.",
       action:
-        visibleEmbeddingModels.length > 0
+        verifiedInstalledEmbeddingModels.length > 0
           ? { label: "No action needed", type: "none" }
-          : { label: "Open models", type: "open-settings", targetTab: "knowledge" },
+          : ollamaReachable
+            ? { label: "Sync models", type: "sync-models", targetTab: "knowledge" }
+            : { label: "Retry", type: "retry" },
     },
     {
       id: "semantic-index",
       label: "Semantic index",
       status: settings.enableSemanticSearchV3
-        ? visibleEmbeddingModels.length > 0
+        ? verifiedInstalledEmbeddingModels.length > 0
           ? "warn"
           : "fail"
         : "skipped",
       severity: "recommended",
       message: settings.enableSemanticSearchV3
-        ? visibleEmbeddingModels.length > 0
+        ? verifiedInstalledEmbeddingModels.length > 0
           ? "Semantic search is enabled. Rebuild the index after model or vault changes."
           : "Semantic search is enabled, but no local embedding model is ready."
         : "Semantic search is off. KOS2 will use lexical search until you build an index.",
