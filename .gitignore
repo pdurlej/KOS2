@@ -31,3 +31,7 @@ data.json
 
 # Development session tracking
 TODO.md
+
+# Local scratch / generation output
+output/
+output/**
