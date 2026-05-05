@@ -1,0 +1,24 @@
+# Codex Claim: Coordination Setup
+
+- Agent: Codex
+- Branch: codex/cleanup-reliability-hotfix
+- Started: 2026-05-06 01:10 Europe/Warsaw
+- Status: ready-for-review
+- Owned paths:
+  - AGENTS.md
+  - CLAUDE.md
+  - docs/agent-collaboration.md
+  - docs/agent-claims/\*\*
+- Non-owned paths to avoid:
+  - src/\*\*
+  - package.json
+  - package-lock.json
+- Current intent:
+  - Add a repo-level multi-agent collaboration policy.
+  - Add a low-conflict claim-file convention for Codex and Claude Code.
+- Verification plan:
+  - Inspect Markdown diff.
+  - No runtime tests needed for docs-only coordination changes.
+- Handoff:
+  - Claude should read `docs/agent-collaboration.md` before making changes.
+  - Claude should create its own `docs/agent-claims/claude-<scope>.md` before editing.

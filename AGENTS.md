@@ -2,6 +2,19 @@
 
 This file provides guidance to any coding agent when working with code in this repository.
 
+## Multi-Agent Coordination
+
+This repo may be edited by more than one agent at the same time. Before making changes, read [`docs/agent-collaboration.md`](./docs/agent-collaboration.md).
+
+Required workflow:
+
+- Check `git status --short` and `git branch --show-current`.
+- Work on a scoped branch, not directly on `main`, unless the user explicitly asks otherwise.
+- Create a work claim under `docs/agent-claims/` before editing.
+- Do not edit another active agent's claimed files without explicit coordination.
+- Keep commits scoped; do not mix runtime, docs, dependency, and release changes in one broad commit.
+- Never force-push or revert another agent's work without explicit user approval.
+
 ## Overview
 
 Copilot for Obsidian is an AI-powered assistant plugin that integrates various LLM providers (OpenAI, Anthropic, Google, etc.) with Obsidian. It provides chat interfaces, autocomplete, semantic search, and various AI-powered commands for note-taking and knowledge management.
