@@ -39,7 +39,6 @@ import { MissingApiKeyError, MissingPlusLicenseError } from "@/error";
 import { Notice } from "obsidian";
 import { ChatOpenRouter } from "./ChatOpenRouter";
 import { ChatLMStudio } from "./ChatLMStudio";
-import { BedrockChatModel, type BedrockChatModelFields } from "./BedrockChatModel";
 import { GitHubCopilotChatModel } from "@/LLMProviders/githubCopilot/GitHubCopilotChatModel";
 
 // Patch BaseLanguageModel.prototype.getNumTokens once at module load to prevent
@@ -77,7 +76,6 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.COPILOT_PLUS]: ChatOpenRouter,
   [ChatModelProviders.MISTRAL]: ChatMistralAI,
   [ChatModelProviders.DEEPSEEK]: ChatDeepSeek,
-  [ChatModelProviders.AMAZON_BEDROCK]: BedrockChatModel,
   [ChatModelProviders.GITHUB_COPILOT]: GitHubCopilotChatModel,
 } as const;
 
@@ -141,7 +139,6 @@ export default class ChatModelManager {
     [ChatModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
     [ChatModelProviders.MISTRAL]: () => getSettings().mistralApiKey,
     [ChatModelProviders.DEEPSEEK]: () => getSettings().deepseekApiKey,
-    [ChatModelProviders.AMAZON_BEDROCK]: () => getSettings().amazonBedrockApiKey,
     [ChatModelProviders.SILICONFLOW]: () => getSettings().siliconflowApiKey,
     [ChatModelProviders.GITHUB_COPILOT]: () =>
       getSettings().githubCopilotToken || getSettings().githubCopilotAccessToken,
@@ -418,7 +415,6 @@ export default class ChatModelManager {
           fetch: customModel.enableCors ? safeFetch : undefined,
         },
       },
-      [ChatModelProviders.AMAZON_BEDROCK]: {} as BedrockChatModelFields,
       [ChatModelProviders.GITHUB_COPILOT]: {
         modelName: modelName,
         // Use safeFetchNoThrow for CORS bypass on mobile platforms.
@@ -431,18 +427,8 @@ export default class ChatModelManager {
       },
     };
 
-    let selectedProviderConfig =
+    const selectedProviderConfig =
       providerConfig[customModel.provider as keyof typeof providerConfig] || {};
-
-    if (customModel.provider === ChatModelProviders.AMAZON_BEDROCK) {
-      selectedProviderConfig = await this.buildBedrockConfig(
-        customModel,
-        modelName,
-        settings,
-        maxTokens,
-        resolvedTemperature
-      );
-    }
 
     // Get provider-specific parameters (like topP, frequencyPenalty) that the provider supports
     const providerSpecificParams = this.getProviderSpecificParams(
@@ -515,63 +501,6 @@ export default class ChatModelManager {
     }
 
     return config;
-  }
-
-  /**
-   * Builds configuration for Amazon Bedrock models by merging custom overrides with global defaults.
-   * @param customModel - The model definition provided by the user.
-   * @param modelName - The resolved Bedrock model identifier to invoke.
-   * @param settings - Current Copilot settings.
-   * @param maxTokens - Maximum completion tokens requested for the invocation.
-   * @param temperature - Optional temperature override for the invocation.
-   */
-  private async buildBedrockConfig(
-    customModel: CustomModel,
-    modelName: string,
-    settings: CopilotSettings,
-    maxTokens: number,
-    temperature: number | undefined
-  ): Promise<BedrockChatModelFields> {
-    const apiKeySource = customModel.apiKey || settings.amazonBedrockApiKey;
-    if (!apiKeySource) {
-      throw new Error(
-        "Amazon Bedrock API key is not configured. Provide a key in Settings > API Keys or the model definition."
-      );
-    }
-
-    const apiKey = await getDecryptedKey(apiKeySource);
-
-    const explicitRegion = customModel.bedrockRegion?.trim();
-    const settingsRegion = settings.amazonBedrockRegion?.trim();
-    const resolvedRegion = explicitRegion || settingsRegion || "us-east-1";
-    const baseUrlInput = customModel.baseUrl?.trim();
-    const baseUrl = baseUrlInput ? baseUrlInput.replace(/\/+$/, "") : undefined;
-    const endpointBase = baseUrl || `https://bedrock-runtime.${resolvedRegion}.amazonaws.com`;
-
-    const encodedModel = encodeURIComponent(modelName);
-    const endpoint = `${endpointBase}/model/${encodedModel}/invoke`;
-    const streamEndpoint = `${endpointBase}/model/${encodedModel}/invoke-with-response-stream`;
-    const fetchImplementation = customModel.enableCors ? safeFetch : undefined;
-    // Inference profiles prefix Anthropic identifiers (e.g. global.anthropic.*), so look for the segment anywhere.
-    const requiresAnthropicVersion = /(^|\.)anthropic\./.test(modelName);
-    const anthropicVersion = requiresAnthropicVersion ? "bedrock-2023-05-31" : undefined;
-    // Only enable thinking mode if user has explicitly enabled REASONING capability
-    const enableThinking = customModel.capabilities?.includes(ModelCapability.REASONING) ?? false;
-
-    return {
-      modelName,
-      modelId: modelName,
-      apiKey,
-      endpoint,
-      streamEndpoint,
-      defaultMaxTokens: maxTokens,
-      defaultTemperature: temperature,
-      defaultTopP: customModel.topP,
-      anthropicVersion,
-      enableThinking,
-      fetchImplementation,
-      streaming: customModel.stream ?? true,
-    };
   }
 
   /**
@@ -659,13 +588,6 @@ export default class ChatModelManager {
    * @returns True when the provider requirements are satisfied, otherwise false.
    */
   private hasProviderCredentials(model: CustomModel): boolean {
-    if (model.provider === ChatModelProviders.AMAZON_BEDROCK) {
-      const settings = getSettings();
-      const apiKey = model.apiKey || settings.amazonBedrockApiKey;
-      // Region defaults to us-east-1 if not specified, so API key is the only requirement
-      return Boolean(apiKey);
-    }
-
     const getDefaultApiKey = this.providerApiKeyMap[model.provider as ChatModelProviders];
     if (!getDefaultApiKey) {
       return Boolean(model.apiKey);

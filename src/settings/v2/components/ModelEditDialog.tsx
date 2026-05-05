@@ -44,7 +44,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
   const [originalModel, setOriginalModel] = useState<CustomModel>(model);
   const [providerInfo, setProviderInfo] = useState<ProviderMetadata>({} as ProviderMetadata);
   const settings = getSettings();
-  const isBedrockProvider = localModel.provider === ChatModelProviders.AMAZON_BEDROCK;
 
   useEffect(() => {
     setLocalModel(model);
@@ -177,20 +176,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
             onChange={(e) => handleLocalUpdate("baseUrl", e.target.value)}
           />
         </FormField>
-
-        {isBedrockProvider && (
-          <FormField
-            label="Region (optional)"
-            description="Defaults to us-east-1 when left blank. With inference profiles (global., us., eu., apac.), region is auto-managed."
-          >
-            <Input
-              type="text"
-              placeholder="Enter AWS region (e.g. us-east-1)"
-              value={localModel.bedrockRegion || ""}
-              onChange={(e) => handleLocalUpdate("bedrockRegion", e.target.value)}
-            />
-          </FormField>
-        )}
 
         <FormField label="API Key">
           <PasswordInput

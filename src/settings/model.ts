@@ -66,8 +66,6 @@ export interface CopilotSettings {
   xaiApiKey: string;
   mistralApiKey: string;
   deepseekApiKey: string;
-  amazonBedrockApiKey: string;
-  amazonBedrockRegion: string;
   siliconflowApiKey: string;
   // GitHub Copilot OAuth tokens
   githubCopilotAccessToken: string;

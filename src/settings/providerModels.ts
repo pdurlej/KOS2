@@ -409,7 +409,6 @@ export interface ProviderResponseMap {
   [ChatModelProviders.SILICONFLOW]: SiliconFlowModelResponse;
   [ChatModelProviders.COPILOT_PLUS]: null;
   [ChatModelProviders.AZURE_OPENAI]: null;
-  [ChatModelProviders.AMAZON_BEDROCK]: unknown;
   [ChatModelProviders.GITHUB_COPILOT]: GitHubCopilotModelResponse;
 }
 
@@ -487,7 +486,6 @@ export const providerAdapters: ProviderModelAdapters = {
       name: model.id,
       provider: ChatModelProviders.XAI,
     })) || [],
-  [ChatModelProviders.AMAZON_BEDROCK]: (_data: unknown): StandardModel[] => [],
 
   [ChatModelProviders.OPENROUTERAI]: (data): StandardModel[] =>
     data.data?.map((model) => ({

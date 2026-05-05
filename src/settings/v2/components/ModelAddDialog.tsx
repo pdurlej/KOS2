@@ -47,7 +47,6 @@ interface FormErrors {
   embeddingDeploymentName: boolean;
   apiVersion: boolean;
   displayName: boolean;
-  bedrockRegion: boolean;
 }
 
 interface ModelAddDialogProps {
@@ -87,7 +86,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
     embeddingDeploymentName: false,
     apiVersion: false,
     displayName: false,
-    bedrockRegion: false,
   });
 
   const setError = (field: keyof FormErrors, value: boolean) => {
@@ -102,7 +100,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
       embeddingDeploymentName: false,
       apiVersion: false,
       displayName: false,
-      bedrockRegion: false,
     });
   };
 
@@ -138,12 +135,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
       }
     }
 
-    if (model.provider === ChatModelProviders.AMAZON_BEDROCK) {
-      newErrors.bedrockRegion = false;
-    } else {
-      newErrors.bedrockRegion = false;
-    }
-
     setErrors(newErrors);
     return isValid;
   };
@@ -161,19 +152,10 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
     };
 
     if (!isEmbeddingModel) {
-      const chatModel = {
+      return {
         ...baseModel,
         stream: true,
       };
-
-      if (provider === ChatModelProviders.AMAZON_BEDROCK) {
-        return {
-          ...chatModel,
-          bedrockRegion: settings.amazonBedrockRegion,
-        };
-      }
-
-      return chatModel;
     }
 
     return baseModel;
@@ -203,7 +185,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
       azureOpenAIApiEmbeddingDeploymentName:
         modelData.azureOpenAIApiEmbeddingDeploymentName?.trim(),
       azureOpenAIApiVersion: modelData.azureOpenAIApiVersion?.trim(),
-      bedrockRegion: modelData.bedrockRegion?.trim(),
     };
   };
 
@@ -252,13 +233,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
             azureOpenAIApiEmbeddingDeploymentName: settings.azureOpenAIApiEmbeddingDeploymentName,
           }
         : {}),
-      ...(provider === ChatModelProviders.AMAZON_BEDROCK
-        ? {
-            bedrockRegion: settings.amazonBedrockRegion,
-          }
-        : {
-            bedrockRegion: undefined,
-          }),
     });
     // 当 Provider 有必填额外设置时自动展开
     setIsOpen(hasRequiredExtraSettings(provider));
@@ -420,49 +394,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
               </FormField>
             </>
           );
-        case ChatModelProviders.AMAZON_BEDROCK:
-          return (
-            <FormField
-              label="Region (optional)"
-              description="Defaults to us-east-1 when left blank. With inference profiles (global., us., eu., apac.), region is auto-managed."
-            >
-              <div className="tw-flex tw-gap-2">
-                <Input
-                  className="tw-flex-1"
-                  type="text"
-                  placeholder="Enter AWS region (e.g. us-east-1)"
-                  value={model.bedrockRegion || ""}
-                  onChange={(e) => {
-                    updateModelWithReset({ bedrockRegion: e.target.value });
-                    setError("bedrockRegion", false);
-                  }}
-                />
-                <Select
-                  onValueChange={(value) => {
-                    updateModelWithReset({ bedrockRegion: value });
-                    setError("bedrockRegion", false);
-                  }}
-                >
-                  <SelectTrigger className="tw-w-[140px]">
-                    <SelectValue placeholder="Presets" />
-                  </SelectTrigger>
-                  <SelectContent container={dialogElement}>
-                    {[
-                      "us-east-1",
-                      "us-west-2",
-                      "eu-west-1",
-                      "ap-northeast-1",
-                      "ap-southeast-1",
-                    ].map((region) => (
-                      <SelectItem key={region} value={region}>
-                        {region}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </FormField>
-          );
         default:
           return null;
       }
@@ -534,20 +465,11 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
             required
             error={errors.name}
             errorMessage="Model name is required"
-            description={
-              model.provider === ChatModelProviders.AMAZON_BEDROCK && !isEmbeddingModel
-                ? "For Bedrock, use cross-region inference profile IDs (global., us., eu., or apac. prefix) for better reliability. Regional IDs without prefixes may fail."
-                : undefined
-            }
           >
             <Input
               type="text"
               placeholder={`Enter model name (e.g. ${
-                model.provider === ChatModelProviders.AMAZON_BEDROCK && !isEmbeddingModel
-                  ? "global.anthropic.claude-sonnet-4-6-v1:0"
-                  : isEmbeddingModel
-                    ? "text-embedding-3-small"
-                    : "gpt-4"
+                isEmbeddingModel ? "text-embedding-3-small" : "gpt-4"
               })`}
               value={model.name}
               onChange={(e) => {

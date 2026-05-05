@@ -220,7 +220,6 @@ export enum ChatModelProviders {
   ANTHROPIC = "anthropic",
   GOOGLE = "google",
   XAI = "xai",
-  AMAZON_BEDROCK = "amazon-bedrock",
   AZURE_OPENAI = "azure openai",
   GROQ = "groq",
   OLLAMA = "ollama",
@@ -446,13 +445,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     listModelURL: "https://api.deepseek.com/models",
     testModel: ChatModels.DEEPSEEK_CHAT,
   },
-  [ChatModelProviders.AMAZON_BEDROCK]: {
-    label: "Amazon Bedrock",
-    host: "https://bedrock-runtime.{region}.amazonaws.com",
-    curlBaseURL: "https://bedrock-runtime.{region}.amazonaws.com",
-    keyManagementURL: "https://console.aws.amazon.com/iam/home#/security_credentials",
-    listModelURL: "",
-  },
   [EmbeddingModelProviders.COPILOT_PLUS]: {
     label: "Legacy Cloud",
     host: BREVILABS_MODELS_BASE_URL,
@@ -489,7 +481,6 @@ export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSe
   "copilot-plus": "plusLicenseKey",
   mistralai: "mistralApiKey",
   deepseek: "deepseekApiKey",
-  "amazon-bedrock": "amazonBedrockApiKey",
   siliconflow: "siliconflowApiKey",
   "github-copilot": "githubCopilotToken",
 };
@@ -672,8 +663,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   xaiApiKey: "",
   mistralApiKey: "",
   deepseekApiKey: "",
-  amazonBedrockApiKey: "",
-  amazonBedrockRegion: "",
   siliconflowApiKey: "",
   // GitHub Copilot OAuth tokens
   githubCopilotAccessToken: "",
