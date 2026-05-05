@@ -3,25 +3,32 @@
 - Agent: Codex
 - Branch: codex/cleanup-reliability-hotfix
 - Started: 2026-05-06 01:07 CEST
-- Status: active
+- Status: ready-for-review
 - Owned paths:
-  - src/kos/cleanup/\*\*
-  - docs/agent-claims/codex-cleanup-reliability-hotfix.md
+  - `src/kos/cleanup/**`
+  - `__mocks__/obsidian.js`
+  - `docs/agent-claims/codex-cleanup-reliability-hotfix.md`
 - Non-owned paths to avoid:
-  - docs/\*\*
-  - README.md
-  - package.json
-  - package-lock.json
-  - CHANGELOG.md
-  - src/kos/doctor/\*\*
-  - .github/\*\*
+  - `docs/**`
+  - `README.md`
+  - `package.json`
+  - `package-lock.json`
+  - `CHANGELOG.md`
+  - `src/kos/doctor/**`
+  - `.github/**`
 - Current intent:
   - Fix cleanup execution so staged trash overrides do not hard-delete content.
   - Prevent cleanup from deleting the configured inbox root folder.
   - Add focused tests around the execution safety policy.
-- Verification plan:
-  - `npm test -- --runInBand src/kos/cleanup/execute.test.ts`
-  - `npm run lint -- src/kos/cleanup/execute.ts src/kos/cleanup/execute.test.ts`
+- Changed files:
+  - `src/kos/cleanup/execute.ts`
+  - `src/kos/cleanup/execute.test.ts`
+  - `__mocks__/obsidian.js`
+- Verification:
+  - `npm test -- --runInBand src/kos/cleanup/execute.test.ts` — passed
+  - `npm test -- --runInBand src/kos/cleanup` — passed
+  - `npm run lint` — passed
+  - `npx prettier --check __mocks__/obsidian.js docs/agent-claims/codex-cleanup-reliability-hotfix.md src/kos/cleanup/execute.ts src/kos/cleanup/execute.test.ts` — passed
 - Handoff:
-  - Claude should avoid `src/kos/cleanup/**` while this claim is active.
+  - Claude can review this claim, but should avoid editing `src/kos/cleanup/**` until the branch is merged or the claim is closed.
   - Codex will not touch docs/product/security audit files in this branch.

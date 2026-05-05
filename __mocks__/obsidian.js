@@ -3,6 +3,13 @@
 import yaml from "js-yaml";
 
 module.exports = {
+  normalizePath: jest.fn().mockImplementation((path) => {
+    return String(path)
+      .replace(/\\/g, "/")
+      .replace(/\/+/g, "/")
+      .replace(/^\/+/, "")
+      .replace(/\/+$/, "");
+  }),
   Vault: jest.fn().mockImplementation(() => {
     return {
       getMarkdownFiles: jest.fn().mockImplementation(() => {
