@@ -29,9 +29,54 @@ jobs:
       - run: npm run lint
       - run: npm run build --if-present
       - run: npm test
+      - name: npm audit (high+critical, runtime deps)
+        # Fail-soft for now: surface counts in the run summary without blocking PRs.
+        # Flip continue-on-error to false once Phase E of the Ollama-only refactor lands.
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+      - name: Bundle size budget
+        # Hard ceiling on main.js. Drop this number as the Ollama-only refactor lands.
+        # Current ceiling: 6 MB. Target after cleanup: < 3 MB (see docs/cleanup/ollama-only-refactor-plan.md).
+        run: |
+          set -e
+          if [ ! -f main.js ]; then
+            echo "main.js not produced by build" >&2
+            exit 1
+          fi
+          size_bytes=$(wc -c < main.js | tr -d ' ')
+          size_mb=$(awk "BEGIN { printf \"%.2f\", $size_bytes / 1024 / 1024 }")
+          ceiling_bytes=$((6 * 1024 * 1024))
+          echo "main.js size: ${size_mb} MB (${size_bytes} bytes)"
+          echo "Ceiling:      6.00 MB (${ceiling_bytes} bytes)"
+          if [ "$size_bytes" -gt "$ceiling_bytes" ]; then
+            echo "::error::main.js exceeds bundle size budget (${size_mb} MB > 6 MB)"
+            exit 1
+          fi
       - name: Run Integration tests
         # Only run integration tests for trusted events (push) or when secrets are available
         if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           GEMINI_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: npm run test:integration
+
+  docs-link-check:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Markdown link check (changed docs only)
+        # Fail-soft: surface broken links in PRs, don't block merges yet.
+        continue-on-error: true
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --max-redirects 5
+            --exclude-mail
+            --accept 200,206,429
+            --include-fragments
+            'README.md'
+            'CHANGELOG.md'
+            'CONTRIBUTING.md'
+            'docs/**/*.md'
+          fail: false
