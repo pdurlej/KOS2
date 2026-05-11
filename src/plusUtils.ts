@@ -60,15 +60,6 @@ export interface OllamaMachineCapabilities {
 }
 
 /**
- * Legacy helper preserved for expired modal logic and compatibility.
- * In KOS2 this no longer drives any product gating.
- */
-export function isPlusModel(modelKey: string): boolean {
-  const provider = modelKey.split("|")[1];
-  return provider === ChatModelProviders.COPILOT_PLUS;
-}
-
-/**
  * In KOS2 the advanced agent path is always available.
  * Legacy "Plus" gating stays enabled to avoid widespread upstream churn.
  */

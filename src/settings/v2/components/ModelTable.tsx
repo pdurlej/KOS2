@@ -229,7 +229,7 @@ const ModelCard: React.FC<ModelCardProps> = ({
       id={id}
       item={model}
       title={model.displayName || model.name}
-      subtitle={getProviderLabel(model.provider, model)}
+      subtitle={getProviderLabel(model.provider)}
       badge={
         model.capabilities && model.capabilities.length > 0 ? (
           <ModelCapabilityIcons capabilities={model.capabilities} iconSize={14} />
@@ -308,7 +308,7 @@ const DesktopSortableTableRow: React.FC<{
         )}
       </TableCell>
       <TableCell className="tw-pl-0">{model.displayName || model.name}</TableCell>
-      <TableCell>{getProviderLabel(model.provider, model)}</TableCell>
+      <TableCell>{getProviderLabel(model.provider)}</TableCell>
       <TableCell>{renderCapabilities(model)}</TableCell>
       {!isEmbeddingModel && (
         <TableCell className="tw-text-center">

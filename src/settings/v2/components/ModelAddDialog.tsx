@@ -31,7 +31,7 @@ import {
 } from "@/constants";
 import { useTab } from "@/contexts/TabContext";
 import { logError } from "@/logger";
-import { err2String, getProviderInfo, getProviderLabel, omit } from "@/utils";
+import { err2String, getProviderInfo, getProviderLabel } from "@/utils";
 import { buildCurlCommandForModel } from "@/utils/curlCommand";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { getApiKeyForProvider } from "@/utils/modelUtils";
@@ -313,9 +313,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
               </SelectTrigger>
               <SelectContent container={dialogElement}>
                 {Object.values(
-                  isEmbeddingModel
-                    ? omit(EmbeddingModelProviders, ["COPILOT_PLUS", "COPILOT_PLUS_JINA"])
-                    : omit(ChatModelProviders, ["COPILOT_PLUS"])
+                  isEmbeddingModel ? EmbeddingModelProviders : ChatModelProviders
                 ).map((provider) => (
                   <SelectItem key={provider} value={provider}>
                     {getProviderLabel(provider)}

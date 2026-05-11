@@ -49,7 +49,6 @@ export interface LegacyCommandSettings {
 
 export interface CopilotSettings {
   userId: string;
-  plusLicenseKey: string;
   ollamaCloudApiKey: string;
   defaultChainType: ChainType;
   defaultModelKey: string;

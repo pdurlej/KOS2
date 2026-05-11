@@ -40,10 +40,8 @@ export async function encryptAllKeys(
     return settings;
   }
   const newSettings = { ...settings };
-  const keysToEncrypt = Object.keys(settings).filter(
-    (key) =>
-      key.toLowerCase().includes("apikey") ||
-      key === "plusLicenseKey"
+  const keysToEncrypt = Object.keys(settings).filter((key) =>
+    key.toLowerCase().includes("apikey")
   );
 
   for (const key of keysToEncrypt) {

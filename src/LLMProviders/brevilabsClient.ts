@@ -5,7 +5,6 @@ import {
   ollamaCloudWebSearch,
 } from "@/services/ollama/ollamaCloud";
 import { htmlToMarkdown } from "@/services/webViewerService/webViewerServiceHelpers";
-import { turnOnPlus } from "@/plusUtils";
 
 export interface RerankResponse {
   response: {
@@ -142,7 +141,6 @@ export class BrevilabsClient {
   async validateLicenseKey(
     _context?: Record<string, any>
   ): Promise<{ isValid: boolean | undefined; plan?: string }> {
-    turnOnPlus();
     return { isValid: true, plan: "kos2" };
   }
 

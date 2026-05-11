@@ -6,7 +6,6 @@ import { ChainType } from "./chainFactory";
 import { PromptSortStrategy } from "./types";
 
 export const BREVILABS_API_BASE_URL = "https://api.brevilabs.com/v1";
-export const BREVILABS_MODELS_BASE_URL = "https://models.brevilabs.com/v1";
 export const CHAT_VIEWTYPE = "kos2-chat-view";
 export const USER_SENDER = "user";
 export const AI_SENDER = "ai";
@@ -180,14 +179,12 @@ export const DEFAULT_OLLAMA_NUM_CTX = 131072;
 export enum ChatModels {
   KOS2_QWEN3_CODER_30B = "qwen3-coder:30b",
   KOS2_BIELIK_7B = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:Q5_K_M",
-  COPILOT_PLUS_FLASH = "copilot-plus-flash",
 }
 
 // Model Providers
 export enum ChatModelProviders {
   OPENAI_FORMAT = "3rd party (openai-format)",
   OLLAMA = "ollama",
-  COPILOT_PLUS = "copilot-plus",
 }
 
 export enum ModelCapability {
@@ -226,15 +223,10 @@ export const BUILTIN_CHAT_MODELS: CustomModel[] = [
 export enum EmbeddingModelProviders {
   OLLAMA = "ollama",
   OPENAI_FORMAT = "3rd party (openai-format)",
-  COPILOT_PLUS = "copilot-plus",
-  COPILOT_PLUS_JINA = "copilot-plus-jina",
 }
 
 export enum EmbeddingModels {
   KOS2_BGE_M3 = "bge-m3:latest",
-  COPILOT_PLUS_SMALL = "copilot-plus-small",
-  COPILOT_PLUS_LARGE = "copilot-plus-large",
-  COPILOT_PLUS_MULTILINGUAL = "copilot-plus-multilingual",
 }
 
 export const BUILTIN_EMBEDDING_MODELS: CustomModel[] = [
@@ -256,10 +248,8 @@ export const NOMIC_EMBED_TEXT = "nomic-embed-text";
 
 export type Provider = ChatModelProviders | EmbeddingModelProviders;
 
-export type SettingKeyProviders = Exclude<
-  ChatModelProviders,
-  ChatModelProviders.OPENAI_FORMAT | ChatModelProviders.OLLAMA
->;
+/** All cloud API-key providers have been removed; kept as string alias for call-site compatibility. */
+export type SettingKeyProviders = string;
 
 // Provider metadata interface
 export interface ProviderMetadata {
@@ -292,26 +282,10 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     keyManagementURL: "",
     listModelURL: "",
   },
-  [EmbeddingModelProviders.COPILOT_PLUS]: {
-    label: "Legacy Cloud",
-    host: BREVILABS_MODELS_BASE_URL,
-    curlBaseURL: BREVILABS_MODELS_BASE_URL,
-    keyManagementURL: "",
-    listModelURL: "",
-  },
-  [EmbeddingModelProviders.COPILOT_PLUS_JINA]: {
-    label: "Legacy Cloud",
-    host: BREVILABS_MODELS_BASE_URL,
-    curlBaseURL: BREVILABS_MODELS_BASE_URL,
-    keyManagementURL: "",
-    listModelURL: "",
-  },
 };
 
-// Map provider to its settings key for API key
-export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSettings> = {
-  "copilot-plus": "plusLicenseKey",
-};
+// Map provider to its settings key for API key (empty — no global-key providers remain)
+export const ProviderSettingsKeyMap: Record<string, keyof CopilotSettings> = {};
 
 export enum VAULT_VECTOR_STORE_STRATEGY {
   NEVER = "NEVER",
@@ -474,7 +448,6 @@ export const RESTRICTION_MESSAGES = {
 export const DEFAULT_SETTINGS: CopilotSettings = {
   userId: uuidv4(),
   isPlusUser: true,
-  plusLicenseKey: "",
   ollamaCloudApiKey: "",
   defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
   defaultModelKey: ChatModels.KOS2_QWEN3_CODER_30B + "|" + ChatModelProviders.OLLAMA,

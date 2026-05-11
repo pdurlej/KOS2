@@ -34,14 +34,6 @@ export class MissingApiKeyError extends Error {
   }
 }
 
-export class MissingPlusLicenseError extends Error {
-  constructor(message: string = "Legacy premium model credentials are not configured.") {
-    super(message);
-    this.name = "MissingPlusLicenseError";
-    Object.setPrototypeOf(this, MissingPlusLicenseError.prototype);
-  }
-}
-
 export class MissingModelKeyError extends Error {
   constructor(message: string = "No model key found. Please select a model in settings.") {
     super(message);

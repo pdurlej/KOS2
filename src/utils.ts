@@ -965,12 +965,8 @@ export function getProviderInfo(provider: string): ProviderMetadata {
   };
 }
 
-export function getProviderLabel(provider: string, model?: CustomModel): string {
-  const baseLabel = ProviderInfo[provider as Provider]?.label || provider;
-  const isLegacyCloudProvider =
-    provider === EmbeddingModelProviders.COPILOT_PLUS ||
-    provider === EmbeddingModelProviders.COPILOT_PLUS_JINA;
-  return baseLabel + (model?.believerExclusive && isLegacyCloudProvider ? " (Believer)" : "");
+export function getProviderLabel(provider: string): string {
+  return ProviderInfo[provider as Provider]?.label || provider;
 }
 
 export function getProviderHost(provider: string): string {
@@ -1223,8 +1219,6 @@ export function getNeedSetKeyProvider(): Provider[] {
   const excludeProviders: Provider[] = [
     ChatModelProviders.OPENAI_FORMAT,
     ChatModelProviders.OLLAMA,
-    EmbeddingModelProviders.COPILOT_PLUS,
-    EmbeddingModelProviders.COPILOT_PLUS_JINA,
   ];
 
   const settings = getSettings();

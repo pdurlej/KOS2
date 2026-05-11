@@ -9,7 +9,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import {
   ChatModelProviders,
-  EmbeddingModelProviders,
   MODEL_CAPABILITIES,
   ModelCapability,
   ProviderMetadata,
@@ -107,8 +106,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
     localModel.provider as SettingKeyProviders,
     localModel
   );
-  const showOtherParameters =
-    !isEmbeddingModel && localModel.provider !== EmbeddingModelProviders.COPILOT_PLUS_JINA;
+  const showOtherParameters = !isEmbeddingModel;
 
   return (
     <div className="tw-space-y-3 tw-p-4">

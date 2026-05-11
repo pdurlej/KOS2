@@ -78,7 +78,7 @@ export const getModelDisplayText = (model: CustomModel): string => {
 
 export const getModelDisplayWithIcons = (model: CustomModel): string => {
   const displayName = model.displayName || model.name;
-  const provider = `(${getProviderLabel(model.provider, model)})`;
+  const provider = `(${getProviderLabel(model.provider)})`;
   const icons =
     model.capabilities
       ?.map((cap) => {
