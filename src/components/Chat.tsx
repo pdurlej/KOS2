@@ -41,7 +41,7 @@ import { getAIResponse } from "@/langchainStream";
 import ChainManager from "@/LLMProviders/chainManager";
 import { clearRecordedPromptPayload } from "@/LLMProviders/chainRunner/utils/promptPayloadRecorder";
 import { logFileManager } from "@/logFileManager";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { KOSWorkflowId, launchKOSWorkflow } from "@/kos/workflows";
 import { useIsPlusUser } from "@/plusUtils";
 import { updateSetting, useSettingsValue } from "@/settings/model";
@@ -64,7 +64,7 @@ interface ChatProps {
   onSaveChat: (saveAsNote: () => Promise<void>) => void;
   updateUserMessageHistory: (newMessage: string) => void;
   fileParserManager: FileParserManager;
-  plugin: CopilotPlugin;
+  plugin: KOS2Plugin;
   mode?: ChatMode;
   chatUIState: ChatUIState;
 }

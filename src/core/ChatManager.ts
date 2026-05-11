@@ -13,7 +13,7 @@ import { FileParserManager } from "@/tools/FileParserManager";
 import ChainManager from "@/LLMProviders/chainManager";
 import ProjectManager from "@/LLMProviders/projectManager";
 import { updateChatMemory } from "@/chatUtils";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { ContextManager } from "./ContextManager";
 import { MessageRepository } from "./MessageRepository";
 import { ChatPersistenceManager } from "./ChatPersistenceManager";
@@ -45,7 +45,7 @@ export class ChatManager {
     private messageRepo: MessageRepository,
     private chainManager: ChainManager,
     private fileParserManager: FileParserManager,
-    private plugin: CopilotPlugin
+    private plugin: KOS2Plugin
   ) {
     this.contextManager = ContextManager.getInstance();
     // Initialize default project repository

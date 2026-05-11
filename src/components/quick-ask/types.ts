@@ -4,7 +4,7 @@
 
 import type { EditorView } from "@codemirror/view";
 import type { Editor } from "obsidian";
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 import type { ReplaceGuard } from "@/editor/replaceGuard";
 import type { ResizeDirection } from "@/hooks/use-resizable";
 
@@ -30,7 +30,7 @@ export interface QuickAskMessage {
  * Props for the QuickAskPanel component.
  */
 export interface QuickAskPanelProps {
-  plugin: CopilotPlugin;
+  plugin: KOS2Plugin;
   editor: Editor;
   view: EditorView;
   /** Selected text captured when panel opened (content snapshot) */
@@ -58,7 +58,7 @@ export interface QuickAskWidgetPayload {
   /** Focus anchor position — selection.head for horizontal placement in reverse selections */
   focusAnchorPos?: number | null;
   options: {
-    plugin: CopilotPlugin;
+    plugin: KOS2Plugin;
     editor: Editor;
     view: EditorView;
     selectedText: string;

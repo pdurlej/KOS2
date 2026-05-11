@@ -9,7 +9,7 @@ import { Copy, ClipboardPaste, Replace } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getErrorMessage, type ReplaceInvalidReason } from "@/editor/replaceGuard";
 import { logError } from "@/logger";
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 import { preprocessAIResponse } from "@/utils/markdownPreprocess";
 import type { QuickAskMessage } from "./types";
 
@@ -27,7 +27,7 @@ interface QuickAskMessageProps {
   isDisabledDueToStreaming?: boolean;
   /** File path captured when panel opened; used for stable Markdown link resolution */
   filePathSnapshot: string | null;
-  plugin: CopilotPlugin;
+  plugin: KOS2Plugin;
 }
 
 /**

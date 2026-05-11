@@ -79,7 +79,7 @@ import { v4 as uuidv4 } from "uuid";
 
 // Removed unused FileTrackingState interface
 
-export default class CopilotPlugin extends Plugin {
+export default class KOS2Plugin extends Plugin {
   // Plugin components
   projectManager: ProjectManager;
   brevilabsClient: BrevilabsClient;
@@ -812,7 +812,7 @@ export default class CopilotPlugin extends Plugin {
       // Mark persistence successful for throttling purposes
       this.chatHistoryLastAccessedAtManager.markPersisted(file.path, persistedAtMs);
     } catch (error) {
-      logWarn(`[CopilotPlugin] Failed to update chat lastAccessedAt for ${file.path}`, error);
+      logWarn(`[KOS2Plugin] Failed to update chat lastAccessedAt for ${file.path}`, error);
     }
   }
 

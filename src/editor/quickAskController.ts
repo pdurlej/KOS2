@@ -10,7 +10,7 @@ import { quickAskWidgetEffect, quickAskOverlayPlugin } from "./quickAskExtension
 import { QuickAskOverlay } from "@/components/quick-ask/QuickAskOverlay";
 import { createMapPosReplaceGuard } from "./replaceGuard";
 import { SelectionHighlight } from "./selectionHighlight";
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 import { logWarn } from "@/logger";
 import { computeSelectionAnchors } from "@/utils/selectionAnchors";
 
@@ -23,10 +23,10 @@ interface QuickAskWidgetState {
  * Controller that manages Quick Ask panel instances.
  */
 export class QuickAskController {
-  private plugin: CopilotPlugin;
+  private plugin: KOS2Plugin;
   private quickAskWidgetState: QuickAskWidgetState | null = null;
 
-  constructor(plugin: CopilotPlugin) {
+  constructor(plugin: KOS2Plugin) {
     this.plugin = plugin;
   }
 

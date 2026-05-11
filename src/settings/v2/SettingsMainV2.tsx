@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { TabContent, TabItem, type TabItem as TabItemType } from "@/components/ui/setting-tabs";
 import { TabProvider, useTab } from "@/contexts/TabContext";
 import { useLatestVersion } from "@/hooks/useLatestVersion";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { resetSettings } from "@/settings/model";
 import { CommandSettings } from "@/settings/v2/components/CommandSettings";
 import { Cog, Database, Sparkles, Wrench } from "lucide-react";
@@ -95,7 +95,7 @@ const SettingsContent: React.FC = () => {
 };
 
 interface SettingsMainV2Props {
-  plugin: CopilotPlugin;
+  plugin: KOS2Plugin;
 }
 
 const SettingsMainV2: React.FC<SettingsMainV2Props> = ({ plugin }) => {

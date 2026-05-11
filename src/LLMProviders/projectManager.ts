@@ -13,7 +13,7 @@ import { ChainType } from "@/chainFactory";
 import CopilotView from "@/components/CopilotView";
 import { CHAT_VIEWTYPE, VAULT_VECTOR_STORE_STRATEGY } from "@/constants";
 import { logError, logInfo, logWarn } from "@/logger";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { Mention } from "@/mentions/Mention";
 import { getMatchingPatterns, shouldIndexFile } from "@/search/searchUtils";
 import { getSettings, subscribeToSettingsChange, updateSetting } from "@/settings/model";
@@ -30,14 +30,14 @@ export default class ProjectManager {
   public static instance: ProjectManager;
   private currentProjectId: string | null;
   private app: App;
-  private plugin: CopilotPlugin;
+  private plugin: KOS2Plugin;
   private readonly chainMangerInstance: ChainManager;
   private readonly projectContextCache: ProjectContextCache;
   private fileParserManager: FileParserManager;
   private loadTracker: ProjectLoadTracker;
   private readonly projectUsageTimestampsManager = new RecentUsageManager<string>();
 
-  private constructor(app: App, plugin: CopilotPlugin) {
+  private constructor(app: App, plugin: KOS2Plugin) {
     this.app = app;
     this.plugin = plugin;
     this.currentProjectId = null;
@@ -124,7 +124,7 @@ export default class ProjectManager {
     return JSON.stringify(prevComparable) !== JSON.stringify(nextComparable);
   }
 
-  public static getInstance(app: App, plugin: CopilotPlugin): ProjectManager {
+  public static getInstance(app: App, plugin: KOS2Plugin): ProjectManager {
     if (!ProjectManager.instance) {
       ProjectManager.instance = new ProjectManager(app, plugin);
     }

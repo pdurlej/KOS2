@@ -1,6 +1,6 @@
 import CopilotView from "@/components/CopilotView";
 import { CHAT_VIEWTYPE } from "@/constants";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { getSettings } from "@/settings/model";
 import { logInfo, logError } from "@/logger";
 import { App, Notice, PluginSettingTab } from "obsidian";
@@ -10,9 +10,9 @@ import SettingsMainV2 from "@/settings/v2/SettingsMainV2";
 import { ContainerContext } from "@/settings/v2/components/ContainerContext";
 
 export class CopilotSettingTab extends PluginSettingTab {
-  plugin: CopilotPlugin;
+  plugin: KOS2Plugin;
 
-  constructor(app: App, plugin: CopilotPlugin) {
+  constructor(app: App, plugin: KOS2Plugin) {
     super(app, plugin);
     this.plugin = plugin;
   }

@@ -8,7 +8,7 @@ import { getKOSWorkflowDefinition } from "@/kos/workflows/registry";
 import { KOSWorkflowId } from "@/kos/workflows/types";
 import { CustomError } from "@/error";
 import { Notice } from "obsidian";
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 
 /**
  * Resolve context, run a deterministic KOS workflow, and open the result modal.
@@ -17,7 +17,7 @@ import type CopilotPlugin from "@/main";
  * @param workflowId - Workflow identifier to execute
  */
 export async function launchKOSWorkflow(
-  plugin: CopilotPlugin,
+  plugin: KOS2Plugin,
   workflowId: KOSWorkflowId
 ): Promise<void> {
   const workflow = getKOSWorkflowDefinition(workflowId);
@@ -78,7 +78,7 @@ export async function launchKOSWorkflow(
  * @param workflowId - Workflow identifier to execute
  */
 export async function runWorkflowCommand(
-  plugin: CopilotPlugin,
+  plugin: KOS2Plugin,
   workflowId: KOSWorkflowId
 ): Promise<void> {
   await launchKOSWorkflow(plugin, workflowId);
