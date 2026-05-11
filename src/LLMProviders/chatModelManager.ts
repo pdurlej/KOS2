@@ -21,7 +21,6 @@ import {
   getModelInfo,
   ModelInfo,
   safeFetch,
-  safeFetchNoThrow,
 } from "@/utils";
 import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
 import { ChatAnthropic } from "@langchain/anthropic";
@@ -38,7 +37,6 @@ import { ChatXAI } from "@langchain/xai";
 import { MissingApiKeyError, MissingPlusLicenseError } from "@/error";
 import { Notice } from "obsidian";
 import { ChatOpenRouter } from "./ChatOpenRouter";
-import { GitHubCopilotChatModel } from "@/LLMProviders/githubCopilot/GitHubCopilotChatModel";
 
 // Patch BaseLanguageModel.prototype.getNumTokens once at module load to prevent
 // tiktoken CDN fetches. LangChain's default getNumTokens() downloads a ~3MB BPE
@@ -73,7 +71,6 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.COPILOT_PLUS]: ChatOpenRouter,
   [ChatModelProviders.MISTRAL]: ChatMistralAI,
   [ChatModelProviders.DEEPSEEK]: ChatDeepSeek,
-  [ChatModelProviders.GITHUB_COPILOT]: GitHubCopilotChatModel,
 } as const;
 
 type ChatProviderConstructMap = typeof CHAT_PROVIDER_CONSTRUCTORS;
@@ -135,8 +132,6 @@ export default class ChatModelManager {
     [ChatModelProviders.MISTRAL]: () => getSettings().mistralApiKey,
     [ChatModelProviders.DEEPSEEK]: () => getSettings().deepseekApiKey,
     [ChatModelProviders.SILICONFLOW]: () => getSettings().siliconflowApiKey,
-    [ChatModelProviders.GITHUB_COPILOT]: () =>
-      getSettings().githubCopilotToken || getSettings().githubCopilotAccessToken,
   } as const;
 
   private constructor() {
@@ -370,16 +365,6 @@ export default class ChatModelManager {
           baseURL: customModel.baseUrl || ProviderInfo[ChatModelProviders.DEEPSEEK].host,
           fetch: customModel.enableCors ? safeFetch : undefined,
         },
-      },
-      [ChatModelProviders.GITHUB_COPILOT]: {
-        modelName: modelName,
-        // Use safeFetchNoThrow for CORS bypass on mobile platforms.
-        // This doesn't throw on HTTP errors so 401 retry logic works correctly.
-        // WARNING: AbortSignal/timeout will NOT work when enableCors is true
-        // because Obsidian's requestUrl doesn't support cancellation.
-        // Reason: fetchImplementation is passed to the authed fetch wrapper inside
-        // GitHubCopilotChatModel, which injects Copilot token and headers per request.
-        fetchImplementation: customModel.enableCors ? safeFetchNoThrow : undefined,
       },
     };
 

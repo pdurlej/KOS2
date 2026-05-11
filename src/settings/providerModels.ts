@@ -274,57 +274,6 @@ export interface SiliconFlowModel {
   owned_by: string;
 }
 
-// GitHub Copilot response model definition
-export interface GitHubCopilotModelResponse {
-  object: string;
-  data: GitHubCopilotModel[];
-}
-
-/**
- {
- "id": "gpt-4o",
- "name": "GPT-4o",
- "version": "gpt-4o-2024-11-20",
- "object": "model",
- "vendor": "Azure OpenAI",
- "model_picker_enabled": true,
- "capabilities": {
-   "family": "gpt-4o",
-   "type": "chat"
- }
- }
- */
-export interface GitHubCopilotModel {
-  id: string;
-  name: string;
-  version: string;
-  object: string;
-  vendor?: string;
-  model_picker_enabled?: boolean;
-  model_picker_category?: string;
-  preview?: boolean;
-  /** Whether this model is the default for chat. */
-  is_chat_default?: boolean;
-  /** Whether this model is the fallback when premium requests are exhausted. */
-  is_chat_fallback?: boolean;
-  /** Billing info for premium model differentiation. May be absent for legacy models. */
-  billing?: {
-    is_premium: boolean;
-    multiplier: number;
-    restricted_to?: string[];
-  };
-  /** Model availability policy. `state: "disabled"` means user must enable via GitHub settings. */
-  policy?: {
-    state: string;
-    terms?: string;
-  };
-  capabilities?: {
-    family?: string;
-    type?: string;
-  };
-  supported_endpoints?: string[];
-}
-
 // Response type mapping
 export interface ProviderResponseMap {
   [ChatModelProviders.OPENAI]: OpenAIModelResponse;
@@ -338,7 +287,6 @@ export interface ProviderResponseMap {
   [ChatModelProviders.SILICONFLOW]: SiliconFlowModelResponse;
   [ChatModelProviders.COPILOT_PLUS]: null;
   [ChatModelProviders.AZURE_OPENAI]: null;
-  [ChatModelProviders.GITHUB_COPILOT]: GitHubCopilotModelResponse;
 }
 
 // Adapter type definition - converts provider-specific models to standard format
@@ -423,12 +371,6 @@ export const providerAdapters: ProviderModelAdapters = {
       provider: ChatModelProviders.SILICONFLOW,
     })) || [],
 
-  [ChatModelProviders.GITHUB_COPILOT]: (data): StandardModel[] =>
-    data.data?.map((model) => ({
-      id: model.id,
-      name: model.id,
-      provider: ChatModelProviders.GITHUB_COPILOT,
-    })) || [],
 };
 
 /**

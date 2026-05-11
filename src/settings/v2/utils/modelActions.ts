@@ -1,7 +1,6 @@
 import { CustomModel } from "@/aiParams";
 import { ChatModelProviders, SettingKeyProviders } from "@/constants";
 import { getDecryptedKey } from "@/encryptionService";
-import { GitHubCopilotProvider } from "@/LLMProviders/githubCopilot/GitHubCopilotProvider";
 import ProjectManager from "@/LLMProviders/projectManager";
 import { logError, logWarn } from "@/logger";
 import { parseModelsResponse, StandardModel } from "@/settings/providerModels";
@@ -28,14 +27,6 @@ export async function fetchModelsForProvider(
   provider: SettingKeyProviders
 ): Promise<FetchModelsResult> {
   try {
-    // Special handling for GitHub Copilot
-    if (provider === ChatModelProviders.GITHUB_COPILOT) {
-      const copilotProvider = GitHubCopilotProvider.getInstance();
-      const response = await copilotProvider.listModels();
-      const models = parseModelsResponse(provider, response);
-      return { success: true, models };
-    }
-
     // Standard API key based providers
     let apiKey = getApiKeyForProvider(provider);
     if (!apiKey) {
@@ -129,10 +120,7 @@ export async function verifyAndAddModel(
   const alreadyExists = Boolean(existingModel);
 
   // Build CustomModel
-  const apiKey =
-    model.provider === ChatModelProviders.GITHUB_COPILOT
-      ? undefined
-      : getApiKeyForProvider(model.provider);
+  const apiKey = getApiKeyForProvider(model.provider);
 
   const customModel: CustomModel = {
     name: model.name,
@@ -151,21 +139,6 @@ export async function verifyAndAddModel(
     } catch (error) {
       verificationFailed = true;
       verificationError = err2String(error);
-
-      // For GitHub Copilot models, a "not supported" 400 typically means the user
-      // hasn't enabled this model on their GitHub settings page. Append the policy
-      // terms (which include an activation link) to guide the user.
-      if (
-        customModel.provider === ChatModelProviders.GITHUB_COPILOT &&
-        verificationError.toLowerCase().includes("not supported")
-      ) {
-        // Reason: policy cache is keyed by model.id, not customModel.name (display name)
-        const terms = GitHubCopilotProvider.getInstance().getPolicyTerms(model.id);
-        if (terms) {
-          verificationError += `\n\n${terms}`;
-        }
-      }
-
       logError("Model verification failed:", error);
     }
   }

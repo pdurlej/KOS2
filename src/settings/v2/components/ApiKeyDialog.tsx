@@ -3,7 +3,6 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { PasswordInput } from "@/components/ui/password-input";
 import { ProviderSettingsKeyMap, SettingKeyProviders } from "@/constants";
 import { updateSetting, useSettingsValue } from "@/settings/model";
-import { GitHubCopilotAuth } from "@/settings/v2/components/GitHubCopilotAuth";
 import { LocalServicesSection } from "@/settings/v2/components/LocalServicesSection";
 import { ModelImporter } from "@/settings/v2/components/ModelImporter";
 import { getNeedSetKeyProvider, getProviderInfo, getProviderLabel } from "@/utils";
@@ -156,7 +155,6 @@ function ApiKeyModalContent({ onClose, onGoToModelTab }: ApiKeyModalContentProps
                 })}
               </div>
 
-              <GitHubCopilotAuth />
             </CollapsibleContent>
           </Collapsible>
         </div>

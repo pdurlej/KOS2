@@ -43,9 +43,7 @@ export async function encryptAllKeys(
   const keysToEncrypt = Object.keys(settings).filter(
     (key) =>
       key.toLowerCase().includes("apikey") ||
-      key === "plusLicenseKey" ||
-      key === "githubCopilotAccessToken" ||
-      key === "githubCopilotToken"
+      key === "plusLicenseKey"
   );
 
   for (const key of keysToEncrypt) {

@@ -220,7 +220,6 @@ export enum ChatModelProviders {
   DEEPSEEK = "deepseek",
   COHEREAI = "cohereai",
   SILICONFLOW = "siliconflow",
-  GITHUB_COPILOT = "github-copilot",
 }
 
 export enum ModelCapability {
@@ -432,13 +431,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     keyManagementURL: "",
     listModelURL: "",
   },
-  [ChatModelProviders.GITHUB_COPILOT]: {
-    label: "GitHub Copilot",
-    host: "https://api.githubcopilot.com",
-    curlBaseURL: "https://api.githubcopilot.com",
-    keyManagementURL: "https://github.com/settings/apps/authorizations",
-    listModelURL: "",
-  },
 };
 
 // Map provider to its settings key for API key
@@ -454,7 +446,6 @@ export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSe
   mistralai: "mistralApiKey",
   deepseek: "deepseekApiKey",
   siliconflow: "siliconflowApiKey",
-  "github-copilot": "githubCopilotToken",
 };
 
 export enum VAULT_VECTOR_STORE_STRATEGY {
@@ -635,10 +626,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   mistralApiKey: "",
   deepseekApiKey: "",
   siliconflowApiKey: "",
-  // GitHub Copilot OAuth tokens
-  githubCopilotAccessToken: "",
-  githubCopilotToken: "",
-  githubCopilotTokenExpiresAt: 0,
   defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
   defaultModelKey: ChatModels.KOS2_QWEN3_CODER_30B + "|" + ChatModelProviders.OLLAMA,
   embeddingModelKey: EmbeddingModels.KOS2_BGE_M3 + "|" + EmbeddingModelProviders.OLLAMA,

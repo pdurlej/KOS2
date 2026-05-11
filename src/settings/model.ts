@@ -66,10 +66,6 @@ export interface CopilotSettings {
   mistralApiKey: string;
   deepseekApiKey: string;
   siliconflowApiKey: string;
-  // GitHub Copilot OAuth tokens
-  githubCopilotAccessToken: string;
-  githubCopilotToken: string;
-  githubCopilotTokenExpiresAt: number;
   defaultChainType: ChainType;
   defaultModelKey: string;
   embeddingModelKey: string;
