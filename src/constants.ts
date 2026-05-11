@@ -201,20 +201,12 @@ export enum ChatModels {
   MISTRAL_TINY = "mistral-tiny-latest",
   DEEPSEEK_REASONER = "deepseek-reasoner",
   DEEPSEEK_CHAT = "deepseek-chat",
-  OPENROUTER_GEMINI_3_FLASH_PREVIEW = "google/gemini-3-flash-preview",
-  OPENROUTER_GEMINI_3_PRO_PREVIEW = "google/gemini-3.1-pro-preview",
-  OPENROUTER_GEMINI_2_5_FLASH = "google/gemini-2.5-flash",
-  OPENROUTER_GEMINI_2_5_PRO = "google/gemini-2.5-pro",
-  OPENROUTER_GPT_5_4 = "openai/gpt-5.4",
-  OPENROUTER_GPT_5_MINI = "openai/gpt-5-mini",
-  OPENROUTER_GROK_4_1_FAST = "x-ai/grok-4.1-fast",
   SILICONFLOW_DEEPSEEK_V3 = "deepseek-ai/DeepSeek-V3",
   SILICONFLOW_DEEPSEEK_R1 = "deepseek-ai/DeepSeek-R1",
 }
 
 // Model Providers
 export enum ChatModelProviders {
-  OPENROUTERAI = "openrouterai",
   OPENAI = "openai",
   OPENAI_FORMAT = "3rd party (openai-format)",
   ANTHROPIC = "anthropic",
@@ -267,7 +259,6 @@ export const BUILTIN_CHAT_MODELS: CustomModel[] = [
 
 export enum EmbeddingModelProviders {
   OPENAI = "openai",
-  OPENROUTERAI = "openrouterai",
   COHEREAI = "cohereai",
   GOOGLE = "google",
   AZURE_OPENAI = "azure openai",
@@ -293,7 +284,6 @@ export enum EmbeddingModels {
   COPILOT_PLUS_LARGE = "copilot-plus-large",
   COPILOT_PLUS_MULTILINGUAL = "copilot-plus-multilingual",
   SILICONFLOW_QWEN3_EMBEDDING_0_6B = "Qwen/Qwen3-Embedding-0.6B",
-  OPENROUTER_OPENAI_EMBEDDING_SMALL = "openai/text-embedding-3-small",
 }
 
 export const BUILTIN_EMBEDDING_MODELS: CustomModel[] = [
@@ -337,14 +327,6 @@ export interface ProviderMetadata {
 
 // Unified provider information
 export const ProviderInfo: Record<Provider, ProviderMetadata> = {
-  [ChatModelProviders.OPENROUTERAI]: {
-    label: "OpenRouter",
-    host: "https://openrouter.ai/api/v1/",
-    curlBaseURL: "https://openrouter.ai/api/v1",
-    keyManagementURL: "https://openrouter.ai/keys",
-    listModelURL: "https://openrouter.ai/api/v1/models",
-    testModel: ChatModels.OPENROUTER_GPT_5_MINI,
-  },
   [ChatModelProviders.GOOGLE]: {
     label: "Gemini",
     host: "https://generativelanguage.googleapis.com",
@@ -475,7 +457,6 @@ export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSe
   "azure openai": "azureOpenAIApiKey",
   google: "googleApiKey",
   groq: "groqApiKey",
-  openrouterai: "openRouterAiApiKey",
   cohereai: "cohereApiKey",
   xai: "xaiApiKey",
   "copilot-plus": "plusLicenseKey",
@@ -659,7 +640,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   azureOpenAIApiEmbeddingDeploymentName: "",
   googleApiKey: "",
   ollamaCloudApiKey: "",
-  openRouterAiApiKey: "",
   xaiApiKey: "",
   mistralApiKey: "",
   deepseekApiKey: "",

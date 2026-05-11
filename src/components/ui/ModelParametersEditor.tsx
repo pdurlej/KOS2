@@ -71,10 +71,9 @@ export function ModelParametersEditor({
   // Check if model has REASONING capability enabled
   const hasReasoningCapability = model.capabilities?.includes(ModelCapability.REASONING) ?? false;
 
-  // Show reasoning effort for: OpenAI reasoning models, OpenRouter, LM Studio, or any model with REASONING capability
+  // Show reasoning effort for: OpenAI reasoning models, LM Studio, or any model with REASONING capability
   const showReasoningEffort =
     isOpenAIReasoningModel ||
-    model.provider === ChatModelProviders.OPENROUTERAI ||
     model.provider === "lm_studio" ||
     model.provider === ChatModelProviders.LM_STUDIO ||
     hasReasoningCapability;

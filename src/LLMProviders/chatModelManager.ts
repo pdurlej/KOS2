@@ -67,7 +67,6 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.COHEREAI]: ChatCohere,
   [ChatModelProviders.GOOGLE]: ChatGoogleGenerativeAI,
   [ChatModelProviders.XAI]: ChatXAI,
-  [ChatModelProviders.OPENROUTERAI]: ChatOpenRouter,
   [ChatModelProviders.OLLAMA]: ChatOllama,
   [ChatModelProviders.LM_STUDIO]: ChatOpenRouter,
   [ChatModelProviders.GROQ]: ChatGroq,
@@ -130,7 +129,6 @@ export default class ChatModelManager {
     [ChatModelProviders.AZURE_OPENAI]: () => getSettings().azureOpenAIApiKey,
     [ChatModelProviders.ANTHROPIC]: () => getSettings().anthropicApiKey,
     [ChatModelProviders.COHEREAI]: () => getSettings().cohereApiKey,
-    [ChatModelProviders.OPENROUTERAI]: () => getSettings().openRouterAiApiKey,
     [ChatModelProviders.GROQ]: () => getSettings().groqApiKey,
     [ChatModelProviders.XAI]: () => getSettings().xaiApiKey,
     [ChatModelProviders.OLLAMA]: () => "default-key",
@@ -305,28 +303,6 @@ export default class ChatModelManager {
         apiKey: await getDecryptedKey(customModel.apiKey || settings.xaiApiKey),
         model: modelName,
         // This langchainjs XAI client does not support baseURL override
-      },
-      [ChatModelProviders.OPENROUTERAI]: {
-        modelName: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.openRouterAiApiKey),
-        configuration: {
-          baseURL: customModel.baseUrl || "https://openrouter.ai/api/v1",
-          fetch: customModel.enableCors ? safeFetch : undefined,
-          defaultHeaders: {
-            "HTTP-Referer": "https://obsidiancopilot.com",
-            "X-Title": "Obsidian Copilot",
-          },
-        },
-        // Enable reasoning if the model has the reasoning capability
-        enableReasoning: customModel.capabilities?.includes(ModelCapability.REASONING) ?? false,
-        // Pass reasoning effort if configured and reasoning capability is enabled
-        reasoningEffort:
-          customModel.capabilities?.includes(ModelCapability.REASONING) &&
-          customModel.reasoningEffort
-            ? customModel.reasoningEffort
-            : undefined,
-        // Enable prompt caching by default; can be turned off for ZDR endpoints
-        enablePromptCaching: customModel.enablePromptCaching ?? true,
       },
       [ChatModelProviders.GROQ]: {
         apiKey: await getDecryptedKey(customModel.apiKey || settings.groqApiKey),
@@ -519,7 +495,6 @@ export default class ChatModelManager {
           ChatModelProviders.AZURE_OPENAI,
           ChatModelProviders.ANTHROPIC,
           ChatModelProviders.GOOGLE,
-          ChatModelProviders.OPENROUTERAI,
           ChatModelProviders.OLLAMA,
           ChatModelProviders.LM_STUDIO,
           ChatModelProviders.OPENAI_FORMAT,
@@ -539,7 +514,6 @@ export default class ChatModelManager {
         [
           ChatModelProviders.OPENAI,
           ChatModelProviders.AZURE_OPENAI,
-          ChatModelProviders.OPENROUTERAI,
           ChatModelProviders.OLLAMA,
           ChatModelProviders.LM_STUDIO,
           ChatModelProviders.OPENAI_FORMAT,

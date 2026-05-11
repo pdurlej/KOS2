@@ -62,7 +62,6 @@ export interface CopilotSettings {
   azureOpenAIApiEmbeddingDeploymentName: string;
   googleApiKey: string;
   ollamaCloudApiKey: string;
-  openRouterAiApiKey: string;
   xaiApiKey: string;
   mistralApiKey: string;
   deepseekApiKey: string;

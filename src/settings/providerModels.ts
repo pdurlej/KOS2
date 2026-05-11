@@ -253,76 +253,6 @@ export interface XAIModel {
   owned_by: string;
 }
 
-// OpenRouterAI response model definition
-export interface OpenRouterAIModelResponse {
-  data: OpenRouterAIModel[];
-}
-
-/**
- {
- "id": "google/gemini-2.5-pro-preview-03-25",
- "name": "Google: Gemini 2.5 Pro Preview",
- "created": 1744924206,
- "description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.",
- "context_length": 1048576,
- "architecture": {
- "modality": "text+image->text",
- "input_modalities": [
- "text",
- "image",
- "file"
- ],
- "output_modalities": [
- "text"
- ],
- "tokenizer": "Gemini",
- "instruct_type": null
- },
- "pricing": {
- "prompt": "0.00000125",
- "completion": "0.00001",
- "request": "0",
- "image": "0.00516",
- "web_search": "0",
- "internal_reasoning": "0",
- "input_cache_read": "0.000000625",
- "input_cache_write": "0"
- },
- "top_provider": {
- "context_length": 1048576,
- "max_completion_tokens": 65535,
- "is_moderated": false
- },
- "per_request_limits": null
- }
- */
-export interface OpenRouterAIModel {
-  id: string;
-  name: string;
-  created: number;
-  description?: string;
-  architecture?: {
-    input_modalities?: string[];
-    output_modalities?: string[];
-    tokenizer?: string;
-  };
-  top_provider?: {
-    is_moderated?: boolean;
-  };
-  pricing?: {
-    prompt?: string;
-    completion?: string;
-    image?: string;
-    request?: string;
-    input_cache_read?: string;
-    input_cache_write?: string;
-    web_search?: string;
-    internal_reasoning?: string;
-  };
-  context_length?: number;
-  per_request_limits?: Record<string, string>;
-}
-
 // SiliconFlow response model definition
 export interface SiliconFlowModelResponse {
   object: string;
@@ -405,7 +335,6 @@ export interface ProviderResponseMap {
   [ChatModelProviders.DEEPSEEK]: DeepSeekModelResponse;
   [ChatModelProviders.GROQ]: GroqModelResponse;
   [ChatModelProviders.XAI]: XAIModelResponse;
-  [ChatModelProviders.OPENROUTERAI]: OpenRouterAIModelResponse;
   [ChatModelProviders.SILICONFLOW]: SiliconFlowModelResponse;
   [ChatModelProviders.COPILOT_PLUS]: null;
   [ChatModelProviders.AZURE_OPENAI]: null;
@@ -485,13 +414,6 @@ export const providerAdapters: ProviderModelAdapters = {
       id: model.id,
       name: model.id,
       provider: ChatModelProviders.XAI,
-    })) || [],
-
-  [ChatModelProviders.OPENROUTERAI]: (data): StandardModel[] =>
-    data.data?.map((model) => ({
-      id: model.id,
-      name: model.id,
-      provider: ChatModelProviders.OPENROUTERAI,
     })) || [],
 
   [ChatModelProviders.SILICONFLOW]: (data): StandardModel[] =>

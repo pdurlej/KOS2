@@ -33,7 +33,6 @@ const DEFAULT_GOOGLE_MAX_OUTPUT_TOKENS = 256;
 const OPENAI_COMPATIBLE_PROVIDERS = new Set<string>([
   ChatModelProviders.OPENAI,
   EmbeddingModelProviders.OPENAI,
-  ChatModelProviders.OPENROUTERAI,
   ChatModelProviders.GROQ,
   ChatModelProviders.XAI,
   ChatModelProviders.SILICONFLOW,
@@ -246,12 +245,6 @@ async function buildOpenAICompatibleRequestSpec(
   // Add OpenAI org ID if present
   if (model.openAIOrgId?.trim()) {
     headers["OpenAI-Organization"] = model.openAIOrgId.trim();
-  }
-
-  // Add OpenRouter-specific headers (see chatModelManager.ts:259-262)
-  if (provider === ChatModelProviders.OPENROUTERAI) {
-    headers["HTTP-Referer"] = "https://obsidiancopilot.com";
-    headers["X-Title"] = "Obsidian Copilot";
   }
 
   if (isEmbeddingModel) {

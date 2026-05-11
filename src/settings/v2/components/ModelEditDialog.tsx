@@ -146,7 +146,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
                     <div className="tw-text-[12px]">
                       Example:
                       <li>Direct-Paid:Ds-r1</li>
-                      <li>OpenRouter-Paid:Ds-r1</li>
+                      <li>Proxy-Paid:Ds-r1</li>
                       <li>Perplexity-Paid:lg</li>
                     </div>
                   </div>
@@ -191,28 +191,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
             </p>
           )}
         </FormField>
-
-        {/* Prompt Caching Toggle for OpenRouter */}
-        {localModel.provider === ChatModelProviders.OPENROUTERAI && (
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <Checkbox
-              id="enable-prompt-caching"
-              checked={localModel.enablePromptCaching !== false}
-              onCheckedChange={(checked) => handleLocalUpdate("enablePromptCaching", checked)}
-            />
-            <Label htmlFor="enable-prompt-caching" className="tw-cursor-pointer tw-text-sm">
-              Prompt Caching
-            </Label>
-            <HelpTooltip
-              content={
-                <div className="tw-text-sm tw-text-muted">
-                  Disable if your OpenRouter endpoint uses Zero Data Retention (ZDR), which does not
-                  support prompt caching.
-                </div>
-              }
-            />
-          </div>
-        )}
 
         {showOtherParameters && (
           <>

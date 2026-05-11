@@ -68,7 +68,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
   const settings = getSettings();
   const defaultProvider = isEmbeddingModel
     ? EmbeddingModelProviders.OPENAI
-    : ChatModelProviders.OPENROUTERAI;
+    : ChatModelProviders.OPENAI_FORMAT;
 
   // 判断 Provider 是否有必填的额外设置
   const hasRequiredExtraSettings = (provider: string) => {
@@ -491,7 +491,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
                       <div className="tw-text-[12px]">
                         Example:
                         <li>Direct-Paid:Ds-r1</li>
-                        <li>OpenRouter-Paid:Ds-r1</li>
+                        <li>Proxy-Paid:Ds-r1</li>
                         <li>Perplexity-Paid:lg</li>
                       </div>
                     </div>
