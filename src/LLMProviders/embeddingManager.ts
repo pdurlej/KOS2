@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CustomModel } from "@/aiParams";
-import { BREVILABS_MODELS_BASE_URL, EmbeddingModelProviders, ProviderInfo } from "@/constants";
+import { BREVILABS_MODELS_BASE_URL, EmbeddingModelProviders } from "@/constants";
 import { getDecryptedKey } from "@/encryptionService";
 import { CustomError } from "@/error";
 import { getModelKeyFromModel, getSettings, subscribeToSettingsChange } from "@/settings/model";
@@ -9,7 +9,7 @@ import { CohereEmbeddings } from "@langchain/cohere";
 import { Embeddings } from "@langchain/core/embeddings";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { OllamaEmbeddings } from "@langchain/ollama";
-import { AzureOpenAIEmbeddings, OpenAIEmbeddings } from "@langchain/openai";
+import { OpenAIEmbeddings } from "@langchain/openai";
 import { Notice } from "obsidian";
 import { BrevilabsClient } from "./brevilabsClient";
 import { CustomJinaEmbeddings } from "./CustomJinaEmbeddings";
@@ -20,13 +20,10 @@ type EmbeddingConstructorType = new (config: any) => Embeddings;
 const EMBEDDING_PROVIDER_CONSTRUCTORS = {
   [EmbeddingModelProviders.COPILOT_PLUS]: CustomOpenAIEmbeddings,
   [EmbeddingModelProviders.COPILOT_PLUS_JINA]: CustomJinaEmbeddings,
-  [EmbeddingModelProviders.OPENAI]: OpenAIEmbeddings,
   [EmbeddingModelProviders.COHEREAI]: CohereEmbeddings,
   [EmbeddingModelProviders.GOOGLE]: GoogleGenerativeAIEmbeddings,
-  [EmbeddingModelProviders.AZURE_OPENAI]: AzureOpenAIEmbeddings,
   [EmbeddingModelProviders.OLLAMA]: OllamaEmbeddings,
   [EmbeddingModelProviders.OPENAI_FORMAT]: OpenAIEmbeddings,
-  [EmbeddingModelProviders.SILICONFLOW]: CustomOpenAIEmbeddings,
 } as const;
 
 type EmbeddingProviderConstructorMap = typeof EMBEDDING_PROVIDER_CONSTRUCTORS;
@@ -47,13 +44,10 @@ export default class EmbeddingManager {
   private readonly providerApiKeyMap: Record<EmbeddingModelProviders, () => string> = {
     [EmbeddingModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
     [EmbeddingModelProviders.COPILOT_PLUS_JINA]: () => getSettings().plusLicenseKey,
-    [EmbeddingModelProviders.OPENAI]: () => getSettings().openAIApiKey,
     [EmbeddingModelProviders.COHEREAI]: () => getSettings().cohereApiKey,
     [EmbeddingModelProviders.GOOGLE]: () => getSettings().googleApiKey,
-    [EmbeddingModelProviders.AZURE_OPENAI]: () => getSettings().azureOpenAIApiKey,
     [EmbeddingModelProviders.OLLAMA]: () => "default-key",
     [EmbeddingModelProviders.OPENAI_FORMAT]: () => "default-key",
-    [EmbeddingModelProviders.SILICONFLOW]: () => getSettings().siliconflowApiKey,
   };
 
   private constructor() {
@@ -226,16 +220,6 @@ export default class EmbeddingManager {
           fetch: customModel.enableCors ? safeFetch : undefined,
         },
       },
-      [EmbeddingModelProviders.OPENAI]: {
-        modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.openAIApiKey),
-        timeout: 10000,
-        batchSize: getSettings().embeddingBatchSize,
-        configuration: {
-          baseURL: customModel.baseUrl,
-          fetch: customModel.enableCors ? safeFetch : undefined,
-        },
-      },
       [EmbeddingModelProviders.COHEREAI]: {
         model: modelName,
         apiKey: await getDecryptedKey(customModel.apiKey || settings.cohereApiKey),
@@ -243,16 +227,6 @@ export default class EmbeddingManager {
       [EmbeddingModelProviders.GOOGLE]: {
         modelName: modelName,
         apiKey: await getDecryptedKey(settings.googleApiKey),
-      },
-      [EmbeddingModelProviders.AZURE_OPENAI]: {
-        modelName,
-        azureOpenAIApiKey: await getDecryptedKey(customModel.apiKey || settings.azureOpenAIApiKey),
-        azureOpenAIApiInstanceName:
-          customModel.azureOpenAIApiInstanceName || settings.azureOpenAIApiInstanceName,
-        azureOpenAIApiDeploymentName:
-          customModel.azureOpenAIApiEmbeddingDeploymentName ||
-          settings.azureOpenAIApiEmbeddingDeploymentName,
-        azureOpenAIApiVersion: customModel.azureOpenAIApiVersion || settings.azureOpenAIApiVersion,
       },
       [EmbeddingModelProviders.OLLAMA]: {
         baseUrl: customModel.baseUrl || "http://localhost:11434",
@@ -270,15 +244,6 @@ export default class EmbeddingManager {
           baseURL: customModel.baseUrl,
           fetch: customModel.enableCors ? safeFetch : undefined,
           dangerouslyAllowBrowser: true,
-        },
-      },
-      [EmbeddingModelProviders.SILICONFLOW]: {
-        modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.siliconflowApiKey),
-        batchSize: getSettings().embeddingBatchSize,
-        configuration: {
-          baseURL: customModel.baseUrl || ProviderInfo[EmbeddingModelProviders.SILICONFLOW].host,
-          fetch: customModel.enableCors ? safeFetch : undefined,
         },
       },
     };

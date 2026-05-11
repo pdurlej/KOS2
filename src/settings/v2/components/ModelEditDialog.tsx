@@ -94,18 +94,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
   if (!localModel) return null;
 
   const getPlaceholderUrl = () => {
-    if (!localModel || !localModel.provider || localModel.provider !== "azure-openai") {
-      return providerInfo.host || "https://api.example.com/v1";
-    }
-
-    const instanceName = localModel.azureOpenAIApiInstanceName || "[instance]";
-    const deploymentName = localModel.isEmbeddingModel
-      ? localModel.azureOpenAIApiEmbeddingDeploymentName || "[deployment]"
-      : localModel.azureOpenAIApiDeploymentName || "[deployment]";
-    const apiVersion = localModel.azureOpenAIApiVersion || "[api-version]";
-    const endpoint = localModel.isEmbeddingModel ? "embeddings" : "chat/completions";
-
-    return `https://${instanceName}.openai.azure.com/openai/deployments/${deploymentName}/${endpoint}?api-version=${apiVersion}`;
+    return providerInfo.host || "https://api.example.com/v1";
   };
 
   const capabilityOptions = Object.entries(MODEL_CAPABILITIES).map(([id, description]) => ({

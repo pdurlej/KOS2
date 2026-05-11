@@ -58,8 +58,6 @@ type ChatConstructorType = {
 };
 
 const CHAT_PROVIDER_CONSTRUCTORS = {
-  [ChatModelProviders.OPENAI]: ChatOpenAI,
-  [ChatModelProviders.AZURE_OPENAI]: ChatOpenAI,
   [ChatModelProviders.ANTHROPIC]: ChatAnthropic,
   [ChatModelProviders.COHEREAI]: ChatCohere,
   [ChatModelProviders.GOOGLE]: ChatGoogleGenerativeAI,
@@ -67,42 +65,12 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.OLLAMA]: ChatOllama,
   [ChatModelProviders.GROQ]: ChatGroq,
   [ChatModelProviders.OPENAI_FORMAT]: ChatOpenAI,
-  [ChatModelProviders.SILICONFLOW]: ChatOpenAI,
   [ChatModelProviders.COPILOT_PLUS]: ChatOpenRouter,
   [ChatModelProviders.MISTRAL]: ChatMistralAI,
   [ChatModelProviders.DEEPSEEK]: ChatDeepSeek,
 } as const;
 
 type ChatProviderConstructMap = typeof CHAT_PROVIDER_CONSTRUCTORS;
-
-/**
- * Normalize an Azure URL that a user may have pasted in full.
- * Strips trailing `/chat/completions` or `/embeddings` and extracts
- * `api-version` from query parameters so the OpenAI client can
- * construct the correct final URL.
- */
-export function normalizeAzureUrl(raw: string | undefined): {
-  baseUrl: string | undefined;
-  apiVersion: string | undefined;
-} {
-  if (!raw) return { baseUrl: undefined, apiVersion: undefined };
-
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    return { baseUrl: raw, apiVersion: undefined };
-  }
-
-  const apiVersion = url.searchParams.get("api-version") || undefined;
-  url.search = "";
-  let baseUrl = url.toString().replace(/\/+$/, "");
-
-  // Strip paths that the OpenAI client appends automatically
-  baseUrl = baseUrl.replace(/\/(chat\/completions|embeddings)$/, "");
-
-  return { baseUrl, apiVersion };
-}
 
 export default class ChatModelManager {
   private static instance: ChatModelManager;
@@ -119,9 +87,7 @@ export default class ChatModelManager {
   private static readonly ANTHROPIC_THINKING_BUDGET_TOKENS = 2048;
 
   private readonly providerApiKeyMap: Record<ChatModelProviders, () => string> = {
-    [ChatModelProviders.OPENAI]: () => getSettings().openAIApiKey,
     [ChatModelProviders.GOOGLE]: () => getSettings().googleApiKey,
-    [ChatModelProviders.AZURE_OPENAI]: () => getSettings().azureOpenAIApiKey,
     [ChatModelProviders.ANTHROPIC]: () => getSettings().anthropicApiKey,
     [ChatModelProviders.COHEREAI]: () => getSettings().cohereApiKey,
     [ChatModelProviders.GROQ]: () => getSettings().groqApiKey,
@@ -131,7 +97,6 @@ export default class ChatModelManager {
     [ChatModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
     [ChatModelProviders.MISTRAL]: () => getSettings().mistralApiKey,
     [ChatModelProviders.DEEPSEEK]: () => getSettings().deepseekApiKey,
-    [ChatModelProviders.SILICONFLOW]: () => getSettings().siliconflowApiKey,
   } as const;
 
   private constructor() {
@@ -199,21 +164,6 @@ export default class ChatModelManager {
     const providerConfig: {
       [K in keyof ChatProviderConstructMap]: ConstructorParameters<ChatProviderConstructMap[K]>[0];
     } = {
-      [ChatModelProviders.OPENAI]: {
-        modelName: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.openAIApiKey),
-        configuration: {
-          baseURL: customModel.baseUrl,
-          fetch: customModel.enableCors ? safeFetch : undefined,
-          organization: await getDecryptedKey(customModel.openAIOrgId || settings.openAIOrgId),
-        },
-        ...this.getOpenAISpecialConfig(
-          modelName,
-          customModel.maxTokens ?? settings.maxTokens,
-          customModel.temperature ?? settings.temperature,
-          customModel
-        ),
-      },
       [ChatModelProviders.ANTHROPIC]: {
         anthropicApiKey: await getDecryptedKey(customModel.apiKey || settings.anthropicApiKey),
         model: modelName,
@@ -232,38 +182,6 @@ export default class ChatModelManager {
           },
         }),
       },
-      [ChatModelProviders.AZURE_OPENAI]: await (async () => {
-        const azureUrl = normalizeAzureUrl(customModel.baseUrl);
-        return {
-          modelName: customModel.baseUrl
-            ? modelName
-            : customModel.azureOpenAIApiDeploymentName || settings.azureOpenAIApiDeploymentName,
-          apiKey: await getDecryptedKey(customModel.apiKey || settings.azureOpenAIApiKey),
-          configuration: {
-            baseURL:
-              azureUrl.baseUrl ||
-              `https://${customModel.azureOpenAIApiInstanceName || settings.azureOpenAIApiInstanceName}.openai.azure.com/openai/deployments/${customModel.azureOpenAIApiDeploymentName || settings.azureOpenAIApiDeploymentName}`,
-            defaultQuery: {
-              "api-version":
-                azureUrl.apiVersion ||
-                customModel.azureOpenAIApiVersion ||
-                settings.azureOpenAIApiVersion ||
-                "2024-05-01-preview",
-            },
-            defaultHeaders: {
-              "Content-Type": "application/json",
-              "api-key": await getDecryptedKey(customModel.apiKey || settings.azureOpenAIApiKey),
-            },
-            fetch: customModel.enableCors ? safeFetch : undefined,
-          },
-          ...this.getOpenAISpecialConfig(
-            modelName,
-            customModel.maxTokens ?? settings.maxTokens,
-            customModel.temperature ?? settings.temperature,
-            customModel
-          ),
-        };
-      })(),
       [ChatModelProviders.COHEREAI]: {
         apiKey: await getDecryptedKey(customModel.apiKey || settings.cohereApiKey),
         model: modelName,
@@ -317,26 +235,12 @@ export default class ChatModelManager {
       },
       [ChatModelProviders.OPENAI_FORMAT]: {
         modelName: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.openAIApiKey),
+        apiKey: await getDecryptedKey(customModel.apiKey || ""),
         streamUsage: customModel.streamUsage ?? false,
         configuration: {
           baseURL: customModel.baseUrl,
           fetch: customModel.enableCors ? safeFetch : undefined,
           defaultHeaders: { "dangerously-allow-browser": "true" },
-        },
-        ...this.getOpenAISpecialConfig(
-          modelName,
-          customModel.maxTokens ?? settings.maxTokens,
-          customModel.temperature ?? settings.temperature,
-          customModel
-        ),
-      },
-      [ChatModelProviders.SILICONFLOW]: {
-        modelName: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.siliconflowApiKey),
-        configuration: {
-          baseURL: customModel.baseUrl || ProviderInfo[ChatModelProviders.SILICONFLOW].host,
-          fetch: customModel.enableCors ? safeFetch : undefined,
         },
         ...this.getOpenAISpecialConfig(
           modelName,
@@ -426,13 +330,8 @@ export default class ChatModelManager {
       };
 
       // Add verbosity for GPT-5 models (Responses API only).
-      // Azure does not support Responses API so skip verbosity there;
-      // useResponsesApi is only enabled for OPENAI / OPENAI_FORMAT in createModelInstance().
-      if (
-        modelInfo.isGPT5 &&
-        customModel?.verbosity &&
-        customModel?.provider !== ChatModelProviders.AZURE_OPENAI
-      ) {
+      // useResponsesApi is only enabled for OPENAI_FORMAT in createModelInstance().
+      if (modelInfo.isGPT5 && customModel?.verbosity) {
         const verbosityValue = customModel.verbosity;
         // For Responses API, verbosity is nested under 'text' parameter
         config.text = {
@@ -456,15 +355,12 @@ export default class ChatModelManager {
       // These providers support topP
       if (
         [
-          ChatModelProviders.OPENAI,
-          ChatModelProviders.AZURE_OPENAI,
           ChatModelProviders.ANTHROPIC,
           ChatModelProviders.GOOGLE,
           ChatModelProviders.OLLAMA,
           ChatModelProviders.OPENAI_FORMAT,
           ChatModelProviders.MISTRAL,
           ChatModelProviders.DEEPSEEK,
-          ChatModelProviders.SILICONFLOW,
         ].includes(provider)
       ) {
         params.topP = customModel.topP;
@@ -476,13 +372,10 @@ export default class ChatModelManager {
       // These providers support frequencyPenalty
       if (
         [
-          ChatModelProviders.OPENAI,
-          ChatModelProviders.AZURE_OPENAI,
           ChatModelProviders.OLLAMA,
           ChatModelProviders.OPENAI_FORMAT,
           ChatModelProviders.MISTRAL,
           ChatModelProviders.DEEPSEEK,
-          ChatModelProviders.SILICONFLOW,
         ].includes(provider)
       ) {
         params.frequencyPenalty = customModel.frequencyPenalty;
@@ -635,11 +528,7 @@ export default class ChatModelManager {
 
       // Log if Responses API is enabled for GPT-5
       const modelInfo = getModelInfo(model.name);
-      if (
-        modelInfo.isGPT5 &&
-        (model.provider === ChatModelProviders.OPENAI ||
-          model.provider === ChatModelProviders.OPENAI_FORMAT)
-      ) {
+      if (modelInfo.isGPT5 && model.provider === ChatModelProviders.OPENAI_FORMAT) {
         logInfo(`Chat model set with Responses API for GPT-5: ${model.name}`);
       }
     } catch (error) {
@@ -670,11 +559,7 @@ export default class ChatModelManager {
 
     // For GPT-5 models, automatically use Responses API for proper verbosity support
     const constructorConfig: any = { ...modelConfig };
-    if (
-      modelInfo.isGPT5 &&
-      (selectedModel.vendor === ChatModelProviders.OPENAI ||
-        selectedModel.vendor === ChatModelProviders.OPENAI_FORMAT)
-    ) {
+    if (modelInfo.isGPT5 && selectedModel.vendor === ChatModelProviders.OPENAI_FORMAT) {
       constructorConfig.useResponsesApi = true;
       logInfo(`Enabling Responses API for GPT-5 model: ${model.name} (${selectedModel.vendor})`);
     }
@@ -740,11 +625,7 @@ export default class ChatModelManager {
         ...tokenConfig,
       };
 
-      if (
-        modelInfo.isGPT5 &&
-        (model.provider === ChatModelProviders.OPENAI ||
-          model.provider === ChatModelProviders.OPENAI_FORMAT)
-      ) {
+      if (modelInfo.isGPT5 && model.provider === ChatModelProviders.OPENAI_FORMAT) {
         constructorConfig.useResponsesApi = true;
       }
 

@@ -50,22 +50,13 @@ export interface LegacyCommandSettings {
 export interface CopilotSettings {
   userId: string;
   plusLicenseKey: string;
-  openAIApiKey: string;
-  openAIOrgId: string;
-  huggingfaceApiKey: string;
   cohereApiKey: string;
   anthropicApiKey: string;
-  azureOpenAIApiKey: string;
-  azureOpenAIApiInstanceName: string;
-  azureOpenAIApiDeploymentName: string;
-  azureOpenAIApiVersion: string;
-  azureOpenAIApiEmbeddingDeploymentName: string;
   googleApiKey: string;
   ollamaCloudApiKey: string;
   xaiApiKey: string;
   mistralApiKey: string;
   deepseekApiKey: string;
-  siliconflowApiKey: string;
   defaultChainType: ChainType;
   defaultModelKey: string;
   embeddingModelKey: string;
@@ -79,8 +70,6 @@ export interface CopilotSettings {
   lastDismissedVersion: string | null;
   // DEPRECATED: Do not use this directly, migrated to file-based system prompts
   userSystemPrompt: string;
-  openAIProxyBaseUrl: string;
-  openAIEmbeddingProxyBaseUrl: string;
   stream: boolean;
   defaultSaveFolder: string;
   defaultConversationTag: string;
@@ -449,17 +438,8 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
     settingsToSanitize.activeModels = [];
   }
 
-  // fix: Maintain consistency between EmbeddingModelProviders.AZURE_OPENAI and ChatModelProviders.AZURE_OPENAI,
-  // where it was 'azure_openai' before EmbeddingModelProviders.AZURE_OPENAI.
   if (!settingsToSanitize.activeEmbeddingModels) {
     settingsToSanitize.activeEmbeddingModels = [];
-  } else {
-    settingsToSanitize.activeEmbeddingModels = settingsToSanitize.activeEmbeddingModels.map((m) => {
-      return {
-        ...m,
-        provider: m.provider === "azure_openai" ? EmbeddingModelProviders.AZURE_OPENAI : m.provider,
-      };
-    });
   }
 
   const sanitizedSettings: CopilotSettings = { ...settingsToSanitize };

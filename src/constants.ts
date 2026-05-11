@@ -181,13 +181,6 @@ export enum ChatModels {
   KOS2_QWEN3_CODER_30B = "qwen3-coder:30b",
   KOS2_BIELIK_7B = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:Q5_K_M",
   COPILOT_PLUS_FLASH = "copilot-plus-flash",
-  GPT_5_4 = "gpt-5.4",
-  GPT_5_mini = "gpt-5-mini",
-  GPT_5_nano = "gpt-5-nano",
-  GPT_41 = "gpt-4.1",
-  GPT_41_mini = "gpt-4.1-mini",
-  GPT_41_nano = "gpt-4.1-nano",
-  O4_mini = "o4-mini",
   GEMINI_3_PRO_PREVIEW = "gemini-3.1-pro-preview",
   GEMINI_3_FLASH_PREVIEW = "gemini-3-flash-preview",
   GEMINI_3_FLASH_LITE_PREVIEW = "gemini-3.1-flash-lite-preview",
@@ -201,25 +194,20 @@ export enum ChatModels {
   MISTRAL_TINY = "mistral-tiny-latest",
   DEEPSEEK_REASONER = "deepseek-reasoner",
   DEEPSEEK_CHAT = "deepseek-chat",
-  SILICONFLOW_DEEPSEEK_V3 = "deepseek-ai/DeepSeek-V3",
-  SILICONFLOW_DEEPSEEK_R1 = "deepseek-ai/DeepSeek-R1",
 }
 
 // Model Providers
 export enum ChatModelProviders {
-  OPENAI = "openai",
   OPENAI_FORMAT = "3rd party (openai-format)",
   ANTHROPIC = "anthropic",
   GOOGLE = "google",
   XAI = "xai",
-  AZURE_OPENAI = "azure openai",
   GROQ = "groq",
   OLLAMA = "ollama",
   COPILOT_PLUS = "copilot-plus",
   MISTRAL = "mistralai",
   DEEPSEEK = "deepseek",
   COHEREAI = "cohereai",
-  SILICONFLOW = "siliconflow",
 }
 
 export enum ModelCapability {
@@ -256,23 +244,16 @@ export const BUILTIN_CHAT_MODELS: CustomModel[] = [
 ];
 
 export enum EmbeddingModelProviders {
-  OPENAI = "openai",
   COHEREAI = "cohereai",
   GOOGLE = "google",
-  AZURE_OPENAI = "azure openai",
   OLLAMA = "ollama",
   OPENAI_FORMAT = "3rd party (openai-format)",
   COPILOT_PLUS = "copilot-plus",
   COPILOT_PLUS_JINA = "copilot-plus-jina",
-  SILICONFLOW = "siliconflow",
 }
 
 export enum EmbeddingModels {
   KOS2_BGE_M3 = "bge-m3:latest",
-  OPENAI_EMBEDDING_ADA_V2 = "text-embedding-ada-002",
-  OPENAI_EMBEDDING_SMALL = "text-embedding-3-small",
-  OPENAI_EMBEDDING_LARGE = "text-embedding-3-large",
-  AZURE_OPENAI = "azure-openai",
   COHEREAI_EMBED_MULTILINGUAL_LIGHT_V3_0 = "embed-multilingual-light-v3.0",
   GOOGLE_ENG = "text-embedding-004",
   GOOGLE_GEMINI_EMBEDDING = "gemini-embedding-001",
@@ -280,7 +261,6 @@ export enum EmbeddingModels {
   COPILOT_PLUS_SMALL = "copilot-plus-small",
   COPILOT_PLUS_LARGE = "copilot-plus-large",
   COPILOT_PLUS_MULTILINGUAL = "copilot-plus-multilingual",
-  SILICONFLOW_QWEN3_EMBEDDING_0_6B = "Qwen/Qwen3-Embedding-0.6B",
 }
 
 export const BUILTIN_EMBEDDING_MODELS: CustomModel[] = [
@@ -340,14 +320,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     listModelURL: "https://api.anthropic.com/v1/models",
     testModel: ChatModels.CLAUDE_SONNET_4_6,
   },
-  [ChatModelProviders.OPENAI]: {
-    label: "OpenAI",
-    host: "https://api.openai.com",
-    curlBaseURL: "https://api.openai.com/v1",
-    keyManagementURL: "https://platform.openai.com/api-keys",
-    listModelURL: "https://api.openai.com/v1/models",
-    testModel: ChatModels.GPT_5_4,
-  },
   [ChatModelProviders.XAI]: {
     label: "XAI",
     host: "https://api.x.ai/v1",
@@ -355,13 +327,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     keyManagementURL: "https://console.x.ai",
     listModelURL: "https://api.x.ai/v1/models",
     testModel: ChatModels.GROK_4_1_FAST,
-  },
-  [ChatModelProviders.AZURE_OPENAI]: {
-    label: "Azure",
-    host: "https://<resource>.services.ai.azure.com/models",
-    curlBaseURL: "https://<resource>.services.ai.azure.com/models",
-    keyManagementURL: "https://ai.azure.com",
-    listModelURL: "",
   },
   [ChatModelProviders.GROQ]: {
     label: "Groq",
@@ -378,14 +343,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     keyManagementURL: "https://dashboard.cohere.ai/api-keys",
     listModelURL: "https://api.cohere.com/v1/models",
     testModel: ChatModels.COMMAND_R,
-  },
-  [ChatModelProviders.SILICONFLOW]: {
-    label: "SiliconFlow",
-    host: "https://api.siliconflow.com/v1",
-    curlBaseURL: "https://api.siliconflow.com/v1",
-    keyManagementURL: "https://cloud.siliconflow.com/me/account/ak",
-    listModelURL: "https://api.siliconflow.com/v1/models",
-    testModel: ChatModels.SILICONFLOW_DEEPSEEK_V3,
   },
   [ChatModelProviders.OLLAMA]: {
     label: "Ollama (Local / Remote)",
@@ -436,8 +393,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
 // Map provider to its settings key for API key
 export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSettings> = {
   anthropic: "anthropicApiKey",
-  openai: "openAIApiKey",
-  "azure openai": "azureOpenAIApiKey",
   google: "googleApiKey",
   groq: "groqApiKey",
   cohereai: "cohereApiKey",
@@ -445,7 +400,6 @@ export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSe
   "copilot-plus": "plusLicenseKey",
   mistralai: "mistralApiKey",
   deepseek: "deepseekApiKey",
-  siliconflow: "siliconflowApiKey",
 };
 
 export enum VAULT_VECTOR_STORE_STRATEGY {
@@ -610,22 +564,13 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   userId: uuidv4(),
   isPlusUser: true,
   plusLicenseKey: "",
-  openAIApiKey: "",
-  openAIOrgId: "",
-  huggingfaceApiKey: "",
   cohereApiKey: "",
   anthropicApiKey: "",
-  azureOpenAIApiKey: "",
-  azureOpenAIApiInstanceName: "",
-  azureOpenAIApiDeploymentName: "",
-  azureOpenAIApiVersion: "",
-  azureOpenAIApiEmbeddingDeploymentName: "",
   googleApiKey: "",
   ollamaCloudApiKey: "",
   xaiApiKey: "",
   mistralApiKey: "",
   deepseekApiKey: "",
-  siliconflowApiKey: "",
   defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
   defaultModelKey: ChatModels.KOS2_QWEN3_CODER_30B + "|" + ChatModelProviders.OLLAMA,
   embeddingModelKey: EmbeddingModels.KOS2_BGE_M3 + "|" + EmbeddingModelProviders.OLLAMA,
@@ -635,8 +580,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   maxTokens: DEFAULT_MODEL_SETTING.MAX_TOKENS,
   contextTurns: 15,
   userSystemPrompt: "",
-  openAIProxyBaseUrl: "",
-  openAIEmbeddingProxyBaseUrl: "",
   stream: true,
   defaultSaveFolder: DEFAULT_CHAT_HISTORY_FOLDER,
   defaultConversationTag: "kos2-conversation",

@@ -12,27 +12,6 @@ export interface StandardModel {
 
 // The list model interface return value for each Provider.
 
-// OpenAI response model definition
-export interface OpenAIModelResponse {
-  object: string;
-  data: OpenAIModel[];
-}
-
-/**
- {
- "id": "model-id-0",
- "object": "model",
- "created": 1686935002,
- "owned_by": "organization-owner"
- },
- */
-export interface OpenAIModel {
-  id: string;
-  object: string;
-  created: number;
-  owned_by: string;
-}
-
 // Google (Gemini) response model definition
 export interface GoogleModelResponse {
   models: GoogleModel[];
@@ -253,30 +232,8 @@ export interface XAIModel {
   owned_by: string;
 }
 
-// SiliconFlow response model definition
-export interface SiliconFlowModelResponse {
-  object: string;
-  data: SiliconFlowModel[];
-}
-
-/**
- {
- "id": "deepseek-ai/DeepSeek-V3",
- "object": "model",
- "created": 0,
- "owned_by": ""
- }
- */
-export interface SiliconFlowModel {
-  id: string;
-  object: string;
-  created: number;
-  owned_by: string;
-}
-
 // Response type mapping
 export interface ProviderResponseMap {
-  [ChatModelProviders.OPENAI]: OpenAIModelResponse;
   [ChatModelProviders.GOOGLE]: GoogleModelResponse;
   [ChatModelProviders.ANTHROPIC]: AnthropicModelResponse;
   [ChatModelProviders.MISTRAL]: MistralModelResponse;
@@ -284,9 +241,7 @@ export interface ProviderResponseMap {
   [ChatModelProviders.DEEPSEEK]: DeepSeekModelResponse;
   [ChatModelProviders.GROQ]: GroqModelResponse;
   [ChatModelProviders.XAI]: XAIModelResponse;
-  [ChatModelProviders.SILICONFLOW]: SiliconFlowModelResponse;
   [ChatModelProviders.COPILOT_PLUS]: null;
-  [ChatModelProviders.AZURE_OPENAI]: null;
 }
 
 // Adapter type definition - converts provider-specific models to standard format
@@ -304,13 +259,6 @@ export type ProviderModelAdapters = {
  * These adapters extract model information from API responses and return in a unified format
  */
 export const providerAdapters: ProviderModelAdapters = {
-  [ChatModelProviders.OPENAI]: (data): StandardModel[] =>
-    data.data?.map((model) => ({
-      id: model.id,
-      name: model.id,
-      provider: ChatModelProviders.OPENAI,
-    })) || [],
-
   [ChatModelProviders.GOOGLE]: (data): StandardModel[] =>
     data.models?.map((model) => {
       // models/gemini-2.5-pro-exp-03-25
@@ -362,13 +310,6 @@ export const providerAdapters: ProviderModelAdapters = {
       id: model.id,
       name: model.id,
       provider: ChatModelProviders.XAI,
-    })) || [],
-
-  [ChatModelProviders.SILICONFLOW]: (data): StandardModel[] =>
-    data.data?.map((model) => ({
-      id: model.id,
-      name: model.id,
-      provider: ChatModelProviders.SILICONFLOW,
     })) || [],
 
 };
