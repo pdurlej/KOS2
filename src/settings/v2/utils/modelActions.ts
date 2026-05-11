@@ -1,5 +1,5 @@
 import { CustomModel } from "@/aiParams";
-import { ChatModelProviders, SettingKeyProviders } from "@/constants";
+import { SettingKeyProviders } from "@/constants";
 import { getDecryptedKey } from "@/encryptionService";
 import ProjectManager from "@/LLMProviders/projectManager";
 import { logError, logWarn } from "@/logger";
@@ -40,19 +40,9 @@ export async function fetchModelsForProvider(
       return { success: false, models: [], error: "Provider does not support model listing" };
     }
 
-    let headers: Record<string, string> = {
+    const headers: Record<string, string> = {
       Authorization: `Bearer ${apiKey}`,
     };
-
-    if (provider === ChatModelProviders.GOOGLE) {
-      url += `?key=${apiKey}`;
-      headers = {};
-    } else if (provider === ChatModelProviders.ANTHROPIC) {
-      headers = {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      };
-    }
 
     const tryFetch = async (useSafeFetch: boolean) => {
       const controller = new AbortController();

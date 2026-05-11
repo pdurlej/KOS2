@@ -181,33 +181,13 @@ export enum ChatModels {
   KOS2_QWEN3_CODER_30B = "qwen3-coder:30b",
   KOS2_BIELIK_7B = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:Q5_K_M",
   COPILOT_PLUS_FLASH = "copilot-plus-flash",
-  GEMINI_3_PRO_PREVIEW = "gemini-3.1-pro-preview",
-  GEMINI_3_FLASH_PREVIEW = "gemini-3-flash-preview",
-  GEMINI_3_FLASH_LITE_PREVIEW = "gemini-3.1-flash-lite-preview",
-  GEMINI_PRO = "gemini-2.5-pro",
-  GEMINI_FLASH = "gemini-2.5-flash",
-  CLAUDE_OPUS_4_6 = "claude-opus-4-6",
-  CLAUDE_SONNET_4_6 = "claude-sonnet-4-6",
-  GROK_4_1_FAST = "grok-4-1-fast",
-  GROQ_LLAMA_8b = "llama3-8b-8192",
-  COMMAND_R = "command-r",
-  MISTRAL_TINY = "mistral-tiny-latest",
-  DEEPSEEK_REASONER = "deepseek-reasoner",
-  DEEPSEEK_CHAT = "deepseek-chat",
 }
 
 // Model Providers
 export enum ChatModelProviders {
   OPENAI_FORMAT = "3rd party (openai-format)",
-  ANTHROPIC = "anthropic",
-  GOOGLE = "google",
-  XAI = "xai",
-  GROQ = "groq",
   OLLAMA = "ollama",
   COPILOT_PLUS = "copilot-plus",
-  MISTRAL = "mistralai",
-  DEEPSEEK = "deepseek",
-  COHEREAI = "cohereai",
 }
 
 export enum ModelCapability {
@@ -244,8 +224,6 @@ export const BUILTIN_CHAT_MODELS: CustomModel[] = [
 ];
 
 export enum EmbeddingModelProviders {
-  COHEREAI = "cohereai",
-  GOOGLE = "google",
   OLLAMA = "ollama",
   OPENAI_FORMAT = "3rd party (openai-format)",
   COPILOT_PLUS = "copilot-plus",
@@ -254,10 +232,6 @@ export enum EmbeddingModelProviders {
 
 export enum EmbeddingModels {
   KOS2_BGE_M3 = "bge-m3:latest",
-  COHEREAI_EMBED_MULTILINGUAL_LIGHT_V3_0 = "embed-multilingual-light-v3.0",
-  GOOGLE_ENG = "text-embedding-004",
-  GOOGLE_GEMINI_EMBEDDING = "gemini-embedding-001",
-  GOOGLE_GEMINI_EMBEDDING_2_PREVIEW = "gemini-embedding-2-preview",
   COPILOT_PLUS_SMALL = "copilot-plus-small",
   COPILOT_PLUS_LARGE = "copilot-plus-large",
   COPILOT_PLUS_MULTILINGUAL = "copilot-plus-multilingual",
@@ -304,46 +278,6 @@ export interface ProviderMetadata {
 
 // Unified provider information
 export const ProviderInfo: Record<Provider, ProviderMetadata> = {
-  [ChatModelProviders.GOOGLE]: {
-    label: "Gemini",
-    host: "https://generativelanguage.googleapis.com",
-    curlBaseURL: "https://generativelanguage.googleapis.com/v1beta",
-    keyManagementURL: "https://makersuite.google.com/app/apikey",
-    listModelURL: "https://generativelanguage.googleapis.com/v1beta/models",
-    testModel: ChatModels.GEMINI_FLASH,
-  },
-  [ChatModelProviders.ANTHROPIC]: {
-    label: "Anthropic",
-    host: "https://api.anthropic.com/",
-    curlBaseURL: "https://api.anthropic.com",
-    keyManagementURL: "https://console.anthropic.com/settings/keys",
-    listModelURL: "https://api.anthropic.com/v1/models",
-    testModel: ChatModels.CLAUDE_SONNET_4_6,
-  },
-  [ChatModelProviders.XAI]: {
-    label: "XAI",
-    host: "https://api.x.ai/v1",
-    curlBaseURL: "https://api.x.ai/v1",
-    keyManagementURL: "https://console.x.ai",
-    listModelURL: "https://api.x.ai/v1/models",
-    testModel: ChatModels.GROK_4_1_FAST,
-  },
-  [ChatModelProviders.GROQ]: {
-    label: "Groq",
-    host: "https://api.groq.com/openai",
-    curlBaseURL: "https://api.groq.com/openai/v1",
-    keyManagementURL: "https://console.groq.com/keys",
-    listModelURL: "https://api.groq.com/openai/v1/models",
-    testModel: ChatModels.GROQ_LLAMA_8b,
-  },
-  [ChatModelProviders.COHEREAI]: {
-    label: "Cohere",
-    host: "https://api.cohere.com",
-    curlBaseURL: "https://api.cohere.com/v1",
-    keyManagementURL: "https://dashboard.cohere.ai/api-keys",
-    listModelURL: "https://api.cohere.com/v1/models",
-    testModel: ChatModels.COMMAND_R,
-  },
   [ChatModelProviders.OLLAMA]: {
     label: "Ollama (Local / Remote)",
     host: "http://localhost:11434/v1/",
@@ -357,22 +291,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     curlBaseURL: "https://api.example.com/v1",
     keyManagementURL: "",
     listModelURL: "",
-  },
-  [ChatModelProviders.MISTRAL]: {
-    label: "Mistral",
-    host: "https://api.mistral.ai/v1",
-    curlBaseURL: "https://api.mistral.ai/v1",
-    keyManagementURL: "https://console.mistral.ai/api-keys",
-    listModelURL: "https://api.mistral.ai/v1/models",
-    testModel: ChatModels.MISTRAL_TINY,
-  },
-  [ChatModelProviders.DEEPSEEK]: {
-    label: "DeepSeek",
-    host: "https://api.deepseek.com/",
-    curlBaseURL: "https://api.deepseek.com",
-    keyManagementURL: "https://platform.deepseek.com/api-keys",
-    listModelURL: "https://api.deepseek.com/models",
-    testModel: ChatModels.DEEPSEEK_CHAT,
   },
   [EmbeddingModelProviders.COPILOT_PLUS]: {
     label: "Legacy Cloud",
@@ -392,14 +310,7 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
 
 // Map provider to its settings key for API key
 export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSettings> = {
-  anthropic: "anthropicApiKey",
-  google: "googleApiKey",
-  groq: "groqApiKey",
-  cohereai: "cohereApiKey",
-  xai: "xaiApiKey",
   "copilot-plus": "plusLicenseKey",
-  mistralai: "mistralApiKey",
-  deepseek: "deepseekApiKey",
 };
 
 export enum VAULT_VECTOR_STORE_STRATEGY {
@@ -564,13 +475,7 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   userId: uuidv4(),
   isPlusUser: true,
   plusLicenseKey: "",
-  cohereApiKey: "",
-  anthropicApiKey: "",
-  googleApiKey: "",
   ollamaCloudApiKey: "",
-  xaiApiKey: "",
-  mistralApiKey: "",
-  deepseekApiKey: "",
   defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
   defaultModelKey: ChatModels.KOS2_QWEN3_CODER_30B + "|" + ChatModelProviders.OLLAMA,
   embeddingModelKey: EmbeddingModels.KOS2_BGE_M3 + "|" + EmbeddingModelProviders.OLLAMA,
@@ -599,7 +504,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   enableEncryption: false,
   maxSourceChunks: DEFAULT_MAX_SOURCE_CHUNKS,
   enableInlineCitations: true,
-  groqApiKey: "",
   activeModels: [],
   activeEmbeddingModels: [],
   embeddingRequestsPerMin: 60,

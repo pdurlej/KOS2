@@ -22,21 +22,14 @@ interface CurlRequestSpec {
 // Constants
 // ============================================================================
 
-const DEFAULT_ANTHROPIC_VERSION = "2023-06-01";
 const DEFAULT_CHAT_MESSAGE = "Hello!";
 const DEFAULT_EMBEDDING_INPUT = "Hello!";
 const DEFAULT_OPENAI_MAX_TOKENS = 64;
-const DEFAULT_ANTHROPIC_MAX_TOKENS = 256;
-const DEFAULT_GOOGLE_MAX_OUTPUT_TOKENS = 256;
 
 /** Providers that use OpenAI-compatible API format */
 const OPENAI_COMPATIBLE_PROVIDERS = new Set<string>([
-  ChatModelProviders.GROQ,
-  ChatModelProviders.XAI,
   ChatModelProviders.OPENAI_FORMAT,
   EmbeddingModelProviders.OPENAI_FORMAT,
-  ChatModelProviders.MISTRAL,
-  ChatModelProviders.DEEPSEEK,
   // Note: Ollama uses native API (/api/chat), not OpenAI-compatible
 ]);
 
@@ -108,27 +101,6 @@ function stripOpenAIEndpointSuffix(baseUrl: string): string {
     }
   }
   return trimmed;
-}
-
-/**
- * Normalizes Google API base URL for curl generation.
- * - Strips trailing slashes and /models suffix
- * - Ensures /v1beta is present (SDK auto-appends it, so curl should simulate this)
- */
-function normalizeGoogleBaseUrl(baseUrl: string): string {
-  let normalized = trimTrailingSlashes(baseUrl);
-
-  // Strip /models suffix if present
-  if (normalized.endsWith("/models")) {
-    normalized = normalized.slice(0, -7);
-  }
-
-  // If URL doesn't contain version path, append /v1beta to simulate SDK behavior
-  if (!normalized.includes("/v1beta") && !normalized.includes("/v1")) {
-    normalized = `${normalized}/v1beta`;
-  }
-
-  return normalized;
 }
 
 /**
@@ -270,140 +242,6 @@ async function buildOpenAICompatibleRequestSpec(
 }
 
 // ============================================================================
-// Anthropic Builder
-// ============================================================================
-
-/** Builds curl request spec for Anthropic Messages API */
-async function buildAnthropicRequestSpec(
-  model: CustomModel
-): Promise<
-  | { ok: true; spec: CurlRequestSpec; warnings: string[] }
-  | { ok: false; error: string; warnings: string[] }
-> {
-  const warnings: string[] = [];
-
-  const baseOverride = model.baseUrl?.trim() ?? "";
-  const providerBase = getProviderCurlBaseURL(ChatModelProviders.ANTHROPIC);
-  let apiBase = trimTrailingSlashes(baseOverride || providerBase || "https://api.anthropic.com");
-  // Strip known suffixes to avoid duplication
-  const anthropicSuffixes = ["/v1/messages", "/v1"];
-  for (const suffix of anthropicSuffixes) {
-    if (apiBase.endsWith(suffix)) {
-      apiBase = apiBase.slice(0, -suffix.length);
-      break;
-    }
-  }
-  const url = `${apiBase}/v1/messages`;
-
-  const apiKeyResolved = await resolveApiKeyForCurl(model.apiKey);
-  warnings.push(...apiKeyResolved.warnings);
-
-  const modelName = model.name?.trim() || "<MODEL_NAME>";
-  if (!model.name?.trim()) {
-    warnings.push("Model name is empty; using placeholder.");
-  }
-
-  return {
-    ok: true,
-    warnings,
-    spec: {
-      method: "POST",
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "x-api-key": apiKeyResolved.apiKey,
-        "anthropic-version": DEFAULT_ANTHROPIC_VERSION,
-      },
-      body: {
-        model: modelName,
-        max_tokens: DEFAULT_ANTHROPIC_MAX_TOKENS,
-        messages: [{ role: "user", content: DEFAULT_CHAT_MESSAGE }],
-      },
-    },
-  };
-}
-
-// ============================================================================
-// Google Gemini Builder
-// ============================================================================
-
-/**
- * Builds curl request spec for Google Generative Language API (Gemini).
- * Uses x-goog-api-key header for authentication.
- */
-async function buildGoogleGenerativeAIRequestSpec(
-  model: CustomModel,
-  isEmbeddingModel: boolean
-): Promise<
-  | { ok: true; spec: CurlRequestSpec; warnings: string[] }
-  | { ok: false; error: string; warnings: string[] }
-> {
-  const warnings: string[] = [];
-
-  // Build base URL - normalize to ensure /v1beta is present (simulates SDK behavior)
-  const baseOverride = model.baseUrl?.trim() ?? "";
-  const providerBase = getProviderCurlBaseURL(ChatModelProviders.GOOGLE);
-  const baseCandidate = baseOverride || providerBase || "https://generativelanguage.googleapis.com";
-  const apiBase = normalizeGoogleBaseUrl(baseCandidate);
-
-  // Model name - Gemini expects "models/{model}" format
-  const modelName = model.name?.trim() || "<MODEL_NAME>";
-  if (!model.name?.trim()) {
-    warnings.push("Model name is empty; using placeholder.");
-  }
-  const modelPath = modelName.includes("/") ? modelName : `models/${modelName}`;
-
-  // API key
-  const apiKeyResolved = await resolveApiKeyForCurl(model.apiKey);
-  warnings.push(...apiKeyResolved.warnings);
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "x-goog-api-key": apiKeyResolved.apiKey,
-  };
-
-  if (isEmbeddingModel) {
-    return {
-      ok: true,
-      warnings,
-      spec: {
-        method: "POST",
-        url: `${apiBase}/${modelPath}:embedContent`,
-        headers,
-        body: {
-          content: {
-            parts: [{ text: DEFAULT_EMBEDDING_INPUT }],
-          },
-        },
-      },
-    };
-  }
-
-  return {
-    ok: true,
-    warnings,
-    spec: {
-      method: "POST",
-      url: `${apiBase}/${modelPath}:generateContent`,
-      headers,
-      body: {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: DEFAULT_CHAT_MESSAGE }],
-          },
-        ],
-        generationConfig: {
-          maxOutputTokens: DEFAULT_GOOGLE_MAX_OUTPUT_TOKENS,
-        },
-      },
-    },
-  };
-}
-
-// ============================================================================
 // Ollama Builder
 // ============================================================================
 
@@ -503,23 +341,6 @@ export async function buildCurlCommandForModel(
   }
 
   const isEmbeddingModel = Boolean(model.isEmbeddingModel);
-
-  // Anthropic
-  if (provider === ChatModelProviders.ANTHROPIC) {
-    if (isEmbeddingModel) {
-      return { ok: false, error: "Anthropic does not support embeddings.", warnings };
-    }
-    const result = await buildAnthropicRequestSpec(model);
-    if (!result.ok) return result;
-    return { ok: true, command: formatCurlCommand(result.spec), warnings: result.warnings };
-  }
-
-  // Google Gemini
-  if (provider === ChatModelProviders.GOOGLE || provider === EmbeddingModelProviders.GOOGLE) {
-    const result = await buildGoogleGenerativeAIRequestSpec(model, isEmbeddingModel);
-    if (!result.ok) return result;
-    return { ok: true, command: formatCurlCommand(result.spec), warnings: result.warnings };
-  }
 
   // Ollama (native API)
   if (provider === ChatModelProviders.OLLAMA || provider === EmbeddingModelProviders.OLLAMA) {

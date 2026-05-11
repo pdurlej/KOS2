@@ -4,7 +4,6 @@ import {
   ChatModelProviders,
   DEFAULT_OLLAMA_NUM_CTX,
   ModelCapability,
-  ProviderInfo,
 } from "@/constants";
 import { getDecryptedKey } from "@/encryptionService";
 import { logError, logInfo } from "@/logger";
@@ -22,18 +21,10 @@ import {
   ModelInfo,
   safeFetch,
 } from "@/utils";
-import { HarmBlockThreshold, HarmCategory } from "@google/generative-ai";
-import { ChatAnthropic } from "@langchain/anthropic";
-import { ChatCohere } from "@langchain/cohere";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
-import { ChatDeepSeek } from "@langchain/deepseek";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { ChatGroq } from "@langchain/groq";
-import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatOllama } from "@langchain/ollama";
 import { ChatOpenAI } from "@langchain/openai";
-import { ChatXAI } from "@langchain/xai";
 import { MissingApiKeyError, MissingPlusLicenseError } from "@/error";
 import { Notice } from "obsidian";
 import { ChatOpenRouter } from "./ChatOpenRouter";
@@ -58,16 +49,9 @@ type ChatConstructorType = {
 };
 
 const CHAT_PROVIDER_CONSTRUCTORS = {
-  [ChatModelProviders.ANTHROPIC]: ChatAnthropic,
-  [ChatModelProviders.COHEREAI]: ChatCohere,
-  [ChatModelProviders.GOOGLE]: ChatGoogleGenerativeAI,
-  [ChatModelProviders.XAI]: ChatXAI,
   [ChatModelProviders.OLLAMA]: ChatOllama,
-  [ChatModelProviders.GROQ]: ChatGroq,
   [ChatModelProviders.OPENAI_FORMAT]: ChatOpenAI,
   [ChatModelProviders.COPILOT_PLUS]: ChatOpenRouter,
-  [ChatModelProviders.MISTRAL]: ChatMistralAI,
-  [ChatModelProviders.DEEPSEEK]: ChatDeepSeek,
 } as const;
 
 type ChatProviderConstructMap = typeof CHAT_PROVIDER_CONSTRUCTORS;
@@ -84,19 +68,10 @@ export default class ChatModelManager {
     }
   >;
 
-  private static readonly ANTHROPIC_THINKING_BUDGET_TOKENS = 2048;
-
   private readonly providerApiKeyMap: Record<ChatModelProviders, () => string> = {
-    [ChatModelProviders.GOOGLE]: () => getSettings().googleApiKey,
-    [ChatModelProviders.ANTHROPIC]: () => getSettings().anthropicApiKey,
-    [ChatModelProviders.COHEREAI]: () => getSettings().cohereApiKey,
-    [ChatModelProviders.GROQ]: () => getSettings().groqApiKey,
-    [ChatModelProviders.XAI]: () => getSettings().xaiApiKey,
     [ChatModelProviders.OLLAMA]: () => "default-key",
     [ChatModelProviders.OPENAI_FORMAT]: () => "default-key",
     [ChatModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
-    [ChatModelProviders.MISTRAL]: () => getSettings().mistralApiKey,
-    [ChatModelProviders.DEEPSEEK]: () => getSettings().deepseekApiKey,
   } as const;
 
   private constructor() {
@@ -164,60 +139,6 @@ export default class ChatModelManager {
     const providerConfig: {
       [K in keyof ChatProviderConstructMap]: ConstructorParameters<ChatProviderConstructMap[K]>[0];
     } = {
-      [ChatModelProviders.ANTHROPIC]: {
-        anthropicApiKey: await getDecryptedKey(customModel.apiKey || settings.anthropicApiKey),
-        model: modelName,
-        anthropicApiUrl: customModel.baseUrl,
-        clientOptions: {
-          // Required to bypass CORS restrictions
-          defaultHeaders: {
-            "anthropic-dangerous-direct-browser-access": "true",
-          },
-          fetch: customModel.enableCors ? safeFetch : undefined,
-        },
-        ...(isThinkingEnabled && {
-          thinking: {
-            type: "enabled",
-            budget_tokens: ChatModelManager.ANTHROPIC_THINKING_BUDGET_TOKENS,
-          },
-        }),
-      },
-      [ChatModelProviders.COHEREAI]: {
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.cohereApiKey),
-        model: modelName,
-      },
-      [ChatModelProviders.GOOGLE]: {
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.googleApiKey),
-        model: modelName,
-        safetySettings: [
-          {
-            category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-          {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_NONE,
-          },
-        ],
-        baseUrl: customModel.baseUrl,
-      },
-      [ChatModelProviders.XAI]: {
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.xaiApiKey),
-        model: modelName,
-        // This langchainjs XAI client does not support baseURL override
-      },
-      [ChatModelProviders.GROQ]: {
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.groqApiKey),
-        model: modelName,
-      },
       [ChatModelProviders.OLLAMA]: {
         // ChatOllama has `model` instead of `modelName`!!
         model: modelName,
@@ -255,19 +176,6 @@ export default class ChatModelManager {
         configuration: {
           baseURL: BREVILABS_MODELS_BASE_URL,
           fetch: safeFetch,
-        },
-      },
-      [ChatModelProviders.MISTRAL]: {
-        model: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.mistralApiKey),
-        serverURL: customModel.baseUrl,
-      },
-      [ChatModelProviders.DEEPSEEK]: {
-        modelName: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.deepseekApiKey),
-        configuration: {
-          baseURL: customModel.baseUrl || ProviderInfo[ChatModelProviders.DEEPSEEK].host,
-          fetch: customModel.enableCors ? safeFetch : undefined,
         },
       },
     };
@@ -355,12 +263,8 @@ export default class ChatModelManager {
       // These providers support topP
       if (
         [
-          ChatModelProviders.ANTHROPIC,
-          ChatModelProviders.GOOGLE,
           ChatModelProviders.OLLAMA,
           ChatModelProviders.OPENAI_FORMAT,
-          ChatModelProviders.MISTRAL,
-          ChatModelProviders.DEEPSEEK,
         ].includes(provider)
       ) {
         params.topP = customModel.topP;
@@ -374,8 +278,6 @@ export default class ChatModelManager {
         [
           ChatModelProviders.OLLAMA,
           ChatModelProviders.OPENAI_FORMAT,
-          ChatModelProviders.MISTRAL,
-          ChatModelProviders.DEEPSEEK,
         ].includes(provider)
       ) {
         params.frequencyPenalty = customModel.frequencyPenalty;

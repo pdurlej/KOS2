@@ -50,13 +50,7 @@ export interface LegacyCommandSettings {
 export interface CopilotSettings {
   userId: string;
   plusLicenseKey: string;
-  cohereApiKey: string;
-  anthropicApiKey: string;
-  googleApiKey: string;
   ollamaCloudApiKey: string;
-  xaiApiKey: string;
-  mistralApiKey: string;
-  deepseekApiKey: string;
   defaultChainType: ChainType;
   defaultModelKey: string;
   embeddingModelKey: string;
@@ -91,7 +85,6 @@ export interface CopilotSettings {
   enableInlineCitations: boolean;
   qaExclusions: string;
   qaInclusions: string;
-  groqApiKey: string;
   activeModels: Array<CustomModel>;
   activeEmbeddingModels: Array<CustomModel>;
   promptUsageTimestamps: Record<string, number>;

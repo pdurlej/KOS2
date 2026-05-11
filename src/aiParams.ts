@@ -109,12 +109,8 @@ export interface ModelConfig {
   maxConcurrency: number;
   maxTokens?: number;
   maxCompletionTokens?: number;
-  anthropicApiKey?: string;
-  cohereApiKey?: string;
-  // Google and TogetherAI API key share this property
+  // Generic API key (used by Google, TogetherAI, and OpenAI-compatible providers)
   apiKey?: string;
-  groqApiKey?: string;
-  mistralApiKey?: string;
   enableCors?: boolean;
 }
 

@@ -5,9 +5,7 @@ import { getDecryptedKey } from "@/encryptionService";
 import { CustomError } from "@/error";
 import { getModelKeyFromModel, getSettings, subscribeToSettingsChange } from "@/settings/model";
 import { err2String, safeFetch } from "@/utils";
-import { CohereEmbeddings } from "@langchain/cohere";
 import { Embeddings } from "@langchain/core/embeddings";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { OllamaEmbeddings } from "@langchain/ollama";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { Notice } from "obsidian";
@@ -20,8 +18,6 @@ type EmbeddingConstructorType = new (config: any) => Embeddings;
 const EMBEDDING_PROVIDER_CONSTRUCTORS = {
   [EmbeddingModelProviders.COPILOT_PLUS]: CustomOpenAIEmbeddings,
   [EmbeddingModelProviders.COPILOT_PLUS_JINA]: CustomJinaEmbeddings,
-  [EmbeddingModelProviders.COHEREAI]: CohereEmbeddings,
-  [EmbeddingModelProviders.GOOGLE]: GoogleGenerativeAIEmbeddings,
   [EmbeddingModelProviders.OLLAMA]: OllamaEmbeddings,
   [EmbeddingModelProviders.OPENAI_FORMAT]: OpenAIEmbeddings,
 } as const;
@@ -44,8 +40,6 @@ export default class EmbeddingManager {
   private readonly providerApiKeyMap: Record<EmbeddingModelProviders, () => string> = {
     [EmbeddingModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
     [EmbeddingModelProviders.COPILOT_PLUS_JINA]: () => getSettings().plusLicenseKey,
-    [EmbeddingModelProviders.COHEREAI]: () => getSettings().cohereApiKey,
-    [EmbeddingModelProviders.GOOGLE]: () => getSettings().googleApiKey,
     [EmbeddingModelProviders.OLLAMA]: () => "default-key",
     [EmbeddingModelProviders.OPENAI_FORMAT]: () => "default-key",
   };
@@ -219,14 +213,6 @@ export default class EmbeddingManager {
         configuration: {
           fetch: customModel.enableCors ? safeFetch : undefined,
         },
-      },
-      [EmbeddingModelProviders.COHEREAI]: {
-        model: modelName,
-        apiKey: await getDecryptedKey(customModel.apiKey || settings.cohereApiKey),
-      },
-      [EmbeddingModelProviders.GOOGLE]: {
-        modelName: modelName,
-        apiKey: await getDecryptedKey(settings.googleApiKey),
       },
       [EmbeddingModelProviders.OLLAMA]: {
         baseUrl: customModel.baseUrl || "http://localhost:11434",

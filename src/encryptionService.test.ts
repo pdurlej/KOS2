@@ -106,32 +106,32 @@ describe("EncryptionService", () => {
     it("should encrypt all keys containing 'apikey'", async () => {
       const settings = {
         enableEncryption: true,
-        anthropicApiKey: "testApiKey",
-        cohereApiKey: "anotherTestApiKey",
+        firecrawlApiKey: "testApiKey",
+        perplexityApiKey: "anotherTestApiKey",
         userSystemPrompt: "shouldBeIgnored",
       } as unknown as CopilotSettings;
 
       const newSettings = await encryptAllKeys(settings);
-      expect(newSettings.anthropicApiKey).toMatch(/^enc_(desk|web)_[A-Za-z0-9+/=]+$/);
-      expect(newSettings.cohereApiKey).toMatch(/^enc_(desk|web)_[A-Za-z0-9+/=]+$/);
+      expect(newSettings.firecrawlApiKey).toMatch(/^enc_(desk|web)_[A-Za-z0-9+/=]+$/);
+      expect(newSettings.perplexityApiKey).toMatch(/^enc_(desk|web)_[A-Za-z0-9+/=]+$/);
       expect(newSettings.userSystemPrompt).toBe("shouldBeIgnored");
 
       // Verify we can decrypt the keys back
-      const decryptedAnthropic = await getDecryptedKey(newSettings.anthropicApiKey);
-      const decryptedCohere = await getDecryptedKey(newSettings.cohereApiKey);
-      expect(decryptedAnthropic).toBe("testApiKey");
-      expect(decryptedCohere).toBe("anotherTestApiKey");
+      const decryptedFirecrawl = await getDecryptedKey(newSettings.firecrawlApiKey);
+      const decryptedPerplexity = await getDecryptedKey(newSettings.perplexityApiKey);
+      expect(decryptedFirecrawl).toBe("testApiKey");
+      expect(decryptedPerplexity).toBe("anotherTestApiKey");
     });
 
     it("should not encrypt keys when encryption is not enabled", async () => {
       const newSettings = await encryptAllKeys({
         enableEncryption: false,
-        anthropicApiKey: "testApiKey",
-        cohereApiKey: "anotherTestApiKey",
+        firecrawlApiKey: "testApiKey",
+        perplexityApiKey: "anotherTestApiKey",
         userSystemPrompt: "shouldBeIgnored",
       } as unknown as CopilotSettings);
-      expect(newSettings.anthropicApiKey).toBe("testApiKey");
-      expect(newSettings.cohereApiKey).toBe("anotherTestApiKey");
+      expect(newSettings.firecrawlApiKey).toBe("testApiKey");
+      expect(newSettings.perplexityApiKey).toBe("anotherTestApiKey");
       expect(newSettings.userSystemPrompt).toBe("shouldBeIgnored");
     });
   });
