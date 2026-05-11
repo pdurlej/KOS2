@@ -153,7 +153,7 @@ export interface CustomModel {
   // Ollama specific fields
   numCtx?: number;
 
-  // LM Studio specific fields
+  // OpenAI Responses API (used for GPT-5 verbosity support)
   useResponsesApi?: boolean;
 
   projectEnabled?: boolean;

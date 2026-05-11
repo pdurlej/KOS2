@@ -25,7 +25,6 @@ const EMBEDDING_PROVIDER_CONSTRUCTORS = {
   [EmbeddingModelProviders.GOOGLE]: GoogleGenerativeAIEmbeddings,
   [EmbeddingModelProviders.AZURE_OPENAI]: AzureOpenAIEmbeddings,
   [EmbeddingModelProviders.OLLAMA]: OllamaEmbeddings,
-  [EmbeddingModelProviders.LM_STUDIO]: CustomOpenAIEmbeddings,
   [EmbeddingModelProviders.OPENAI_FORMAT]: OpenAIEmbeddings,
   [EmbeddingModelProviders.SILICONFLOW]: CustomOpenAIEmbeddings,
 } as const;
@@ -53,7 +52,6 @@ export default class EmbeddingManager {
     [EmbeddingModelProviders.GOOGLE]: () => getSettings().googleApiKey,
     [EmbeddingModelProviders.AZURE_OPENAI]: () => getSettings().azureOpenAIApiKey,
     [EmbeddingModelProviders.OLLAMA]: () => "default-key",
-    [EmbeddingModelProviders.LM_STUDIO]: () => "default-key",
     [EmbeddingModelProviders.OPENAI_FORMAT]: () => "default-key",
     [EmbeddingModelProviders.SILICONFLOW]: () => getSettings().siliconflowApiKey,
   };
@@ -262,14 +260,6 @@ export default class EmbeddingManager {
         truncate: true,
         headers: {
           Authorization: `Bearer ${await getDecryptedKey(customModel.apiKey || "default-key")}`,
-        },
-      },
-      [EmbeddingModelProviders.LM_STUDIO]: {
-        modelName,
-        openAIApiKey: await getDecryptedKey(customModel.apiKey || "default-key"),
-        configuration: {
-          baseURL: customModel.baseUrl || "http://localhost:1234/v1",
-          fetch: customModel.enableCors ? safeFetch : undefined,
         },
       },
       [EmbeddingModelProviders.OPENAI_FORMAT]: {

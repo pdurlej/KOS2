@@ -234,8 +234,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
             </FormField>
 
             {/* Stream Usage Toggle for OpenAI-format providers */}
-            {(localModel.provider === ChatModelProviders.OPENAI_FORMAT ||
-              localModel.provider === ChatModelProviders.LM_STUDIO) && (
+            {localModel.provider === ChatModelProviders.OPENAI_FORMAT && (
               <FormField label="Stream Options">
                 <div className="tw-flex tw-items-center tw-gap-2">
                   <Checkbox
@@ -253,32 +252,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
                   >
                     <Label htmlFor="stream-usage" className="tw-cursor-pointer tw-text-sm">
                       Stream Usage
-                    </Label>
-                  </HelpTooltip>
-                </div>
-              </FormField>
-            )}
-
-            {/* Responses API Toggle for LM Studio */}
-            {localModel.provider === ChatModelProviders.LM_STUDIO && (
-              <FormField label="Responses API">
-                <div className="tw-flex tw-items-center tw-gap-2">
-                  <Checkbox
-                    id="use-responses-api"
-                    checked={localModel.useResponsesApi !== false}
-                    onCheckedChange={(checked) => handleLocalUpdate("useResponsesApi", checked)}
-                  />
-                  <HelpTooltip
-                    content={
-                      <div className="tw-text-sm tw-text-muted">
-                        Use /v1/responses instead of /v1/chat/completions. Patches compatibility
-                        issues with LM Studio (text.format, tool definitions). Requires LM Studio
-                        0.3.6+.
-                      </div>
-                    }
-                  >
-                    <Label htmlFor="use-responses-api" className="tw-cursor-pointer tw-text-sm">
-                      Use Responses API (faster inference)
                     </Label>
                   </HelpTooltip>
                 </div>

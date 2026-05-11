@@ -4,7 +4,7 @@ import { CustomModel } from "@/aiParams";
 
 /**
  * Check if a provider requires an API key.
- * Local providers (OLLAMA, LM_STUDIO, OPENAI_FORMAT) don't require API keys.
+ * Local providers (OLLAMA, OPENAI_FORMAT) don't require API keys.
  *
  * @param provider - The provider to check
  * @returns true if the provider requires an API key, false for local providers

@@ -215,7 +215,6 @@ export enum ChatModelProviders {
   AZURE_OPENAI = "azure openai",
   GROQ = "groq",
   OLLAMA = "ollama",
-  LM_STUDIO = "lm-studio",
   COPILOT_PLUS = "copilot-plus",
   MISTRAL = "mistralai",
   DEEPSEEK = "deepseek",
@@ -263,7 +262,6 @@ export enum EmbeddingModelProviders {
   GOOGLE = "google",
   AZURE_OPENAI = "azure openai",
   OLLAMA = "ollama",
-  LM_STUDIO = "lm-studio",
   OPENAI_FORMAT = "3rd party (openai-format)",
   COPILOT_PLUS = "copilot-plus",
   COPILOT_PLUS_JINA = "copilot-plus-jina",
@@ -307,7 +305,7 @@ export type Provider = ChatModelProviders | EmbeddingModelProviders;
 
 export type SettingKeyProviders = Exclude<
   ChatModelProviders,
-  ChatModelProviders.OPENAI_FORMAT | ChatModelProviders.LM_STUDIO | ChatModelProviders.OLLAMA
+  ChatModelProviders.OPENAI_FORMAT | ChatModelProviders.OLLAMA
 >;
 
 // Provider metadata interface
@@ -394,13 +392,6 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     label: "Ollama (Local / Remote)",
     host: "http://localhost:11434/v1/",
     curlBaseURL: "http://localhost:11434",
-    keyManagementURL: "",
-    listModelURL: "",
-  },
-  [ChatModelProviders.LM_STUDIO]: {
-    label: "LM Studio",
-    host: "http://localhost:1234/v1",
-    curlBaseURL: "http://localhost:1234/v1",
     keyManagementURL: "",
     listModelURL: "",
   },

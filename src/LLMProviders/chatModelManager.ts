@@ -38,7 +38,6 @@ import { ChatXAI } from "@langchain/xai";
 import { MissingApiKeyError, MissingPlusLicenseError } from "@/error";
 import { Notice } from "obsidian";
 import { ChatOpenRouter } from "./ChatOpenRouter";
-import { ChatLMStudio } from "./ChatLMStudio";
 import { GitHubCopilotChatModel } from "@/LLMProviders/githubCopilot/GitHubCopilotChatModel";
 
 // Patch BaseLanguageModel.prototype.getNumTokens once at module load to prevent
@@ -68,7 +67,6 @@ const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.GOOGLE]: ChatGoogleGenerativeAI,
   [ChatModelProviders.XAI]: ChatXAI,
   [ChatModelProviders.OLLAMA]: ChatOllama,
-  [ChatModelProviders.LM_STUDIO]: ChatOpenRouter,
   [ChatModelProviders.GROQ]: ChatGroq,
   [ChatModelProviders.OPENAI_FORMAT]: ChatOpenAI,
   [ChatModelProviders.SILICONFLOW]: ChatOpenAI,
@@ -132,7 +130,6 @@ export default class ChatModelManager {
     [ChatModelProviders.GROQ]: () => getSettings().groqApiKey,
     [ChatModelProviders.XAI]: () => getSettings().xaiApiKey,
     [ChatModelProviders.OLLAMA]: () => "default-key",
-    [ChatModelProviders.LM_STUDIO]: () => "default-key",
     [ChatModelProviders.OPENAI_FORMAT]: () => "default-key",
     [ChatModelProviders.COPILOT_PLUS]: () => getSettings().plusLicenseKey,
     [ChatModelProviders.MISTRAL]: () => getSettings().mistralApiKey,
@@ -323,23 +320,6 @@ export default class ChatModelManager {
         repeatPenalty: 1.1,
         numCtx: customModel.numCtx ?? DEFAULT_OLLAMA_NUM_CTX,
       },
-      [ChatModelProviders.LM_STUDIO]: {
-        modelName: modelName,
-        apiKey: customModel.apiKey || "default-key",
-        streamUsage: customModel.streamUsage ?? false,
-        configuration: {
-          baseURL: customModel.baseUrl || "http://localhost:1234/v1",
-          fetch: customModel.enableCors ? safeFetch : undefined,
-        },
-        // Enable reasoning extraction for models with REASONING capability
-        enableReasoning: customModel.capabilities?.includes(ModelCapability.REASONING) ?? false,
-        // Pass reasoning effort if configured and reasoning capability is enabled
-        reasoningEffort:
-          customModel.capabilities?.includes(ModelCapability.REASONING) &&
-          customModel.reasoningEffort
-            ? customModel.reasoningEffort
-            : undefined,
-      },
       [ChatModelProviders.OPENAI_FORMAT]: {
         modelName: modelName,
         apiKey: await getDecryptedKey(customModel.apiKey || settings.openAIApiKey),
@@ -496,7 +476,6 @@ export default class ChatModelManager {
           ChatModelProviders.ANTHROPIC,
           ChatModelProviders.GOOGLE,
           ChatModelProviders.OLLAMA,
-          ChatModelProviders.LM_STUDIO,
           ChatModelProviders.OPENAI_FORMAT,
           ChatModelProviders.MISTRAL,
           ChatModelProviders.DEEPSEEK,
@@ -515,7 +494,6 @@ export default class ChatModelManager {
           ChatModelProviders.OPENAI,
           ChatModelProviders.AZURE_OPENAI,
           ChatModelProviders.OLLAMA,
-          ChatModelProviders.LM_STUDIO,
           ChatModelProviders.OPENAI_FORMAT,
           ChatModelProviders.MISTRAL,
           ChatModelProviders.DEEPSEEK,
@@ -716,14 +694,6 @@ export default class ChatModelManager {
       logInfo(`Enabling Responses API for GPT-5 model: ${model.name} (${selectedModel.vendor})`);
     }
 
-    // For LM Studio, use ChatLMStudio by default for Responses API compatibility.
-    // Opt out by setting useResponsesApi to false.
-    if (model.provider === ChatModelProviders.LM_STUDIO && model.useResponsesApi !== false) {
-      const lmStudioInstance = new ChatLMStudio(constructorConfig);
-      logInfo(`[ChatModelManager] Using Responses API for LM Studio model: ${model.name}`);
-      return lmStudioInstance;
-    }
-
     const newModelInstance = new selectedModel.AIConstructor(constructorConfig);
 
     return newModelInstance;
@@ -793,12 +763,7 @@ export default class ChatModelManager {
         constructorConfig.useResponsesApi = true;
       }
 
-      // For LM Studio with Responses API, ping via ChatLMStudio so the
-      // connectivity check hits the same /v1/responses endpoint used in chats.
-      const testModel =
-        model.provider === ChatModelProviders.LM_STUDIO && model.useResponsesApi !== false
-          ? new ChatLMStudio(constructorConfig)
-          : new (this.getProviderConstructor(modelToTest))(constructorConfig);
+      const testModel = new (this.getProviderConstructor(modelToTest))(constructorConfig);
       await testModel.invoke([{ role: "user", content: "hello" }], {
         timeout: 8000,
       });

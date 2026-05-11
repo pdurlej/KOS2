@@ -1223,7 +1223,6 @@ export function getNeedSetKeyProvider(): Provider[] {
   const excludeProviders: Provider[] = [
     ChatModelProviders.OPENAI_FORMAT,
     ChatModelProviders.OLLAMA,
-    ChatModelProviders.LM_STUDIO,
     ChatModelProviders.AZURE_OPENAI,
     ChatModelProviders.GITHUB_COPILOT,
     EmbeddingModelProviders.COPILOT_PLUS,

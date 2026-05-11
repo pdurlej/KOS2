@@ -71,12 +71,8 @@ export function ModelParametersEditor({
   // Check if model has REASONING capability enabled
   const hasReasoningCapability = model.capabilities?.includes(ModelCapability.REASONING) ?? false;
 
-  // Show reasoning effort for: OpenAI reasoning models, LM Studio, or any model with REASONING capability
-  const showReasoningEffort =
-    isOpenAIReasoningModel ||
-    model.provider === "lm_studio" ||
-    model.provider === ChatModelProviders.LM_STUDIO ||
-    hasReasoningCapability;
+  // Show reasoning effort for: OpenAI reasoning models, or any model with REASONING capability
+  const showReasoningEffort = isOpenAIReasoningModel || hasReasoningCapability;
   const showVerbosity =
     model.name.startsWith("gpt-5") && model.provider === ChatModelProviders.OPENAI;
 

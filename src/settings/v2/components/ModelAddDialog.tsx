@@ -623,8 +623,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
                 </div>
               </Label>
             </div>
-            {(model.provider === ChatModelProviders.OPENAI_FORMAT ||
-              model.provider === ChatModelProviders.LM_STUDIO) && (
+            {model.provider === ChatModelProviders.OPENAI_FORMAT && (
               <div className="tw-flex tw-items-center tw-gap-2">
                 <Checkbox
                   id="stream-usage"
