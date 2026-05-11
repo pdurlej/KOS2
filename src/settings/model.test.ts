@@ -339,7 +339,7 @@ describe("visible Ollama model helpers", () => {
         },
         {
           name: "openai-format-embed",
-          provider: EmbeddingModelProviders.OPENAI_FORMAT,
+          provider: EmbeddingModelProviders.OPENAI_COMPATIBLE,
           enabled: true,
           isEmbeddingModel: true,
         },

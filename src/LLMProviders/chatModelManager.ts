@@ -47,7 +47,7 @@ type ChatConstructorType = {
 
 const CHAT_PROVIDER_CONSTRUCTORS = {
   [ChatModelProviders.OLLAMA]: ChatOllama,
-  [ChatModelProviders.OPENAI_FORMAT]: ChatOpenAI,
+  [ChatModelProviders.OPENAI_COMPATIBLE]: ChatOpenAI,
 } as const;
 
 type ChatProviderConstructMap = typeof CHAT_PROVIDER_CONSTRUCTORS;
@@ -66,7 +66,7 @@ export default class ChatModelManager {
 
   private readonly providerApiKeyMap: Record<ChatModelProviders, () => string> = {
     [ChatModelProviders.OLLAMA]: () => "default-key",
-    [ChatModelProviders.OPENAI_FORMAT]: () => "default-key",
+    [ChatModelProviders.OPENAI_COMPATIBLE]: () => "default-key",
   } as const;
 
   private constructor() {
@@ -149,7 +149,7 @@ export default class ChatModelManager {
         repeatPenalty: 1.1,
         numCtx: customModel.numCtx ?? DEFAULT_OLLAMA_NUM_CTX,
       },
-      [ChatModelProviders.OPENAI_FORMAT]: {
+      [ChatModelProviders.OPENAI_COMPATIBLE]: {
         modelName: modelName,
         apiKey: await getDecryptedKey(customModel.apiKey || ""),
         streamUsage: customModel.streamUsage ?? false,
@@ -225,7 +225,7 @@ export default class ChatModelManager {
       };
 
       // Add verbosity for GPT-5 models (Responses API only).
-      // useResponsesApi is only enabled for OPENAI_FORMAT in createModelInstance().
+      // useResponsesApi is only enabled for OPENAI_COMPATIBLE in createModelInstance().
       if (modelInfo.isGPT5 && customModel?.verbosity) {
         const verbosityValue = customModel.verbosity;
         // For Responses API, verbosity is nested under 'text' parameter
@@ -251,7 +251,7 @@ export default class ChatModelManager {
       if (
         [
           ChatModelProviders.OLLAMA,
-          ChatModelProviders.OPENAI_FORMAT,
+          ChatModelProviders.OPENAI_COMPATIBLE,
         ].includes(provider)
       ) {
         params.topP = customModel.topP;
@@ -264,7 +264,7 @@ export default class ChatModelManager {
       if (
         [
           ChatModelProviders.OLLAMA,
-          ChatModelProviders.OPENAI_FORMAT,
+          ChatModelProviders.OPENAI_COMPATIBLE,
         ].includes(provider)
       ) {
         params.frequencyPenalty = customModel.frequencyPenalty;
@@ -406,7 +406,7 @@ export default class ChatModelManager {
 
       // Log if Responses API is enabled for GPT-5
       const modelInfo = getModelInfo(model.name);
-      if (modelInfo.isGPT5 && model.provider === ChatModelProviders.OPENAI_FORMAT) {
+      if (modelInfo.isGPT5 && model.provider === ChatModelProviders.OPENAI_COMPATIBLE) {
         logInfo(`Chat model set with Responses API for GPT-5: ${model.name}`);
       }
     } catch (error) {
@@ -431,7 +431,7 @@ export default class ChatModelManager {
 
     // For GPT-5 models, automatically use Responses API for proper verbosity support
     const constructorConfig: any = { ...modelConfig };
-    if (modelInfo.isGPT5 && selectedModel.vendor === ChatModelProviders.OPENAI_FORMAT) {
+    if (modelInfo.isGPT5 && selectedModel.vendor === ChatModelProviders.OPENAI_COMPATIBLE) {
       constructorConfig.useResponsesApi = true;
       logInfo(`Enabling Responses API for GPT-5 model: ${model.name} (${selectedModel.vendor})`);
     }
@@ -497,7 +497,7 @@ export default class ChatModelManager {
         ...tokenConfig,
       };
 
-      if (modelInfo.isGPT5 && model.provider === ChatModelProviders.OPENAI_FORMAT) {
+      if (modelInfo.isGPT5 && model.provider === ChatModelProviders.OPENAI_COMPATIBLE) {
         constructorConfig.useResponsesApi = true;
       }
 

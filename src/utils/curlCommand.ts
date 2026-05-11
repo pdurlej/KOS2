@@ -28,8 +28,8 @@ const DEFAULT_OPENAI_MAX_TOKENS = 64;
 
 /** Providers that use OpenAI-compatible API format */
 const OPENAI_COMPATIBLE_PROVIDERS = new Set<string>([
-  ChatModelProviders.OPENAI_FORMAT,
-  EmbeddingModelProviders.OPENAI_FORMAT,
+  ChatModelProviders.OPENAI_COMPATIBLE,
+  EmbeddingModelProviders.OPENAI_COMPATIBLE,
   // Note: Ollama uses native API (/api/chat), not OpenAI-compatible
 ]);
 

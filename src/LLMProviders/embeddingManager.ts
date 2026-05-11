@@ -14,7 +14,7 @@ type EmbeddingConstructorType = new (config: any) => Embeddings;
 
 const EMBEDDING_PROVIDER_CONSTRUCTORS = {
   [EmbeddingModelProviders.OLLAMA]: OllamaEmbeddings,
-  [EmbeddingModelProviders.OPENAI_FORMAT]: OpenAIEmbeddings,
+  [EmbeddingModelProviders.OPENAI_COMPATIBLE]: OpenAIEmbeddings,
 } as const;
 
 type EmbeddingProviderConstructorMap = typeof EMBEDDING_PROVIDER_CONSTRUCTORS;
@@ -34,7 +34,7 @@ export default class EmbeddingManager {
 
   private readonly providerApiKeyMap: Record<EmbeddingModelProviders, () => string> = {
     [EmbeddingModelProviders.OLLAMA]: () => "default-key",
-    [EmbeddingModelProviders.OPENAI_FORMAT]: () => "default-key",
+    [EmbeddingModelProviders.OPENAI_COMPATIBLE]: () => "default-key",
   };
 
   private constructor() {
@@ -178,7 +178,7 @@ export default class EmbeddingManager {
           Authorization: `Bearer ${await getDecryptedKey(customModel.apiKey || "default-key")}`,
         },
       },
-      [EmbeddingModelProviders.OPENAI_FORMAT]: {
+      [EmbeddingModelProviders.OPENAI_COMPATIBLE]: {
         modelName,
         openAIApiKey: await getDecryptedKey(customModel.apiKey || ""),
         batchSize: getSettings().embeddingBatchSize,

@@ -61,7 +61,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
   const { modalContainer } = useTab();
   const defaultProvider = isEmbeddingModel
     ? EmbeddingModelProviders.OLLAMA
-    : ChatModelProviders.OPENAI_FORMAT;
+    : ChatModelProviders.OPENAI_COMPATIBLE;
 
   const [dialogElement, setDialogElement] = useState<HTMLDivElement | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -415,7 +415,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
                 </div>
               </Label>
             </div>
-            {model.provider === ChatModelProviders.OPENAI_FORMAT && (
+            {model.provider === ChatModelProviders.OPENAI_COMPATIBLE && (
               <div className="tw-flex tw-items-center tw-gap-2">
                 <Checkbox
                   id="stream-usage"

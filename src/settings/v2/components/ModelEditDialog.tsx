@@ -221,7 +221,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
             </FormField>
 
             {/* Stream Usage Toggle for OpenAI-format providers */}
-            {localModel.provider === ChatModelProviders.OPENAI_FORMAT && (
+            {localModel.provider === ChatModelProviders.OPENAI_COMPATIBLE && (
               <FormField label="Stream Options">
                 <div className="tw-flex tw-items-center tw-gap-2">
                   <Checkbox

@@ -183,7 +183,7 @@ export enum ChatModels {
 
 // Model Providers
 export enum ChatModelProviders {
-  OPENAI_FORMAT = "3rd party (openai-format)",
+  OPENAI_COMPATIBLE = "3rd party (openai-format)",
   OLLAMA = "ollama",
 }
 
@@ -222,7 +222,7 @@ export const BUILTIN_CHAT_MODELS: CustomModel[] = [
 
 export enum EmbeddingModelProviders {
   OLLAMA = "ollama",
-  OPENAI_FORMAT = "3rd party (openai-format)",
+  OPENAI_COMPATIBLE = "3rd party (openai-format)",
 }
 
 export enum EmbeddingModels {
@@ -275,7 +275,7 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     keyManagementURL: "",
     listModelURL: "",
   },
-  [ChatModelProviders.OPENAI_FORMAT]: {
+  [ChatModelProviders.OPENAI_COMPATIBLE]: {
     label: "OpenAI Format",
     host: "https://api.example.com/v1",
     curlBaseURL: "https://api.example.com/v1",

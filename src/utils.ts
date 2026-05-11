@@ -1217,7 +1217,7 @@ export function getMessageRole(
 export function getNeedSetKeyProvider(): Provider[] {
   // List of providers to exclude
   const excludeProviders: Provider[] = [
-    ChatModelProviders.OPENAI_FORMAT,
+    ChatModelProviders.OPENAI_COMPATIBLE,
     ChatModelProviders.OLLAMA,
   ];
 
