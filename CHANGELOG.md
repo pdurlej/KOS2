@@ -10,6 +10,31 @@ KOS2 uses the `YY.MM.X` versioning scheme:
 
 Example: `26.4.8` is the eighth release shipped in April 2026. The first KOS2 release on this scheme was `26.4.1`; the upstream history that predates it lives in [`docs/release/upstream-archive.md`](docs/release/upstream-archive.md).
 
+## 26.6.1 - 2026-06-08
+
+### Ollama-only refactor
+
+- removed all remaining cloud LLM providers; chat and embedding providers are now only `Ollama` (local) and `OpenAI-compatible` (for local self-hosted endpoints)
+- removed the `Copilot Plus` subscription paradigm entirely — every feature is available without any license or paywall
+- renamed the misleading `BrevilabsClient` to `KOS2ToolsClient`; it was already a local shim (URL/web fetch, Ollama Cloud web search, local document handling) with no `api.brevilabs.com` calls
+- kept the local Miyo self-hosted vector backend and the optional self-host web-search / transcript integrations
+
+### Internal rebrand
+
+- renamed the chat view, agent chain runner, settings tab, and onboarding/settings surfaces from `Copilot*`/`CopilotPlus*` to `KOS2*`/`Ollama*` equivalents
+- no migration needed — the chat view type was already `kos2-chat-view`
+
+### Dependencies, bundle, and security
+
+- removed `crypto-js` (cache hashing moved to a zero-dependency FNV-1a hash; API-key encryption already used Web Crypto)
+- removed `next-i18next` (unused, but it transitively pulled the entire Next.js framework and ~20 high-severity advisories) plus `koa`, `koa-proxies`, `@koa/cors`, and `@huggingface/inference`
+- declared the previously-undeclared `@langchain/classic` dependency
+- `main.js` reduced from 5.3 MB to ~3.0 MB
+
+### Notes
+
+- binary Office document parsing (Word / PowerPoint / Excel) is intentionally unsupported; text, Markdown, CSV, JSON, XML, and HTML are handled locally
+
 ## 26.4.8 - 2026-04-24
 
 ### Desktop UX simplification
