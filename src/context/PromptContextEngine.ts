@@ -125,8 +125,9 @@ export class PromptContextEngine {
   }
 
   /**
-   * Compute a SHA-256 hash for the supplied value.
-   * Uses crypto-js for mobile compatibility (no Node.js crypto).
+   * Compute a fingerprint for the supplied value.
+   * Uses the zero-dependency FNV-1a hash (synchronous, mobile-safe; no
+   * crypto-js / Node.js crypto). Non-security use: change detection only.
    */
   private hash(value: string): string {
     return fnv1aHex(value || "");
