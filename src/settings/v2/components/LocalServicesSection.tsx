@@ -8,7 +8,6 @@ import {
   getDiscoveryManagedEmbeddingModels,
   useSettingsValue,
 } from "@/settings/model";
-import { PLUS_UTM_MEDIUMS } from "@/constants";
 import {
   getConfiguredOllamaBaseUrl,
   normalizeOllamaBaseUrl,
@@ -21,10 +20,10 @@ import {
   getOllamaMachineProfileLabel,
   getOllamaPullRecommendations,
   getOllamaProfileGuidance,
-  navigateToPlusPage,
+  navigateToOllama,
   pickRecommendedOllamaChatModelName,
   pickRecommendedOllamaEmbeddingModelName,
-} from "@/plusUtils";
+} from "@/localRuntimeUtils";
 import { err2String } from "@/utils";
 import { ExternalLink, Loader2, RefreshCcw, RotateCcw } from "lucide-react";
 import { Notice, requestUrl } from "obsidian";
@@ -216,7 +215,7 @@ export function LocalServicesSection() {
             <div className="tw-flex tw-flex-wrap tw-gap-2">
               <Button
                 variant="default"
-                onClick={() => navigateToPlusPage(PLUS_UTM_MEDIUMS.SETTINGS)}
+                onClick={() => navigateToOllama()}
               >
                 Open Ollama
                 <ExternalLink className="tw-size-4" />

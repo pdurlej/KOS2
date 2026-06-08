@@ -28,7 +28,7 @@ import { logInfo, logWarn } from "@/logger";
 import { logFileManager } from "@/logFileManager";
 import { UserMemoryManager } from "@/memory/UserMemoryManager";
 import { clearRecordedPromptPayload } from "@/LLMProviders/chainRunner/utils/promptPayloadRecorder";
-import { checkIsPlusUser, refreshSelfHostModeValidation } from "@/plusUtils";
+import { refreshSelfHostModeValidation } from "@/localRuntimeUtils";
 import {
   getWebViewerService,
   startActiveWebTabTracking,
@@ -123,7 +123,6 @@ export default class KOS2Plugin extends Plugin {
     // Initialize KOS2ToolsClient
     this.toolsClient = KOS2ToolsClient.getInstance();
     this.toolsClient.setPluginVersion(this.manifest.version);
-    checkIsPlusUser();
     refreshSelfHostModeValidation();
 
     // Initialize ProjectManager

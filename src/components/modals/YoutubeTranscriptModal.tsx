@@ -2,7 +2,7 @@ import { selfHostYoutube4llm } from "@/LLMProviders/selfHostServices";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { logError } from "@/logger";
-import { hasTranscriptApiKeyConfigured } from "@/plusUtils";
+import { hasTranscriptApiKeyConfigured } from "@/localRuntimeUtils";
 import { formatYoutubeUrl, insertIntoEditor, validateYoutubeUrl } from "@/utils";
 import { App, Modal, Notice } from "obsidian";
 import * as React from "react";

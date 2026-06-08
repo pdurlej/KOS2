@@ -5,7 +5,7 @@ import { ProjectContextCache } from "@/cache/projectContextCache";
 import { logError, logInfo, logWarn } from "@/logger";
 import { MiyoClient } from "@/miyo/MiyoClient";
 import { getMiyoCustomUrl } from "@/miyo/miyoUtils";
-import { isSelfHostModeValid } from "@/plusUtils";
+import { isSelfHostModeValid } from "@/localRuntimeUtils";
 import { getSettings } from "@/settings/model";
 import { saveConvertedDocOutput as saveConvertedDocOutputCore } from "@/utils/convertedDocOutput";
 import { extractRetryTime, isRateLimitError } from "@/utils/rateLimitUtils";

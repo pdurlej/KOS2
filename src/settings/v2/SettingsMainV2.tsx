@@ -10,7 +10,7 @@ import { Cog, Database, Sparkles, Wrench } from "lucide-react";
 import React from "react";
 import { AdvancedSettings } from "./components/AdvancedSettings";
 import { BasicSettings } from "./components/BasicSettings";
-import { CopilotPlusSettings } from "./components/CopilotPlusSettings";
+import { WorkflowsSettings } from "./components/WorkflowsSettings";
 import { ModelSettings } from "./components/ModelSettings";
 import { QASettings } from "./components/QASettings";
 
@@ -43,7 +43,7 @@ const LabsSettings: React.FC = () => (
 const components: Record<TabId, React.FC> = {
   setup: () => <BasicSettings />,
   knowledge: () => <KnowledgeSettings />,
-  workflows: () => <CopilotPlusSettings />,
+  workflows: () => <WorkflowsSettings />,
   labs: () => <LabsSettings />,
 };
 

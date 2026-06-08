@@ -2,7 +2,6 @@ import { AGENT_LOOP_TIMEOUT_MS } from "@/constants";
 import { MessageContent } from "@/imageProcessing/imageProcessor";
 import { logError, logInfo, logWarn } from "@/logger";
 import { UserMemoryManager } from "@/memory/UserMemoryManager";
-import { checkIsPlusUser } from "@/plusUtils";
 import { getSettings } from "@/settings/model";
 import { getSystemPromptWithMemory } from "@/system-prompts/systemPromptBuilder";
 import { initializeBuiltinTools } from "@/tools/builtinTools";
@@ -386,30 +385,10 @@ export class AutonomousAgentChainRunner extends CopilotPlusChainRunner {
     this.llmFormattedMessages = [];
     this.lastDisplayedContent = "";
 
-    const isPlusUser = await checkIsPlusUser({
-      isAutonomousAgent: true,
-    });
-
     const chatModel = this.chainManager.chatModelManager.getChatModel();
     const adapter = ModelAdapterFactory.createAdapter(chatModel);
     // Agent mode should never show thinking tokens in the response
     const thinkStreamer = new ThinkBlockStreamer(updateCurrentAiMessage, true);
-
-    if (!isPlusUser) {
-      await this.handleError(
-        new Error("Invalid license key"),
-        thinkStreamer.processErrorChunk.bind(thinkStreamer)
-      );
-      const errorResponse = thinkStreamer.close().content;
-      return this.handleResponse(
-        errorResponse,
-        userMessage,
-        abortController,
-        addMessage,
-        updateCurrentAiMessage,
-        undefined
-      );
-    }
 
     const modelNameForLog = (chatModel as { modelName?: string } | undefined)?.modelName;
 

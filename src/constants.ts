@@ -136,14 +136,6 @@ export const LOADING_MESSAGES = {
   READING_FILE_TREE: "Reading file tree",
   COMPACTING: "Compacting",
 };
-export const PLUS_UTM_MEDIUMS = {
-  SETTINGS: "settings",
-  EXPIRED_MODAL: "expired_modal",
-  CHAT_MODE_SELECT: "chat_mode_select",
-  MODE_SELECT_TOOLTIP: "mode_select_tooltip",
-};
-export type PlusUtmMedium = (typeof PLUS_UTM_MEDIUMS)[keyof typeof PLUS_UTM_MEDIUMS];
-
 /**
  * Reasoning effort levels for OpenAI reasoning models
  */
@@ -446,7 +438,6 @@ export const RESTRICTION_MESSAGES = {
 
 export const DEFAULT_SETTINGS: CopilotSettings = {
   userId: uuidv4(),
-  isPlusUser: true,
   ollamaCloudApiKey: "",
   defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
   defaultModelKey: ChatModels.KOS2_QWEN3_CODER_30B + "|" + ChatModelProviders.OLLAMA,

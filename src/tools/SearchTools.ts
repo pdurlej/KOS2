@@ -4,7 +4,7 @@ import { KOS2ToolsClient } from "@/LLMProviders/kos2ToolsClient";
 import { hasSelfHostSearchKey, selfHostWebSearch } from "@/LLMProviders/selfHostServices";
 import { logInfo } from "@/logger";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
-import { isSelfHostModeValid } from "@/plusUtils";
+import { isSelfHostModeValid } from "@/localRuntimeUtils";
 import { RetrieverFactory } from "@/search/RetrieverFactory";
 import { getSettings } from "@/settings/model";
 import { z } from "zod";

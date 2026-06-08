@@ -12,7 +12,7 @@ import {
   hasTranscriptApiKeyConfigured,
   useIsSelfHostEligible,
   validateSelfHostMode,
-} from "@/plusUtils";
+} from "@/localRuntimeUtils";
 import { updateSetting, useSettingsValue } from "@/settings/model";
 import { Copy, ExternalLink } from "lucide-react";
 import { Notice } from "obsidian";
@@ -41,7 +41,7 @@ async function copyTextToClipboard(text: string, successMessage: string): Promis
   }
 }
 
-export const CopilotPlusSettings: React.FC = () => {
+export const WorkflowsSettings: React.FC = () => {
   const settings = useSettingsValue();
   const [isValidatingSelfHost, setIsValidatingSelfHost] = useState(false);
   const [transcriptApiKey, setTranscriptApiKey] = useState(settings.supadataApiKey || "");

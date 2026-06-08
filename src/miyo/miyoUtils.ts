@@ -1,4 +1,4 @@
-import { isSelfHostAccessValid } from "@/plusUtils";
+import { isSelfHostAccessValid } from "@/localRuntimeUtils";
 import { CopilotSettings } from "@/settings/model";
 import { App, FileSystemAdapter, Platform } from "obsidian";
 

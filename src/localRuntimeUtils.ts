@@ -6,7 +6,6 @@ import {
   DEFAULT_SETTINGS,
   EmbeddingModelProviders,
   EmbeddingModels,
-  PlusUtmMedium,
 } from "@/constants";
 import { logInfo } from "@/logger";
 import {
@@ -19,12 +18,12 @@ import {
 } from "@/settings/model";
 
 // Legacy naming preserved for compatibility with the upstream codebase.
-export const DEFAULT_COPILOT_PLUS_CHAT_MODEL = ChatModels.KOS2_QWEN3_CODER_30B;
-export const DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY =
-  DEFAULT_COPILOT_PLUS_CHAT_MODEL + "|" + ChatModelProviders.OLLAMA;
-export const DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL = EmbeddingModels.KOS2_BGE_M3;
-export const DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY =
-  DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL + "|" + EmbeddingModelProviders.OLLAMA;
+export const DEFAULT_KOS2_CHAT_MODEL = ChatModels.KOS2_QWEN3_CODER_30B;
+export const DEFAULT_KOS2_CHAT_MODEL_KEY =
+  DEFAULT_KOS2_CHAT_MODEL + "|" + ChatModelProviders.OLLAMA;
+export const DEFAULT_KOS2_EMBEDDING_MODEL = EmbeddingModels.KOS2_BGE_M3;
+export const DEFAULT_KOS2_EMBEDDING_MODEL_KEY =
+  DEFAULT_KOS2_EMBEDDING_MODEL + "|" + EmbeddingModelProviders.OLLAMA;
 export const DEFAULT_FREE_CHAT_MODEL_KEY = DEFAULT_SETTINGS.defaultModelKey;
 export const DEFAULT_FREE_EMBEDDING_MODEL_KEY = DEFAULT_SETTINGS.embeddingModelKey;
 
@@ -57,26 +56,6 @@ export interface OllamaMachineCapabilities {
   profileLabel: string;
   cpuThreads: number;
   memoryGb: number | null;
-}
-
-/**
- * In KOS2 the advanced agent path is always available.
- * Legacy "Plus" gating stays enabled to avoid widespread upstream churn.
- */
-export function isPlusEnabled(): boolean {
-  return true;
-}
-
-export function useIsPlusUser(): boolean | undefined {
-  useSettingsValue();
-  return true;
-}
-
-export async function checkIsPlusUser(
-  _context?: Record<string, any>
-): Promise<boolean | undefined> {
-  turnOnPlus();
-  return true;
 }
 
 export async function isSelfHostEligiblePlan(): Promise<boolean> {
@@ -388,7 +367,7 @@ export function getOllamaCatalogRecommendations(
  * Apply the KOS2 Ollama-first defaults without inventing unavailable models.
  * We intentionally keep the upstream chain type to minimize invasive changes.
  */
-export function applyPlusSettings(): void {
+export function applyOllamaDefaults(): void {
   const settings = getSettings();
   const profile = getOllamaMachineProfile();
   const visibleChatModels = getVisibleChatModels(settings);
@@ -421,11 +400,10 @@ export function applyPlusSettings(): void {
     defaultModelKey,
     embeddingModelKey,
     defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
-    isPlusUser: true,
   });
 }
 
-export function createPlusPageUrl(_medium: PlusUtmMedium): string {
+export function createOllamaUrl(): string {
   return "https://ollama.com/";
 }
 
@@ -438,8 +416,8 @@ export function createOllamaLibraryUrl(): string {
   return "https://ollama.com/library";
 }
 
-export function navigateToPlusPage(medium: PlusUtmMedium): void {
-  window.open(createPlusPageUrl(medium), "_blank");
+export function navigateToOllama(): void {
+  window.open(createOllamaUrl(), "_blank");
 }
 
 /**
@@ -449,14 +427,3 @@ export function navigateToOllamaLibrary(): void {
   window.open(createOllamaLibraryUrl(), "_blank");
 }
 
-export function turnOnPlus(): void {
-  updateSetting("isPlusUser", true);
-}
-
-/**
- * Preserved for compatibility with upstream call sites.
- * KOS2 no longer expires a license, so this only updates the flag.
- */
-export function turnOffPlus(): void {
-  updateSetting("isPlusUser", false);
-}

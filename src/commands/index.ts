@@ -23,7 +23,6 @@ import { YoutubeTranscriptModal } from "@/components/modals/YoutubeTranscriptMod
 import { KOSDoctorModal } from "@/components/modals/KOSDoctorModal";
 import { buildDisableAdvancedFeaturesPatch, buildResetSetupStatePatch } from "@/kos/recovery";
 import { runWorkflowCommand } from "@/kos/workflows";
-import { checkIsPlusUser } from "@/plusUtils";
 // Debug modals removed with search v3
 import KOS2Plugin from "@/main";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
@@ -707,16 +706,8 @@ export function registerCommands(
     modal.open();
   });
 
-  // Add command to download YouTube script (Copilot Plus only)
+  // Add command to download YouTube script
   addCommand(plugin, COMMAND_IDS.DOWNLOAD_YOUTUBE_SCRIPT, async () => {
-    const isPlusUser = await checkIsPlusUser();
-    if (!isPlusUser) {
-      new Notice(
-        "YouTube transcript import is not available in the current KOS2 bootstrap. It stays in the later ingest/transcript milestone."
-      );
-      return;
-    }
-
     const modal = new YoutubeTranscriptModal(plugin.app);
     modal.open();
   });

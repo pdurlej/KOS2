@@ -7,7 +7,7 @@ import {
 import { selfHostYoutube4llm } from "@/LLMProviders/selfHostServices";
 import { err2String, isTwitterUrl, isYoutubeUrl } from "@/utils";
 import { logError } from "@/logger";
-import { hasTranscriptApiKeyConfigured } from "@/plusUtils";
+import { hasTranscriptApiKeyConfigured } from "@/localRuntimeUtils";
 import { getSettings } from "@/settings/model";
 
 export interface MentionData {

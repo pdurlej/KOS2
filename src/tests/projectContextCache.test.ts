@@ -41,12 +41,6 @@ jest.mock("@/utils/hash", () => ({
   fnv1aHex: jest.fn().mockImplementation((str: string) => `mocked-hash-${str}`),
 }));
 
-// Mock plusUtils
-jest.mock("@/plusUtils", () => ({
-  useIsPlusUser: jest.fn(),
-  navigateToPlusPage: jest.fn(),
-}));
-
 // Mock FileCache
 jest.mock("@/cache/fileCache", () => {
   return {

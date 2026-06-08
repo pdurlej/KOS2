@@ -1,5 +1,4 @@
 import { logError, logInfo, logWarn } from "@/logger";
-import { checkIsPlusUser, isSelfHostModeValid } from "@/plusUtils";
 import { getSettings } from "@/settings/model";
 import { ToolManager } from "@/tools/toolManager";
 import { ToolRegistry } from "@/tools/ToolRegistry";
@@ -111,19 +110,6 @@ export async function executeSequentialToolCall(
     // Get tool metadata from registry
     const registry = ToolRegistry.getInstance();
     const metadata = registry.getToolMetadata(toolCall.name);
-
-    // Check if tool requires Plus subscription
-    if (metadata?.isPlusOnly) {
-      const isPlusUser = await checkIsPlusUser();
-      if (!isPlusUser && !isSelfHostModeValid()) {
-        return {
-          toolName: toolCall.name,
-          result: `Error: ${getToolDisplayName(toolCall.name)} requires a Copilot Plus subscription`,
-          success: false,
-          errorType: "subscription_required",
-        };
-      }
-    }
 
     // Prepare tool arguments
     const toolArgs = { ...toolCall.args };

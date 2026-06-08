@@ -105,8 +105,6 @@ export interface CopilotSettings {
   lastKOSSetupCheckStatus: "pass" | "warn" | "fail" | null;
   numPartitions: number;
   defaultConversationNoteName: string;
-  // undefined means never checked
-  isPlusUser: boolean | undefined;
   inlineEditCommands: LegacyCommandSettings[] | undefined;
   projectList: Array<ProjectConfig>;
   passMarkdownImages: boolean;

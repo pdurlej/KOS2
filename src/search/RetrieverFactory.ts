@@ -1,5 +1,5 @@
 import { logInfo, logWarn } from "@/logger";
-import { isSelfHostModeValid } from "@/plusUtils";
+import { isSelfHostModeValid } from "@/localRuntimeUtils";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
 import { getSettings, CopilotSettings } from "@/settings/model";
 import { App } from "obsidian";

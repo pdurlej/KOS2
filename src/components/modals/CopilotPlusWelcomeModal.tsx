@@ -1,4 +1,3 @@
-import { PLUS_UTM_MEDIUMS } from "@/constants";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,15 +6,15 @@ import {
 } from "@/services/ollama/ollamaModelDiscovery";
 import { updateSetting, useSettingsValue } from "@/settings/model";
 import {
-  applyPlusSettings,
+  applyOllamaDefaults,
   getOllamaMachineProfile,
   getOllamaMachineProfileLabel,
   getOllamaProfileGuidance,
   getOllamaPullRecommendations,
-  navigateToPlusPage,
+  navigateToOllama,
   pickRecommendedOllamaChatModelName,
   pickRecommendedOllamaEmbeddingModelName,
-} from "@/plusUtils";
+} from "@/localRuntimeUtils";
 import { err2String } from "@/utils";
 import { CheckCircle2, Circle, ExternalLink, Loader2 } from "lucide-react";
 import { App, Modal } from "obsidian";
@@ -247,7 +246,7 @@ function CopilotPlusWelcomeModalContent({
             Use local Ollama defaults
           </Button>
         ) : (
-          <Button variant="default" onClick={() => navigateToPlusPage(PLUS_UTM_MEDIUMS.SETTINGS)}>
+          <Button variant="default" onClick={() => navigateToOllama()}>
             Open Ollama
             <ExternalLink className="tw-size-4" />
           </Button>
@@ -275,7 +274,7 @@ export class CopilotPlusWelcomeModal extends Modal {
     this.root = createRoot(contentEl);
 
     const handleApplyDefaults = () => {
-      applyPlusSettings();
+      applyOllamaDefaults();
       updateSetting("hasSeenOllamaOnboarding", true);
       this.close();
     };
