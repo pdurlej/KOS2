@@ -53,7 +53,7 @@ function RuntimeBadge({ state }: { state: OllamaRuntimeState }) {
   );
 }
 
-function CopilotPlusWelcomeModalContent({
+function OllamaWelcomeModalContent({
   onApplyDefaults,
   onDismiss,
 }: {
@@ -256,7 +256,7 @@ function CopilotPlusWelcomeModalContent({
   );
 }
 
-export class CopilotPlusWelcomeModal extends Modal {
+export class OllamaWelcomeModal extends Modal {
   private root: Root;
 
   constructor(app: App) {
@@ -285,7 +285,7 @@ export class CopilotPlusWelcomeModal extends Modal {
     };
 
     this.root.render(
-      <CopilotPlusWelcomeModalContent
+      <OllamaWelcomeModalContent
         onApplyDefaults={handleApplyDefaults}
         onDismiss={handleDismiss}
       />

@@ -7,7 +7,7 @@ const CSS_CHANGE_DEBOUNCE_MS = 600;
  * Manages layout concerns for the Copilot chat view, such as status bar
  * clearance and (in the future) chat input collapse state.
  *
- * Instantiated once per CopilotView and tied to its lifecycle.
+ * Instantiated once per KOS2View and tied to its lifecycle.
  */
 export class ChatViewLayout {
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -21,7 +21,7 @@ export class ChatViewLayout {
   }
 
   /**
-   * Tear down observers and timers. Call from CopilotView.onClose().
+   * Tear down observers and timers. Call from KOS2View.onClose().
    */
   destroy(): void {
     if (this.debounceTimer) {

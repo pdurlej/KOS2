@@ -58,15 +58,15 @@ export const CATEGORY_OPTIONS: CategoryOption[] = [
  * Returns the array of available category options directly.
  * Web Tabs category is only available on desktop (Web Viewer not supported on mobile).
  *
- * @param isCopilotPlus - Whether Copilot Plus features are enabled
+ * @param isKOS2Agent - Whether Copilot Plus features are enabled
  * @returns Array of CategoryOption objects
  */
-export function useAtMentionCategories(isCopilotPlus: boolean = false): CategoryOption[] {
+export function useAtMentionCategories(isKOS2Agent: boolean = false): CategoryOption[] {
   return useMemo(() => {
     return CATEGORY_OPTIONS.filter((cat) => {
       // Tools require Copilot Plus
       if (cat.category === "tools") {
-        return isCopilotPlus;
+        return isKOS2Agent;
       }
       // Web Tabs only available on desktop (Web Viewer not supported on mobile)
       if (cat.category === "webTabs") {
@@ -74,5 +74,5 @@ export function useAtMentionCategories(isCopilotPlus: boolean = false): Category
       }
       return true;
     });
-  }, [isCopilotPlus]);
+  }, [isKOS2Agent]);
 }

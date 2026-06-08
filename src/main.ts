@@ -9,10 +9,10 @@ import {
 } from "@/aiParams";
 import { NoteSelectedTextContext, SelectedTextContext } from "@/types/message";
 import { registerCommands } from "@/commands";
-import CopilotView from "@/components/CopilotView";
+import KOS2View from "@/components/KOS2View";
 import { APPLY_VIEW_TYPE, ApplyView } from "@/components/composer/ApplyView";
 import { LoadChatHistoryModal } from "@/components/modals/LoadChatHistoryModal";
-import { CopilotPlusWelcomeModal } from "@/components/modals/CopilotPlusWelcomeModal";
+import { OllamaWelcomeModal } from "@/components/modals/OllamaWelcomeModal";
 
 import { registerContextMenu } from "@/commands/contextMenu";
 import { CustomCommandRegister } from "@/commands/customCommandRegister";
@@ -35,7 +35,7 @@ import {
 } from "@/services/webViewerService/webViewerServiceSingleton";
 import { WebSelectionTracker } from "@/services/webViewerService/webViewerServiceSelection";
 import VectorStoreManager from "@/search/vectorStoreManager";
-import { CopilotSettingTab } from "@/settings/SettingsPage";
+import { KOS2SettingTab } from "@/settings/SettingsPage";
 import {
   getModelKeyFromModel,
   getSettings,
@@ -113,7 +113,7 @@ export default class KOS2Plugin extends Plugin {
         this.scheduleDiscoveryManagedOllamaSync("settings-change", next);
       }
     });
-    this.addSettingTab(new CopilotSettingTab(this.app, this));
+    this.addSettingTab(new KOS2SettingTab(this.app, this));
 
     // Core plugin initialization
 
@@ -169,7 +169,7 @@ export default class KOS2Plugin extends Plugin {
       this.registerEvent(layoutRef);
     }
 
-    this.registerView(CHAT_VIEWTYPE, (leaf: WorkspaceLeaf) => new CopilotView(leaf, this));
+    this.registerView(CHAT_VIEWTYPE, (leaf: WorkspaceLeaf) => new KOS2View(leaf, this));
     this.registerView(APPLY_VIEW_TYPE, (leaf: WorkspaceLeaf) => new ApplyView(leaf));
 
     this.initActiveLeafChangeHandler();
@@ -180,7 +180,7 @@ export default class KOS2Plugin extends Plugin {
 
     registerCommands(this, undefined, getSettings());
 
-    // Tool initialization is now handled automatically in CopilotPlusChainRunner and AutonomousAgentChainRunner
+    // Tool initialization is now handled automatically in KOS2AgentChainRunner and AutonomousAgentChainRunner
 
     this.registerEvent(
       this.app.workspace.on("editor-menu", (menu: Menu) => {
@@ -198,13 +198,13 @@ export default class KOS2Plugin extends Plugin {
           if (file) {
             // Note: File tracking and real-time reindexing removed for simplicity
             // Semantic search indexes are rebuilt manually or on startup as needed
-            const activeCopilotView = this.app.workspace
+            const activeKOS2View = this.app.workspace
               .getLeavesOfType(CHAT_VIEWTYPE)
-              .find((leaf) => leaf.view instanceof CopilotView)?.view as CopilotView;
+              .find((leaf) => leaf.view instanceof KOS2View)?.view as KOS2View;
 
-            if (activeCopilotView) {
+            if (activeKOS2View) {
               const event = new CustomEvent(EVENT_NAMES.ACTIVE_LEAF_CHANGE);
-              activeCopilotView.eventTarget.dispatchEvent(event);
+              activeKOS2View.eventTarget.dispatchEvent(event);
             }
           }
         }
@@ -303,7 +303,7 @@ export default class KOS2Plugin extends Plugin {
 
   async autosaveCurrentChat() {
     if (getSettings().autosaveChat) {
-      const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as CopilotView;
+      const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as KOS2View;
       if (chatView) {
         await chatView.saveChat();
       }
@@ -326,12 +326,12 @@ export default class KOS2Plugin extends Plugin {
 
     // Without the timeout, the view is not yet active
     setTimeout(() => {
-      const activeCopilotView = this.app.workspace
+      const activeKOS2View = this.app.workspace
         .getLeavesOfType(CHAT_VIEWTYPE)
-        .find((leaf) => leaf.view instanceof CopilotView)?.view as CopilotView;
-      if (activeCopilotView && (!checkSelectedText || selectedText)) {
+        .find((leaf) => leaf.view instanceof KOS2View)?.view as KOS2View;
+      if (activeKOS2View && (!checkSelectedText || selectedText)) {
         const event = new CustomEvent(eventType, { detail: { selectedText, eventSubtype } });
-        activeCopilotView.eventTarget.dispatchEvent(event);
+        activeKOS2View.eventTarget.dispatchEvent(event);
       }
     }, 0);
   }
@@ -341,13 +341,13 @@ export default class KOS2Plugin extends Plugin {
   }
 
   emitChatIsVisible() {
-    const activeCopilotView = this.app.workspace
+    const activeKOS2View = this.app.workspace
       .getLeavesOfType(CHAT_VIEWTYPE)
-      .find((leaf) => leaf.view instanceof CopilotView)?.view as CopilotView;
+      .find((leaf) => leaf.view instanceof KOS2View)?.view as KOS2View;
 
-    if (activeCopilotView) {
+    if (activeKOS2View) {
       const event = new CustomEvent(EVENT_NAMES.CHAT_IS_VISIBLE);
-      activeCopilotView.eventTarget.dispatchEvent(event);
+      activeKOS2View.eventTarget.dispatchEvent(event);
     }
   }
 
@@ -673,7 +673,7 @@ export default class KOS2Plugin extends Plugin {
         return;
       }
 
-      new CopilotPlusWelcomeModal(this.app).open();
+      new OllamaWelcomeModal(this.app).open();
     }, 500);
   }
 
@@ -842,7 +842,7 @@ export default class KOS2Plugin extends Plugin {
 
     // Update the view
     const copilotView = (existingView || this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0])
-      ?.view as CopilotView;
+      ?.view as KOS2View;
     if (copilotView) {
       copilotView.updateView();
     }
@@ -943,7 +943,7 @@ export default class KOS2Plugin extends Plugin {
     // Abort any ongoing streams before clearing chat
     const existingView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0];
     if (existingView) {
-      const copilotView = existingView.view as CopilotView;
+      const copilotView = existingView.view as KOS2View;
       // Dispatch abort event to stop any ongoing streams
       const abortEvent = new CustomEvent(EVENT_NAMES.ABORT_STREAM, {
         detail: { reason: ABORT_REASON.NEW_CHAT },
@@ -956,7 +956,7 @@ export default class KOS2Plugin extends Plugin {
 
     // Update view if it exists
     if (existingView) {
-      const copilotView = existingView.view as CopilotView;
+      const copilotView = existingView.view as KOS2View;
       copilotView.updateView();
     } else {
       // If view doesn't exist, open it

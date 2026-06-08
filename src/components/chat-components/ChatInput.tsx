@@ -129,7 +129,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const [foldersFromPills, setFoldersFromPills] = useState<string[]>([]);
   const [toolsFromPills, setToolsFromPills] = useState<string[]>([]);
   const [webTabsFromPills, setWebTabsFromPills] = useState<WebTabContext[]>([]);
-  const isCopilotPlus = isPlusChain(currentChain);
+  const isKOS2Agent = isPlusChain(currentChain);
 
   // Merge badge-only contextWebTabs with pills-derived webTabsFromPills for display
   // Uses shared normalization policy from urlNormalization.ts
@@ -236,7 +236,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const webTabsFromEditor = getWebTabsFromEditorSnapshot();
     const allWebTabs = mergeWebTabContexts([...contextWebTabs, ...webTabsFromEditor]);
 
-    if (!isCopilotPlus) {
+    if (!isKOS2Agent) {
       // Non-Plus chains: only webTabs needs explicit passing
       // - contextNotes: Chat.tsx has state, closure can access
       // - contextFolders: {folderPath} in text gets expanded by processPrompt()
@@ -303,7 +303,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   // Handle when tools are removed from pills (when pills are deleted in editor)
   const handleToolPillsRemoved = (removedTools: string[]) => {
-    if (!isCopilotPlus || autonomousAgentToggle) return;
+    if (!isKOS2Agent || autonomousAgentToggle) return;
 
     // Update tool button states based on removed pills
     removedTools.forEach((tool) => {
@@ -324,7 +324,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   // Sync tool button states with tool pills
   useEffect(() => {
-    if (!isCopilotPlus || autonomousAgentToggle) return;
+    if (!isKOS2Agent || autonomousAgentToggle) return;
 
     // Update button states based on current tool pills
     const hasVault = toolsFromPills.includes("@vault");
@@ -334,7 +334,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     setVaultToggle(hasVault);
     setWebToggle(hasWeb);
     setComposerToggle(hasComposer);
-  }, [toolsFromPills, isCopilotPlus, autonomousAgentToggle]);
+  }, [toolsFromPills, isKOS2Agent, autonomousAgentToggle]);
 
   // Handle when context notes are removed from the context menu
   // This should remove all corresponding pills from the editor
@@ -660,29 +660,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   // Handle tool button toggle-off events - remove corresponding pills
   const handleVaultToggleOff = useCallback(() => {
-    if (lexicalEditorRef.current && isCopilotPlus) {
+    if (lexicalEditorRef.current && isKOS2Agent) {
       lexicalEditorRef.current.update(() => {
         $removePillsByToolName("@vault");
       });
     }
-  }, [isCopilotPlus]);
+  }, [isKOS2Agent]);
 
   const handleWebToggleOff = useCallback(() => {
-    if (lexicalEditorRef.current && isCopilotPlus) {
+    if (lexicalEditorRef.current && isKOS2Agent) {
       lexicalEditorRef.current.update(() => {
         $removePillsByToolName("@websearch");
         $removePillsByToolName("@web");
       });
     }
-  }, [isCopilotPlus]);
+  }, [isKOS2Agent]);
 
   const handleComposerToggleOff = useCallback(() => {
-    if (lexicalEditorRef.current && isCopilotPlus) {
+    if (lexicalEditorRef.current && isKOS2Agent) {
       lexicalEditorRef.current.update(() => {
         $removePillsByToolName("@composer");
       });
     }
-  }, [isCopilotPlus]);
+  }, [isKOS2Agent]);
 
   // Active note pill sync callbacks
   const handleActiveNoteAdded = useCallback(() => {
@@ -705,11 +705,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   // Handle tag selection from typeahead - auto-enable vault search
   const handleTagSelected = useCallback(() => {
-    if (isCopilotPlus && !autonomousAgentToggle && !vaultToggle) {
+    if (isKOS2Agent && !autonomousAgentToggle && !vaultToggle) {
       setVaultToggle(true);
       new Notice("Vault search enabled for tag query");
     }
-  }, [isCopilotPlus, autonomousAgentToggle, vaultToggle]);
+  }, [isKOS2Agent, autonomousAgentToggle, vaultToggle]);
 
   return (
     <div
@@ -774,10 +774,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
           onNotesRemoved={handleNotePillsRemoved}
           onActiveNoteAdded={handleActiveNoteAdded}
           onActiveNoteRemoved={handleActiveNoteRemoved}
-          onURLsChange={isCopilotPlus ? setUrlsFromPills : undefined}
-          onURLsRemoved={isCopilotPlus ? handleURLPillsRemoved : undefined}
-          onToolsChange={isCopilotPlus ? setToolsFromPills : undefined}
-          onToolsRemoved={isCopilotPlus ? handleToolPillsRemoved : undefined}
+          onURLsChange={isKOS2Agent ? setUrlsFromPills : undefined}
+          onURLsRemoved={isKOS2Agent ? handleURLPillsRemoved : undefined}
+          onToolsChange={isKOS2Agent ? setToolsFromPills : undefined}
+          onToolsRemoved={isKOS2Agent ? handleToolPillsRemoved : undefined}
           onFoldersChange={setFoldersFromPills}
           onFoldersRemoved={handleFolderPillsRemoved}
           onWebTabsChange={setWebTabsFromPills}
@@ -790,7 +790,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             "Organise a note, map next steps, or draft a decision • @ to add context • / for prompts"
           }
           disabled={isProjectLoading}
-          isCopilotPlus={isCopilotPlus}
+          isKOS2Agent={isKOS2Agent}
           currentActiveFile={currentActiveNote}
           currentChain={currentChain}
         />

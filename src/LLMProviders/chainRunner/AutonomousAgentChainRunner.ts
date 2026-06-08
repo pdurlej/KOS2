@@ -11,7 +11,7 @@ import { Runnable } from "@langchain/core/runnables";
 import { ChatMessage, ResponseMetadata, StreamingResult } from "@/types/message";
 import { err2String, withSuppressedTokenWarnings } from "@/utils";
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { CopilotPlusChainRunner } from "./CopilotPlusChainRunner";
+import { KOS2AgentChainRunner } from "./KOS2AgentChainRunner";
 import { loadAndAddChatHistory } from "./utils/chatHistoryUtils";
 import { ModelAdapter, ModelAdapterFactory } from "./utils/modelAdapter";
 import { ThinkBlockStreamer } from "./utils/ThinkBlockStreamer";
@@ -115,7 +115,7 @@ interface ReActLoopResult {
   responseMetadata?: ResponseMetadata;
 }
 
-export class AutonomousAgentChainRunner extends CopilotPlusChainRunner {
+export class AutonomousAgentChainRunner extends KOS2AgentChainRunner {
   private llmFormattedMessages: string[] = []; // Track LLM-formatted messages for memory
   private lastDisplayedContent = ""; // Track the last content displayed to user for error recovery
 
@@ -468,7 +468,7 @@ export class AutonomousAgentChainRunner extends CopilotPlusChainRunner {
 
       logError("Autonomous agent failed, falling back to regular Plus mode:", error);
       try {
-        const fallbackRunner = new CopilotPlusChainRunner(this.chainManager);
+        const fallbackRunner = new KOS2AgentChainRunner(this.chainManager);
         return await fallbackRunner.run(
           userMessage,
           abortController,

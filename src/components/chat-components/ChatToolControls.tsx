@@ -76,8 +76,8 @@ const ChatToolControls: React.FC<ChatToolControlsProps> = ({
   onComposerToggleOff,
   currentChain,
 }) => {
-  const isCopilotPlus = isPlusChain(currentChain);
-  const showAutonomousAgent = isCopilotPlus && currentChain !== ChainType.PROJECT_CHAIN;
+  const isKOS2Agent = isPlusChain(currentChain);
+  const showAutonomousAgent = isKOS2Agent && currentChain !== ChainType.PROJECT_CHAIN;
 
   const handleAutonomousAgentToggle = () => {
     const newValue = !autonomousAgentToggle;
@@ -113,7 +113,7 @@ const ChatToolControls: React.FC<ChatToolControlsProps> = ({
   };
 
   // If not Copilot Plus, don't show any tools
-  if (!isCopilotPlus) {
+  if (!isKOS2Agent) {
     return null;
   }
 

@@ -10,7 +10,7 @@ import { ItemView, Platform, WorkspaceLeaf } from "obsidian";
 import * as React from "react";
 import { createRoot, Root } from "react-dom/client";
 
-export default class CopilotView extends ItemView {
+export default class KOS2View extends ItemView {
   private get chainManager(): ChainManager {
     return this.plugin.projectManager.getCurrentChainManager();
   }

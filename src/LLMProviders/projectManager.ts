@@ -10,7 +10,7 @@ import {
 } from "@/aiParams";
 import { ContextCache, ProjectContextCache } from "@/cache/projectContextCache";
 import { ChainType } from "@/chainFactory";
-import CopilotView from "@/components/CopilotView";
+import KOS2View from "@/components/KOS2View";
 import { CHAT_VIEWTYPE, VAULT_VECTOR_STORE_STRATEGY } from "@/constants";
 import { logError, logInfo, logWarn } from "@/logger";
 import KOS2Plugin from "@/main";
@@ -362,7 +362,7 @@ export default class ProjectManager {
 
   private refreshChatView() {
     // get chat view
-    const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as CopilotView;
+    const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as KOS2View;
     if (chatView) {
       chatView.updateView();
     }
