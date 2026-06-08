@@ -1,0 +1,32 @@
+# Codex Claim: Doctor Readiness Hardening
+
+- Agent: Codex
+- Branch: codex/doctor-readiness-hardening
+- Started: 2026-05-06 01:19 CEST
+- Status: ready-for-review
+- Owned paths:
+  - `src/kos/doctor/**`
+  - `TODO.md`
+  - `docs/agent-claims/codex-doctor-readiness-hardening.md`
+- Non-owned paths to avoid:
+  - `src/kos/cleanup/**`
+  - `README.md`
+  - `docs/**` except this claim file
+  - `package.json`
+  - `package-lock.json`
+  - `CHANGELOG.md`
+  - `.github/**`
+- Current intent:
+  - Make KOS2 Doctor distinguish stale settings inventory from models actually installed in local Ollama.
+  - Add focused tests so removed local models do not report as ready.
+- Changed files:
+  - `src/kos/doctor/service.ts`
+  - `src/kos/doctor/service.test.ts`
+- Verification:
+  - `npm test -- --runInBand src/kos/doctor/service.test.ts` — passed
+  - `npm run lint -- src/kos/doctor/service.ts src/kos/doctor/service.test.ts` — passed
+  - `npx prettier --check docs/agent-claims/codex-doctor-readiness-hardening.md src/kos/doctor/service.ts src/kos/doctor/service.test.ts` — passed
+  - `git diff --check` — passed
+- Handoff:
+  - Claude can review this claim, but should avoid editing `src/kos/doctor/**` until the branch is merged or the claim is closed.
+  - `TODO.md` was used as the local session tracker; it is ignored by git in this repo and is not part of the commit.

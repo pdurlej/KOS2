@@ -31,7 +31,11 @@ export function buildCleanupExecutionItems(
     .flatMap((item) => {
       const overriddenDestination = decision.destinationOverrides[item.id]?.trim();
       const deleteModeOverride = decision.deleteModeOverrides[item.id];
-      const action = item.action === "ambiguous" && overriddenDestination ? "move" : item.action;
+      const deleteMode = deleteModeOverride ?? item.deleteMode;
+      const proposedAction =
+        item.action === "ambiguous" && overriddenDestination ? "move" : item.action;
+      const action =
+        proposedAction === "delete" && deleteMode === "trash" ? "trash" : proposedAction;
       const destinationPath =
         action === "move" || action === "archive" || action === "trash"
           ? overriddenDestination || item.destinationPath
@@ -48,7 +52,7 @@ export function buildCleanupExecutionItems(
           sourceKind: item.sourceKind,
           action: action as Exclude<CleanupAction, "ambiguous">,
           destinationPath,
-          deleteMode: deleteModeOverride ?? item.deleteMode,
+          deleteMode,
           reason: item.reason,
           confidence: item.confidence,
         },
@@ -254,6 +258,10 @@ async function cleanupEmptyInboxFolders(inboxRoot: string): Promise<void> {
       if (child instanceof TFolder) {
         await prune(child);
       }
+    }
+
+    if (folder.path === normalizePath(inboxRoot)) {
+      return;
     }
 
     if (folder.path === normalizePath(`${inboxRoot}/Assets`)) {
