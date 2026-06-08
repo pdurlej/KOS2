@@ -1,4 +1,4 @@
-import { type Youtube4llmResponse } from "@/LLMProviders/brevilabsClient";
+import { type Youtube4llmResponse } from "@/LLMProviders/kos2ToolsClient";
 import { getDecryptedKey } from "@/encryptionService";
 import { logError, logInfo } from "@/logger";
 import { getSettings } from "@/settings/model";
@@ -136,7 +136,7 @@ export async function selfHostWebSearch(query: string): Promise<SelfHostWebSearc
 
 /**
  * YouTube transcript via Supadata direct API (self-host mode).
- * Returns the same Youtube4llmResponse shape as BrevilabsClient.youtube4llm().
+ * Returns the same Youtube4llmResponse shape as KOS2ToolsClient.youtube4llm().
  */
 export async function selfHostYoutube4llm(url: string): Promise<Youtube4llmResponse> {
   const startTime = Date.now();

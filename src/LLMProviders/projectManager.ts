@@ -22,7 +22,7 @@ import { err2String } from "@/utils";
 import { isRateLimitError } from "@/utils/rateLimitUtils";
 import { RecentUsageManager } from "@/utils/recentUsageManager";
 import { App, Notice, TFile } from "obsidian";
-import { BrevilabsClient } from "./brevilabsClient";
+import { KOS2ToolsClient } from "./kos2ToolsClient";
 import ChainManager from "./chainManager";
 import { ProjectLoadTracker } from "./projectLoadTracker";
 
@@ -44,7 +44,7 @@ export default class ProjectManager {
     this.chainMangerInstance = new ChainManager(app);
     this.projectContextCache = ProjectContextCache.getInstance();
     this.fileParserManager = new FileParserManager(
-      BrevilabsClient.getInstance(),
+      KOS2ToolsClient.getInstance(),
       this.app.vault,
       true,
       null
@@ -216,7 +216,7 @@ export default class ProjectManager {
       await this.getCurrentChainManager().createChainWithNewModel();
       // Update FileParserManager with the current project
       this.fileParserManager = new FileParserManager(
-        BrevilabsClient.getInstance(),
+        KOS2ToolsClient.getInstance(),
         this.app.vault,
         true,
         project
@@ -773,7 +773,7 @@ modified: ${stat ? new Date(stat.mtime).toISOString() : "unknown"}`;
         youtubeUrl,
         "youtube",
         async () => {
-          return BrevilabsClient.getInstance().youtube4llm(youtubeUrl);
+          return KOS2ToolsClient.getInstance().youtube4llm(youtubeUrl);
         }
       );
       if (response.response.transcript) {
@@ -802,7 +802,7 @@ modified: ${stat ? new Date(stat.mtime).toISOString() : "unknown"}`;
     }
 
     this.fileParserManager = new FileParserManager(
-      BrevilabsClient.getInstance(),
+      KOS2ToolsClient.getInstance(),
       this.app.vault,
       true,
       project

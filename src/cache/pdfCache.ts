@@ -1,4 +1,4 @@
-import { Pdf4llmResponse } from "@/LLMProviders/brevilabsClient";
+import { Pdf4llmResponse } from "@/LLMProviders/kos2ToolsClient";
 import { logError, logInfo } from "@/logger";
 import { fnv1aHex } from "@/utils/hash";
 import { TFile } from "obsidian";

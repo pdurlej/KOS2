@@ -1,5 +1,5 @@
 // DEPRECATED: Legacy hybrid retriever backed by Orama. Replaced by v3 TieredLexicalRetriever + MemoryIndexManager.
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
+import { KOS2ToolsClient } from "@/LLMProviders/kos2ToolsClient";
 import EmbeddingManager from "@/LLMProviders/embeddingManager";
 import { logInfo } from "@/logger";
 import VectorStoreManager from "@/search/vectorStoreManager";
@@ -73,7 +73,7 @@ export class HybridRetriever extends BaseRetriever {
         (maxOramaScore < this.options.useRerankerThreshold || allScoresAreNaN);
       // Apply reranking if max score is below the threshold or all scores are NaN
       if (shouldRerank) {
-        const rerankResponse = await BrevilabsClient.getInstance().rerank(
+        const rerankResponse = await KOS2ToolsClient.getInstance().rerank(
           query,
           // Limit the context length to 3000 characters to avoid overflowing the reranker
           combinedChunks.map((doc) => doc.pageContent.slice(0, 3000))

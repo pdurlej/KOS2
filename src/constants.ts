@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 import { ChainType } from "./chainFactory";
 import { PromptSortStrategy } from "./types";
 
-export const BREVILABS_API_BASE_URL = "https://api.brevilabs.com/v1";
 export const CHAT_VIEWTYPE = "kos2-chat-view";
 export const USER_SENDER = "user";
 export const AI_SENDER = "ai";

@@ -1,4 +1,4 @@
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
+import { KOS2ToolsClient } from "@/LLMProviders/kos2ToolsClient";
 import EmbeddingManager from "@/LLMProviders/embeddingManager";
 import ProjectManager from "@/LLMProviders/projectManager";
 import {
@@ -82,7 +82,7 @@ import { v4 as uuidv4 } from "uuid";
 export default class KOS2Plugin extends Plugin {
   // Plugin components
   projectManager: ProjectManager;
-  brevilabsClient: BrevilabsClient;
+  toolsClient: KOS2ToolsClient;
   userMessageHistory: string[] = [];
   vectorStoreManager: VectorStoreManager;
   fileParserManager: FileParserManager;
@@ -120,9 +120,9 @@ export default class KOS2Plugin extends Plugin {
     // Initialize built-in tools with vault access
     initializeBuiltinTools(this.app.vault);
 
-    // Initialize BrevilabsClient
-    this.brevilabsClient = BrevilabsClient.getInstance();
-    this.brevilabsClient.setPluginVersion(this.manifest.version);
+    // Initialize KOS2ToolsClient
+    this.toolsClient = KOS2ToolsClient.getInstance();
+    this.toolsClient.setPluginVersion(this.manifest.version);
     checkIsPlusUser();
     refreshSelfHostModeValidation();
 
@@ -138,7 +138,7 @@ export default class KOS2Plugin extends Plugin {
     vaultDataManager.initialize();
 
     // Initialize FileParserManager early with other core services
-    this.fileParserManager = new FileParserManager(this.brevilabsClient, this.app.vault);
+    this.fileParserManager = new FileParserManager(this.toolsClient, this.app.vault);
 
     // Initialize ChatUIState with new architecture
     const messageRepo = new MessageRepository();

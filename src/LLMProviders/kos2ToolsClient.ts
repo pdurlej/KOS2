@@ -67,11 +67,6 @@ export interface Twitter4llmResponse {
   elapsed_time_ms: number;
 }
 
-export interface LicenseResponse {
-  is_valid: boolean;
-  plan: string;
-}
-
 function decodeText(binaryContent: ArrayBuffer): string {
   return new TextDecoder("utf-8", { fatal: false }).decode(binaryContent);
 }
@@ -123,25 +118,19 @@ function normalizeDocumentContent(binaryContent: ArrayBuffer, fileType: string):
   );
 }
 
-export class BrevilabsClient {
-  private static instance: BrevilabsClient;
+export class KOS2ToolsClient {
+  private static instance: KOS2ToolsClient;
   private pluginVersion: string = "Unknown";
 
-  static getInstance(): BrevilabsClient {
-    if (!BrevilabsClient.instance) {
-      BrevilabsClient.instance = new BrevilabsClient();
+  static getInstance(): KOS2ToolsClient {
+    if (!KOS2ToolsClient.instance) {
+      KOS2ToolsClient.instance = new KOS2ToolsClient();
     }
-    return BrevilabsClient.instance;
+    return KOS2ToolsClient.instance;
   }
 
   setPluginVersion(pluginVersion: string) {
     this.pluginVersion = pluginVersion;
-  }
-
-  async validateLicenseKey(
-    _context?: Record<string, any>
-  ): Promise<{ isValid: boolean | undefined; plan?: string }> {
-    return { isValid: true, plan: "kos2" };
   }
 
   async rerank(query: string, documents: string[]): Promise<RerankResponse> {

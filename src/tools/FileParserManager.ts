@@ -1,4 +1,4 @@
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
+import { KOS2ToolsClient } from "@/LLMProviders/kos2ToolsClient";
 import { ProjectConfig } from "@/aiParams";
 import { PDFCache } from "@/cache/pdfCache";
 import { ProjectContextCache } from "@/cache/projectContextCache";
@@ -111,12 +111,12 @@ export class MarkdownParser implements FileParser {
 
 export class PDFParser implements FileParser {
   supportedExtensions = ["pdf"];
-  private brevilabsClient: BrevilabsClient;
+  private toolsClient: KOS2ToolsClient;
   private pdfCache: PDFCache;
   private selfHostPdfParser: SelfHostPdfParser;
 
-  constructor(brevilabsClient: BrevilabsClient) {
-    this.brevilabsClient = brevilabsClient;
+  constructor(toolsClient: KOS2ToolsClient) {
+    this.toolsClient = toolsClient;
     this.pdfCache = PDFCache.getInstance();
     this.selfHostPdfParser = new SelfHostPdfParser();
   }
@@ -156,7 +156,7 @@ export class PDFParser implements FileParser {
       // If not in cache, read the file and call the API
       const binaryContent = await vault.readBinary(file);
       logInfo("Calling pdf4llm API for:", file.path);
-      const pdf4llmResponse = await this.brevilabsClient.pdf4llm(binaryContent);
+      const pdf4llmResponse = await this.toolsClient.pdf4llm(binaryContent);
       await this.pdfCache.set(file, pdf4llmResponse);
       await saveConvertedDocOutput(file, pdf4llmResponse.response, vault);
       return pdf4llmResponse.response;
@@ -297,7 +297,7 @@ export class Docs4LLMParser implements FileParser {
     "wav",
     "webm",
   ];
-  private brevilabsClient: BrevilabsClient;
+  private toolsClient: KOS2ToolsClient;
   private projectContextCache: ProjectContextCache;
   private selfHostPdfParser: SelfHostPdfParser;
   private currentProject: ProjectConfig | null;
@@ -307,8 +307,8 @@ export class Docs4LLMParser implements FileParser {
     Docs4LLMParser.lastRateLimitNoticeTime = 0;
   }
 
-  constructor(brevilabsClient: BrevilabsClient, project: ProjectConfig | null = null) {
-    this.brevilabsClient = brevilabsClient;
+  constructor(toolsClient: KOS2ToolsClient, project: ProjectConfig | null = null) {
+    this.toolsClient = toolsClient;
     this.projectContextCache = ProjectContextCache.getInstance();
     this.selfHostPdfParser = new SelfHostPdfParser();
     this.currentProject = project;
@@ -372,7 +372,7 @@ export class Docs4LLMParser implements FileParser {
       logInfo(
         `[Docs4LLMParser] Project ${this.currentProject.name}: Calling docs4llm API for: ${file.path}`
       );
-      const docs4llmResponse = await this.brevilabsClient.docs4llm(binaryContent, file.extension);
+      const docs4llmResponse = await this.toolsClient.docs4llm(binaryContent, file.extension);
 
       if (!docs4llmResponse || !docs4llmResponse.response) {
         throw new Error("Empty response from docs4llm API");
@@ -474,7 +474,7 @@ export class FileParserManager {
   private parsers: Map<string, FileParser> = new Map();
 
   constructor(
-    brevilabsClient: BrevilabsClient,
+    toolsClient: KOS2ToolsClient,
     _vault: Vault,
     isProjectMode: boolean = false,
     project: ProjectConfig | null = null
@@ -483,11 +483,11 @@ export class FileParserManager {
     this.registerParser(new MarkdownParser());
 
     // In project mode, use Docs4LLMParser for all supported files including PDFs
-    this.registerParser(new Docs4LLMParser(brevilabsClient, project));
+    this.registerParser(new Docs4LLMParser(toolsClient, project));
 
     // Only register PDFParser when not in project mode
     if (!isProjectMode) {
-      this.registerParser(new PDFParser(brevilabsClient));
+      this.registerParser(new PDFParser(toolsClient));
     }
 
     this.registerParser(new CanvasParser());

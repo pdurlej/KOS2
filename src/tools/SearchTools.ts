@@ -1,6 +1,6 @@
 import { getStandaloneQuestion } from "@/chainUtils";
 import { TEXT_WEIGHT } from "@/constants";
-import { BrevilabsClient } from "@/LLMProviders/brevilabsClient";
+import { KOS2ToolsClient } from "@/LLMProviders/kos2ToolsClient";
 import { hasSelfHostSearchKey, selfHostWebSearch } from "@/LLMProviders/selfHostServices";
 import { logInfo } from "@/logger";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
@@ -571,7 +571,7 @@ const webSearchTool = createLangChainTool({
         webContent = result.content;
         citations = result.citations;
       } else {
-        const response = await BrevilabsClient.getInstance().webSearch(standaloneQuestion);
+        const response = await KOS2ToolsClient.getInstance().webSearch(standaloneQuestion);
         webContent = response.response.choices[0].message.content;
         citations = response.response.citations || [];
       }

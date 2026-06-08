@@ -1,9 +1,9 @@
 import { ImageProcessor } from "@/imageProcessing/imageProcessor";
 import {
-  BrevilabsClient,
+  KOS2ToolsClient,
   Twitter4llmResponse,
   Url4llmResponse,
-} from "@/LLMProviders/brevilabsClient";
+} from "@/LLMProviders/kos2ToolsClient";
 import { selfHostYoutube4llm } from "@/LLMProviders/selfHostServices";
 import { err2String, isTwitterUrl, isYoutubeUrl } from "@/utils";
 import { logError } from "@/logger";
@@ -20,11 +20,11 @@ export interface MentionData {
 export class Mention {
   private static instance: Mention;
   private mentions: Map<string, MentionData>;
-  private brevilabsClient: BrevilabsClient;
+  private toolsClient: KOS2ToolsClient;
 
   private constructor() {
     this.mentions = new Map();
-    this.brevilabsClient = BrevilabsClient.getInstance();
+    this.toolsClient = KOS2ToolsClient.getInstance();
   }
 
   static getInstance(): Mention {
@@ -51,7 +51,7 @@ export class Mention {
 
   async processUrl(url: string): Promise<Url4llmResponse & { error?: string }> {
     try {
-      return await this.brevilabsClient.url4llm(url);
+      return await this.toolsClient.url4llm(url);
     } catch (error) {
       const msg = err2String(error);
       logError(`Error processing URL ${url}: ${msg}`);
@@ -80,7 +80,7 @@ export class Mention {
 
   async processTwitterUrl(url: string): Promise<Twitter4llmResponse & { error?: string }> {
     try {
-      return await this.brevilabsClient.twitter4llm(url);
+      return await this.toolsClient.twitter4llm(url);
     } catch (error) {
       const msg = err2String(error);
       logError(`Error processing Twitter URL ${url}: ${msg}`);
