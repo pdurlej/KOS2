@@ -1,5 +1,5 @@
 import { logInfo, logWarn } from "@/logger";
-import { isSelfHostModeValid } from "@/plusUtils";
+import { isSelfHostModeValid } from "@/localRuntimeUtils";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
 import { getSettings, CopilotSettings } from "@/settings/model";
 import { App } from "obsidian";
@@ -85,7 +85,7 @@ export interface DocumentRetriever {
  * Factory for creating retrievers based on current settings.
  * Centralizes the retriever selection logic to avoid duplication across:
  * - VaultQAChainRunner
- * - CopilotPlusChainRunner (via SearchTools)
+ * - KOS2AgentChainRunner (via SearchTools)
  * - Any other components that need search
  *
  * Priority order:

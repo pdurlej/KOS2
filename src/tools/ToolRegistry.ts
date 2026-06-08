@@ -16,7 +16,6 @@ export interface ToolMetadata {
   // Execution control properties
   timeoutMs?: number;
   isBackground?: boolean; // If true, tool execution is not shown to user
-  isPlusOnly?: boolean; // If true, tool requires Plus subscription
   requiresUserMessageContent?: boolean; // If true, tool receives original user message for URL extraction
 }
 

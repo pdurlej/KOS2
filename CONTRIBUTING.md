@@ -1,128 +1,165 @@
-# Contributing to Copilot for Obsidian
+# Contributing to KOS2
 
-First off, thank you for considering contributing to Copilot for Obsidian! It's people like you who make Copilot for Obsidian such a great tool!
+Thanks for considering a contribution to KOS2.
 
-## How Can I Contribute?
+KOS2 is an Ollama-first Knowledge Operating System layer for Obsidian. It started as a soft fork of [logancyang/obsidian-copilot](https://github.com/logancyang/obsidian-copilot) and inherits its `AGPL-3.0` license, but the product direction is different — see [`docs/kos-philosophy.md`](docs/kos-philosophy.md) and [`docs/bmad/10-prd-kos2.md`](docs/bmad/10-prd-kos2.md) before opening larger PRs.
 
-### Reporting Bugs or Suggesting Enhancements
+## Issues and Ideas
 
-Before submitting a bug report or suggestion, please check the [issues](https://github.com/logancyang/obsidian-copilot/issues) page for a list of currently known issues to ensure the bug has not already been reported. If it's a new bug or suggestion, create an issue and provide the following information:
+Issues live at [github.com/pdurlej/KOS2/issues](https://github.com/pdurlej/KOS2/issues). Before filing a new one, please check the existing list.
 
-- Use a clear and descriptive title.
-- Describe the exact steps which reproduce the problem in as much detail as possible.
-- Provide specific examples to demonstrate these steps.
-- Describe the behavior you observed after following the steps, pointing out what exactly is the problem.
-- Explain which behavior you expected to see instead and why.
-- Include screenshots or animated GIFs showing you following the described steps and clearly demonstrating the problem.
+When reporting a bug:
 
-### Your First Code Contribution
+- describe the exact steps to reproduce
+- include your Obsidian version, OS, and the KOS2 version (visible in `Settings -> Community plugins`)
+- attach screenshots or short clips when behaviour is visual
+- if the bug is Ollama-related, include `ollama --version` and which models you have pulled
 
-Unsure where to begin contributing to Copilot for Obsidian? You can start by looking through the `help-wanted` issues.
+When suggesting an enhancement:
 
-### Pull Requests
+- frame the proposal against the KOS workflows (`organise`, `next steps`, `decision`, `review`) where possible
+- be explicit about whether the work should stay fully local or whether it crosses into `Ollama Cloud` territory
 
-The process described here aims to:
+## Multi-Agent Coordination
 
-- Maintain the quality of Copilot for Obsidian.
-- Fix problems that are important to users.
-- Engage the community in working towards the best possible Copilot for Obsidian.
-- Enable a sustainable system for Copilot for Obsidian's maintainers to review contributions.
+This repo may be edited by more than one coding agent (Codex, Claude Code) at the same time. Before making changes, read [`docs/agent-collaboration.md`](docs/agent-collaboration.md) and create a claim file under [`docs/agent-claims/`](docs/agent-claims/).
 
-Please follow these steps to have your contribution considered by the maintainers:
+## Development Setup
 
-1. Ensure the code adheres to a clean style consistent with the existing code.
-2. Thoroughly test your changes before submitting.
-3. Be descriptive in your pull request, linking to the issue it addresses, and showing screenshots demonstrating the change.
-4. Once you receive feedback, update the code accordingly to address them before your pull request can be ultimately accepted.
+KOS2 is a TypeScript Obsidian plugin. You will need:
 
-### How to Set Up Dev Environment
+- Node.js 18 or newer
+- a local Ollama install with at least one chat model and one embedding model pulled
+- a separate Obsidian vault used only for development
 
-Here is a great [writeup by Daniel Haven](https://medium.com/gitconnected/how-to-set-up-the-ideal-obsidian-plugin-development-workflow-b222fe72280f) on the best practices for setting up your dev environment for Obsidian plugins.
-
-In the case of Copilot for Obsidian, you will need to:
-
-1. Fork the repo.
-2. Create a vault just for development.
-3. Clone the forked repo into your vault's `plugins` folder.
-4. Run `npm install` to install all dependencies.
-5. Install the recommended VS Code extensions (Prettier and ESLint).
-6. Ensure your editor respects the `.editorconfig` and Prettier settings.
-7. Run `npm run dev` in your repo to see the effect of your changes.
-8. Before committing, run `npm run format` to ensure all files are properly formatted.
-9. When you are ready to make a pull request, ensure to make your changes in **a branch on your fork**, and then submit a pull request to the **main repo**.
-
-Try to be descriptive in your branch names and pull requests. Happy coding!
-
-## Prompt Testing
-
-If you are making prompt changes, make sure to run the integration tests using the following steps:
-
-First creating a `.env.test` file in the root directory with your Gemini API keys
-
-```
-GEMINI_API_KEY=your_api_key_here
+```bash
+git clone https://github.com/pdurlej/KOS2.git
+cd KOS2
+npm install
 ```
 
-Then run the integration tests:
+Build the plugin once and copy the artifacts into your dev vault:
 
+```bash
+npm run build
+mkdir -p "/path/to/YourDevVault/.obsidian/plugins/kos2"
+cp main.js manifest.json styles.css "/path/to/YourDevVault/.obsidian/plugins/kos2/"
 ```
+
+Reload Obsidian (or use the Obsidian CLI plugin reload command — see [`CLAUDE.md`](CLAUDE.md)) and enable `KOS2`.
+
+For ongoing iteration, prefer running `npm run build` after each change rather than a watch process. Long-lived watchers tend to leave stale state in dev vaults; one explicit build per change keeps verification predictable.
+
+### Quality gates
+
+Before opening a PR:
+
+```bash
+npm run format
+npm run lint
+npm test -- --runInBand
+npm run build
+```
+
+For changes that touch dependencies or release tooling, also run:
+
+```bash
+npm audit --omit=dev
+```
+
+## Branching and Commits
+
+- never commit directly on `main`; use a scoped branch
+  - `feat/<short-scope>` for new functionality
+  - `fix/<short-scope>` for bug fixes
+  - `docs/<short-scope>` for docs-only changes
+  - agents follow their own prefixes documented in [`docs/agent-collaboration.md`](docs/agent-collaboration.md)
+- keep commits focused; do not mix runtime, docs, dependency, and release changes in one broad commit
+- commit messages use the form `<type>: <short concrete change>`, for example `fix: preserve staged trash mode in cleanup`
+
+## Pull Requests
+
+A good KOS2 PR:
+
+- describes the user-visible change in one or two sentences
+- links to the issue it resolves, if any
+- includes screenshots or recordings for UI changes
+- lists which manual checks were run (see below)
+- is built against the latest `main`
+
+## Testing
+
+### Unit Tests
+
+```bash
+npm test -- --runInBand
+```
+
+Unit tests live next to their source files (`*.test.ts`). Mock the Obsidian API rather than touching `__mocks__/obsidian.js` directly unless your change is specifically about the mock.
+
+### Integration Tests
+
+```bash
 npm run test:integration
 ```
 
-## Manual Testing Checklist
+The integration suite still contains some legacy provider-specific paths inherited from the upstream fork. KOS2's primary integration target is the local `Ollama` runtime — use `npm run smoke:ollama` for that path.
 
-This is a list of items to manually test after any non-trivial code change. Test the items relevant to your code change. If not sure, randomly choose items below.
+### KOS2 Smoke and Benchmark
 
-First, **turn on debug mode in settings**, and open the dev console.
+```bash
+npm run smoke:ollama
+npm run benchmark:kos2
+```
 
-The most basic ones are model changes and mode changes.
+These scripts assume a local Ollama is reachable at `http://127.0.0.1:11434` and that the relevant chat and embedding models are pulled.
 
-### Test Fresh Install
+### Manual Testing Checklist
 
-- To ensure any **new users** can use the plugin on a **fresh install**, manually delete the `data.json` file in the plugin directory, disable the plugin in Obsidian, and re-enable it, enter the OpenAI API key and other API key(s) to see if **onboarding** is working.
+After any non-trivial change, run through the parts of the checklist that apply:
 
-### Chat / Plus mode
+#### Setup and Doctor
 
-- Switch the model and check if the log has the new model key
-- Test model selection: Ask the model "what company trained you" to double check. Models from OpenAI, Claude, Gemini models can properly answer this question.
-- Test chat memory: Tell the model your name, and in a turn or two ask "what's my name" to ensure chat memory is working.
-- Use `[[note title]]` in chat and see if the model can access the content.
+- run `KOS2: Run Setup Check` and confirm the Doctor reflects what the local Ollama actually has
+- toggle `Privacy (local) Mode` and confirm cloud paths disappear from the UI
+- run `KOS2: Reset Setup State` on a clean install to verify onboarding still works
 
-### Vault QA / Plus mode (with a small test vault)
+#### KOS Workflows
 
-- Use the "Refresh index" button and see if it properly starts indexing. If it says "index is up-to-date", use "Clear Copilot index" and start indexing again (or equivalently, use "force re-index" command).
-- Check if there's any error or warning during indexing in the console, and if the exclusions and inclusions are shown correctly in the notice banner. Click pause and resume.
-- After indexing is successful, ask a specific question where the answer is in your docs. For example, two of my docs are a biography of a person named "Mike", I ask "who is mike" and it should be able to answer using the two docs.
-  - In Plus mode make sure you trigger this query with `@vault` or cmd/ctrl + shift + enter. And then check "Show Sources" button for the expected docs.
-- To debug any failed QA query, we need to understand if it failed at 1. indexing 2. retrieval 3. generation.
-  - First use "list all indexed files" command to check if the docs are indexed correctly.
-  - Then check the console log for "retrieved chunks" from the hybrid retriever.
-  - If correctly retrieved, it means the Chat Model is too weak to process the context effectively. Use a stronger Chat Model
+- with an active markdown note, run `Organise this note` from the `KOS starter`
+- run `Next steps`, `Decision`, and `Review` against a realistic note and verify previews appear before any write
+- confirm that no workflow silently writes to the vault — every write must be previewable
 
-### Plus mode
+#### Chat and Vault QA
 
-- "Give me a recap of this week" or some other time-based query. If you have daily notes or modified notes in this period, it should be able to retrieve them.
-- Pass an image with text and ask gpt-4o-mini or gemini flash to describe the image.
-- Try some random `@` tool and see if it's working as expected.
-- Use `+` or `[[]]` to add notes to context. Ask the AI to summarize.
-- Paste a URL and ask the AI to summarize.
+- ask a chat question that requires the active note as context
+- ask a vault-wide question with `@vault` and confirm sources are listed
+- pause and resume indexing, confirm progress is reflected in the UI
 
-### Settings
+#### Settings and Models
 
-- If you updated model logic, test adding/deleting a custom model, whether you can use a new model in chat correctly.
-- Switch the embedding model and click "refresh index" to see if it starts from scratch (it should detect that the existing index has a different type of embedding, and hence start indexing from scratch).
-- Any behaviors related to the settings that you added, updated or may have affected.
+- change chat model in `Knowledge` and confirm the next chat call uses it
+- change embedding model and confirm the index rebuilds rather than silently mismatching
+- run `Refresh Ollama Models` after pulling a new model and confirm it appears
 
-### Copilot Commands
+#### Web Capabilities (only if you touched them)
 
-- Select text in a note and apply a built-in one like "translation" or a custom one you have as Custom Prompts.
-- Any commands that you added, updated or may have affected.
-- Try the `/` custom prompt
-- Whether custom prompt templating works correctly with `{folder}`, `{#tag1, #tag2}`, etc.
+- with `Ollama Cloud` configured, run a web-search-tagged query
+- without `Ollama Cloud` configured, confirm the web tools are gracefully unavailable rather than failing loudly
+
+## Code Style
+
+See [`CLAUDE.md`](CLAUDE.md) for the active code-style rules — TypeScript strict mode, no `console.log`, JSDoc on public functions, Tailwind classes via the prefix configured in `tailwind.config.js`, generalisable solutions over hardcoded edge cases, no editing AI prompt content unless explicitly asked.
+
+Two repository-specific reminders:
+
+- never run `npm run dev`; this repo uses explicit `npm run build` runs to avoid stale watch state in dev vaults
+- never commit `main.js` or `styles.css` — they are generated artifacts shipped via GitHub Releases / BRAT
 
 ## Getting Help
 
-- **Discord**: [Join](https://discord.gg/bFtfKDQqZt) the server for Copilot dev discussions.
-- **Email**: logan@brevilabs.com
+- file issues at [github.com/pdurlej/KOS2/issues](https://github.com/pdurlej/KOS2/issues)
+- for questions about the KOS philosophy and product intent, read [`docs/kos-philosophy.md`](docs/kos-philosophy.md) first
+- for current development context, the BMAD docs under [`docs/bmad/`](docs/bmad/) are the canonical reference
 
-Thank you for contributing to Copilot for Obsidian!
+Thank you for contributing.

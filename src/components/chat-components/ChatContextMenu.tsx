@@ -116,7 +116,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({
   const [indexingState] = useIndexingProgress();
   const [showTypeahead, setShowTypeahead] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const isCopilotPlus = isPlusChain(currentChain);
+  const isKOS2Agent = isPlusChain(currentChain);
 
   const handleTypeaheadClose = () => {
     setShowTypeahead(false);
@@ -202,7 +202,7 @@ export const ChatContextMenu: React.FC<ChatContextMenuProps> = ({
               isOpen={showTypeahead}
               onClose={handleTypeaheadClose}
               onSelect={handleTypeaheadSelect}
-              isCopilotPlus={isCopilotPlus}
+              isKOS2Agent={isKOS2Agent}
               currentActiveFile={currentActiveFile}
             />
           </PopoverContent>

@@ -10,10 +10,10 @@ import {
 } from "@/aiParams";
 import { ContextCache, ProjectContextCache } from "@/cache/projectContextCache";
 import { ChainType } from "@/chainFactory";
-import CopilotView from "@/components/CopilotView";
+import KOS2View from "@/components/KOS2View";
 import { CHAT_VIEWTYPE, VAULT_VECTOR_STORE_STRATEGY } from "@/constants";
 import { logError, logInfo, logWarn } from "@/logger";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { Mention } from "@/mentions/Mention";
 import { getMatchingPatterns, shouldIndexFile } from "@/search/searchUtils";
 import { getSettings, subscribeToSettingsChange, updateSetting } from "@/settings/model";
@@ -22,7 +22,7 @@ import { err2String } from "@/utils";
 import { isRateLimitError } from "@/utils/rateLimitUtils";
 import { RecentUsageManager } from "@/utils/recentUsageManager";
 import { App, Notice, TFile } from "obsidian";
-import { BrevilabsClient } from "./brevilabsClient";
+import { KOS2ToolsClient } from "./kos2ToolsClient";
 import ChainManager from "./chainManager";
 import { ProjectLoadTracker } from "./projectLoadTracker";
 
@@ -30,21 +30,21 @@ export default class ProjectManager {
   public static instance: ProjectManager;
   private currentProjectId: string | null;
   private app: App;
-  private plugin: CopilotPlugin;
+  private plugin: KOS2Plugin;
   private readonly chainMangerInstance: ChainManager;
   private readonly projectContextCache: ProjectContextCache;
   private fileParserManager: FileParserManager;
   private loadTracker: ProjectLoadTracker;
   private readonly projectUsageTimestampsManager = new RecentUsageManager<string>();
 
-  private constructor(app: App, plugin: CopilotPlugin) {
+  private constructor(app: App, plugin: KOS2Plugin) {
     this.app = app;
     this.plugin = plugin;
     this.currentProjectId = null;
     this.chainMangerInstance = new ChainManager(app);
     this.projectContextCache = ProjectContextCache.getInstance();
     this.fileParserManager = new FileParserManager(
-      BrevilabsClient.getInstance(),
+      KOS2ToolsClient.getInstance(),
       this.app.vault,
       true,
       null
@@ -124,7 +124,7 @@ export default class ProjectManager {
     return JSON.stringify(prevComparable) !== JSON.stringify(nextComparable);
   }
 
-  public static getInstance(app: App, plugin: CopilotPlugin): ProjectManager {
+  public static getInstance(app: App, plugin: KOS2Plugin): ProjectManager {
     if (!ProjectManager.instance) {
       ProjectManager.instance = new ProjectManager(app, plugin);
     }
@@ -216,7 +216,7 @@ export default class ProjectManager {
       await this.getCurrentChainManager().createChainWithNewModel();
       // Update FileParserManager with the current project
       this.fileParserManager = new FileParserManager(
-        BrevilabsClient.getInstance(),
+        KOS2ToolsClient.getInstance(),
         this.app.vault,
         true,
         project
@@ -362,7 +362,7 @@ export default class ProjectManager {
 
   private refreshChatView() {
     // get chat view
-    const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as CopilotView;
+    const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as KOS2View;
     if (chatView) {
       chatView.updateView();
     }
@@ -773,7 +773,7 @@ modified: ${stat ? new Date(stat.mtime).toISOString() : "unknown"}`;
         youtubeUrl,
         "youtube",
         async () => {
-          return BrevilabsClient.getInstance().youtube4llm(youtubeUrl);
+          return KOS2ToolsClient.getInstance().youtube4llm(youtubeUrl);
         }
       );
       if (response.response.transcript) {
@@ -802,7 +802,7 @@ modified: ${stat ? new Date(stat.mtime).toISOString() : "unknown"}`;
     }
 
     this.fileParserManager = new FileParserManager(
-      BrevilabsClient.getInstance(),
+      KOS2ToolsClient.getInstance(),
       this.app.vault,
       true,
       project

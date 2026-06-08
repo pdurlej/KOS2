@@ -2,7 +2,13 @@
 
 All notable changes to KOS2 will be tracked in this file.
 
-The versioning line now follows `YY.MM.release-in-month`.
+KOS2 uses the `YY.MM.X` versioning scheme:
+
+- `YY` — last two digits of the year (e.g. `26` for 2026)
+- `MM` — month number, no leading zero (e.g. `4` for April)
+- `X` — release counter inside that month, starting at `1`
+
+Example: `26.4.8` is the eighth release shipped in April 2026. The first KOS2 release on this scheme was `26.4.1`; the upstream history that predates it lives in [`docs/release/upstream-archive.md`](docs/release/upstream-archive.md).
 
 ## 26.4.8 - 2026-04-24
 

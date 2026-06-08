@@ -12,7 +12,7 @@ import React from "react";
 import { createRoot, Root } from "react-dom/client";
 import { updateDynamicStyleClass, clearDynamicStyleClass } from "@/utils/dom/dynamicStyleManager";
 import { QuickAskPanel } from "./QuickAskPanel";
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 import type { ReplaceGuard } from "@/editor/replaceGuard";
 import type { ResizeDirection } from "@/hooks/use-resizable";
 
@@ -34,7 +34,7 @@ interface AnchorRect {
 }
 
 interface QuickAskOverlayOptions {
-  plugin: CopilotPlugin;
+  plugin: KOS2Plugin;
   editor: Editor;
   view: EditorView;
   selectedText: string;

@@ -1,6 +1,6 @@
-import CopilotView from "@/components/CopilotView";
+import KOS2View from "@/components/KOS2View";
 import { CHAT_VIEWTYPE } from "@/constants";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { getSettings } from "@/settings/model";
 import { logInfo, logError } from "@/logger";
 import { App, Notice, PluginSettingTab } from "obsidian";
@@ -9,17 +9,17 @@ import { createRoot } from "react-dom/client";
 import SettingsMainV2 from "@/settings/v2/SettingsMainV2";
 import { ContainerContext } from "@/settings/v2/components/ContainerContext";
 
-export class CopilotSettingTab extends PluginSettingTab {
-  plugin: CopilotPlugin;
+export class KOS2SettingTab extends PluginSettingTab {
+  plugin: KOS2Plugin;
 
-  constructor(app: App, plugin: CopilotPlugin) {
+  constructor(app: App, plugin: KOS2Plugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
 
   async reloadPlugin() {
     try {
-      const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as CopilotView;
+      const chatView = this.app.workspace.getLeavesOfType(CHAT_VIEWTYPE)[0]?.view as KOS2View;
 
       // Analyze chat messages for memory if enabled
       if (chatView && getSettings().enableRecentConversations) {

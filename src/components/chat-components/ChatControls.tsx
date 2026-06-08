@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { SettingSwitch } from "@/components/ui/setting-switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { PLUS_UTM_MEDIUMS } from "@/constants";
 import { logError } from "@/logger";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
-import { navigateToPlusPage, useIsPlusUser } from "@/plusUtils";
 import { updateSetting, useSettingsValue } from "@/settings/model";
 import { Docs4LLMParser } from "@/tools/FileParserManager";
 import { isRateLimitError } from "@/utils/rateLimitUtils";
@@ -26,7 +24,6 @@ import {
   MoreHorizontal,
   RefreshCw,
   Sparkles,
-  SquareArrowOutUpRight,
   Database,
   MessageSquare,
 } from "lucide-react";
@@ -212,7 +209,6 @@ export function ChatControls({
 }: ChatControlsProps) {
   const settings = useSettingsValue();
   const [selectedChain, setSelectedChain] = useChainType();
-  const isPlusUser = useIsPlusUser();
 
   const modeMeta: Record<
     ChainType,
@@ -288,50 +284,26 @@ export function ChatControls({
             >
               Knowledge
             </DropdownMenuItem>
-            {isPlusUser ? (
-              <DropdownMenuItem
-                onSelect={() => {
-                  handleModeChange(ChainType.COPILOT_PLUS_CHAIN);
-                }}
-              >
-                <div className="tw-flex tw-items-center tw-gap-1">
-                  <Sparkles className="tw-size-4" />
-                  KOS2 Agent
-                </div>
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem
-                onSelect={() => {
-                  navigateToPlusPage(PLUS_UTM_MEDIUMS.CHAT_MODE_SELECT);
-                  onCloseProject?.();
-                }}
-              >
+            <DropdownMenuItem
+              onSelect={() => {
+                handleModeChange(ChainType.COPILOT_PLUS_CHAIN);
+              }}
+            >
+              <div className="tw-flex tw-items-center tw-gap-1">
+                <Sparkles className="tw-size-4" />
                 KOS2 Agent
-                <SquareArrowOutUpRight className="tw-size-3" />
-              </DropdownMenuItem>
-            )}
+              </div>
+            </DropdownMenuItem>
 
-            {isPlusUser ? (
-              <DropdownMenuItem
-                className="tw-flex tw-items-center tw-gap-1"
-                onSelect={() => {
-                  handleModeChange(ChainType.PROJECT_CHAIN);
-                }}
-              >
-                <LibraryBig className="tw-size-4" />
-                Projects
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem
-                onSelect={() => {
-                  navigateToPlusPage(PLUS_UTM_MEDIUMS.CHAT_MODE_SELECT);
-                  onCloseProject?.();
-                }}
-              >
-                KOS2 Agent
-                <SquareArrowOutUpRight className="tw-size-3" />
-              </DropdownMenuItem>
-            )}
+            <DropdownMenuItem
+              className="tw-flex tw-items-center tw-gap-1"
+              onSelect={() => {
+                handleModeChange(ChainType.PROJECT_CHAIN);
+              }}
+            >
+              <LibraryBig className="tw-size-4" />
+              Projects
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

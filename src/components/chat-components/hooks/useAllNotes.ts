@@ -15,16 +15,16 @@ import { settingsStore } from "@/settings/model";
  * - Debounced updates (250ms) to batch rapid file operations
  * - Stable array references to prevent unnecessary re-renders
  *
- * @param isCopilotPlus - Whether to include PDF files (Plus feature)
+ * @param isKOS2Agent - Whether to include PDF files (Plus feature)
  * @returns Array of TFile objects sorted by creation date (newest first)
  */
-export function useAllNotes(isCopilotPlus: boolean = false): TFile[] {
+export function useAllNotes(isKOS2Agent: boolean = false): TFile[] {
   const allNotes = useAtomValue(notesAtom, { store: settingsStore });
 
   return useMemo(() => {
     let files: TFile[];
 
-    if (isCopilotPlus) {
+    if (isKOS2Agent) {
       // Return all files (md + PDFs + canvas) - create a copy to avoid mutating the atom
       files = [...allNotes];
     } else {
@@ -34,5 +34,5 @@ export function useAllNotes(isCopilotPlus: boolean = false): TFile[] {
 
     // Sort by creation time in descending order (newest first)
     return files.sort((a, b) => b.stat.ctime - a.stat.ctime);
-  }, [allNotes, isCopilotPlus]);
+  }, [allNotes, isKOS2Agent]);
 }

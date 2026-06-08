@@ -9,7 +9,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { HelpTooltip } from "@/components/ui/help-tooltip";
 import {
   ChatModelProviders,
-  EmbeddingModelProviders,
   MODEL_CAPABILITIES,
   ModelCapability,
   ProviderMetadata,
@@ -44,7 +43,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
   const [originalModel, setOriginalModel] = useState<CustomModel>(model);
   const [providerInfo, setProviderInfo] = useState<ProviderMetadata>({} as ProviderMetadata);
   const settings = getSettings();
-  const isBedrockProvider = localModel.provider === ChatModelProviders.AMAZON_BEDROCK;
 
   useEffect(() => {
     setLocalModel(model);
@@ -95,18 +93,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
   if (!localModel) return null;
 
   const getPlaceholderUrl = () => {
-    if (!localModel || !localModel.provider || localModel.provider !== "azure-openai") {
-      return providerInfo.host || "https://api.example.com/v1";
-    }
-
-    const instanceName = localModel.azureOpenAIApiInstanceName || "[instance]";
-    const deploymentName = localModel.isEmbeddingModel
-      ? localModel.azureOpenAIApiEmbeddingDeploymentName || "[deployment]"
-      : localModel.azureOpenAIApiDeploymentName || "[deployment]";
-    const apiVersion = localModel.azureOpenAIApiVersion || "[api-version]";
-    const endpoint = localModel.isEmbeddingModel ? "embeddings" : "chat/completions";
-
-    return `https://${instanceName}.openai.azure.com/openai/deployments/${deploymentName}/${endpoint}?api-version=${apiVersion}`;
+    return providerInfo.host || "https://api.example.com/v1";
   };
 
   const capabilityOptions = Object.entries(MODEL_CAPABILITIES).map(([id, description]) => ({
@@ -119,8 +106,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
     localModel.provider as SettingKeyProviders,
     localModel
   );
-  const showOtherParameters =
-    !isEmbeddingModel && localModel.provider !== EmbeddingModelProviders.COPILOT_PLUS_JINA;
+  const showOtherParameters = !isEmbeddingModel;
 
   return (
     <div className="tw-space-y-3 tw-p-4">
@@ -147,7 +133,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
                     <div className="tw-text-[12px]">
                       Example:
                       <li>Direct-Paid:Ds-r1</li>
-                      <li>OpenRouter-Paid:Ds-r1</li>
+                      <li>Proxy-Paid:Ds-r1</li>
                       <li>Perplexity-Paid:lg</li>
                     </div>
                   </div>
@@ -178,20 +164,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
           />
         </FormField>
 
-        {isBedrockProvider && (
-          <FormField
-            label="Region (optional)"
-            description="Defaults to us-east-1 when left blank. With inference profiles (global., us., eu., apac.), region is auto-managed."
-          >
-            <Input
-              type="text"
-              placeholder="Enter AWS region (e.g. us-east-1)"
-              value={localModel.bedrockRegion || ""}
-              onChange={(e) => handleLocalUpdate("bedrockRegion", e.target.value)}
-            />
-          </FormField>
-        )}
-
         <FormField label="API Key">
           <PasswordInput
             placeholder={`Enter ${providerInfo.label || "Provider"} API Key`}
@@ -206,28 +178,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
             </p>
           )}
         </FormField>
-
-        {/* Prompt Caching Toggle for OpenRouter */}
-        {localModel.provider === ChatModelProviders.OPENROUTERAI && (
-          <div className="tw-flex tw-items-center tw-gap-2">
-            <Checkbox
-              id="enable-prompt-caching"
-              checked={localModel.enablePromptCaching !== false}
-              onCheckedChange={(checked) => handleLocalUpdate("enablePromptCaching", checked)}
-            />
-            <Label htmlFor="enable-prompt-caching" className="tw-cursor-pointer tw-text-sm">
-              Prompt Caching
-            </Label>
-            <HelpTooltip
-              content={
-                <div className="tw-text-sm tw-text-muted">
-                  Disable if your OpenRouter endpoint uses Zero Data Retention (ZDR), which does not
-                  support prompt caching.
-                </div>
-              }
-            />
-          </div>
-        )}
 
         {showOtherParameters && (
           <>
@@ -271,8 +221,7 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
             </FormField>
 
             {/* Stream Usage Toggle for OpenAI-format providers */}
-            {(localModel.provider === ChatModelProviders.OPENAI_FORMAT ||
-              localModel.provider === ChatModelProviders.LM_STUDIO) && (
+            {localModel.provider === ChatModelProviders.OPENAI_COMPATIBLE && (
               <FormField label="Stream Options">
                 <div className="tw-flex tw-items-center tw-gap-2">
                   <Checkbox
@@ -290,32 +239,6 @@ export const ModelEditModalContent: React.FC<ModelEditModalContentProps> = ({
                   >
                     <Label htmlFor="stream-usage" className="tw-cursor-pointer tw-text-sm">
                       Stream Usage
-                    </Label>
-                  </HelpTooltip>
-                </div>
-              </FormField>
-            )}
-
-            {/* Responses API Toggle for LM Studio */}
-            {localModel.provider === ChatModelProviders.LM_STUDIO && (
-              <FormField label="Responses API">
-                <div className="tw-flex tw-items-center tw-gap-2">
-                  <Checkbox
-                    id="use-responses-api"
-                    checked={localModel.useResponsesApi !== false}
-                    onCheckedChange={(checked) => handleLocalUpdate("useResponsesApi", checked)}
-                  />
-                  <HelpTooltip
-                    content={
-                      <div className="tw-text-sm tw-text-muted">
-                        Use /v1/responses instead of /v1/chat/completions. Patches compatibility
-                        issues with LM Studio (text.format, tool definitions). Requires LM Studio
-                        0.3.6+.
-                      </div>
-                    }
-                  >
-                    <Label htmlFor="use-responses-api" className="tw-cursor-pointer tw-text-sm">
-                      Use Responses API (faster inference)
                     </Label>
                   </HelpTooltip>
                 </div>

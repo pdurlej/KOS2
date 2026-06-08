@@ -10,7 +10,7 @@ import {
   CleanupProposalDecision,
   CleanupScanResult,
 } from "@/kos/cleanup/types";
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 import { CopilotSettings, getSettings } from "@/settings/model";
 import { TFile } from "obsidian";
 
@@ -35,7 +35,7 @@ export function getEffectiveCleanupFolderConfig(
  * @returns Cleanup proposal together with raw scan data.
  */
 export async function prepareCleanupProposal(
-  plugin: CopilotPlugin
+  plugin: KOS2Plugin
 ): Promise<{ proposal: CleanupProposal; scanResult: CleanupScanResult }> {
   const currentSettings = getSettings();
   const folderConfig = getEffectiveCleanupFolderConfig(currentSettings);

@@ -8,11 +8,6 @@ import { ToolRegistry } from "@/tools/ToolRegistry";
 import { z } from "zod";
 
 // Mock dependencies
-jest.mock("@/plusUtils", () => ({
-  checkIsPlusUser: jest.fn(),
-  isSelfHostModeValid: jest.fn().mockReturnValue(false),
-}));
-
 jest.mock("@/logger", () => ({
   logError: jest.fn(),
   logInfo: jest.fn(),
@@ -25,11 +20,9 @@ jest.mock("@/tools/toolManager", () => ({
   },
 }));
 
-import { checkIsPlusUser } from "@/plusUtils";
 import { ToolManager } from "@/tools/toolManager";
 
 describe("toolExecution", () => {
-  const mockCheckIsPlusUser = checkIsPlusUser as jest.MockedFunction<typeof checkIsPlusUser>;
   const mockCallTool = ToolManager.callTool as jest.MockedFunction<typeof ToolManager.callTool>;
 
   beforeEach(() => {
@@ -39,7 +32,7 @@ describe("toolExecution", () => {
   });
 
   describe("executeSequentialToolCall", () => {
-    it("should execute tools without isPlusOnly flag", async () => {
+    it("should execute a registered tool", async () => {
       const testTool = createLangChainTool({
         name: "testTool",
         description: "Test tool",
@@ -47,7 +40,6 @@ describe("toolExecution", () => {
         func: async ({ input }) => `Result: ${input}`,
       });
 
-      // Register tool without isPlusOnly
       ToolRegistry.getInstance().register({
         tool: testTool,
         metadata: {
@@ -70,74 +62,6 @@ describe("toolExecution", () => {
         result: "Tool executed successfully",
         success: true,
       });
-      expect(mockCheckIsPlusUser).not.toHaveBeenCalled();
-    });
-
-    it("should block plus-only tools for non-plus users", async () => {
-      const plusTool = createLangChainTool({
-        name: "plusTool",
-        description: "Plus-only tool",
-        schema: z.object({}),
-        func: async () => "Should not execute",
-      });
-
-      // Register tool with isPlusOnly metadata
-      ToolRegistry.getInstance().register({
-        tool: plusTool,
-        metadata: {
-          id: "plusTool",
-          displayName: "Plus Tool",
-          description: "Plus-only tool",
-          category: "custom",
-          isPlusOnly: true,
-        },
-      });
-
-      mockCheckIsPlusUser.mockResolvedValueOnce(false);
-
-      const result = await executeSequentialToolCall({ name: "plusTool", args: {} }, [plusTool]);
-
-      expect(result).toEqual({
-        toolName: "plusTool",
-        result: "Error: plusTool requires a Copilot Plus subscription",
-        success: false,
-        errorType: "subscription_required",
-      });
-      expect(mockCallTool).not.toHaveBeenCalled();
-    });
-
-    it("should allow plus-only tools for plus users", async () => {
-      const plusTool = createLangChainTool({
-        name: "plusTool",
-        description: "Plus-only tool",
-        schema: z.object({}),
-        func: async () => "Plus tool executed",
-      });
-
-      // Register tool with isPlusOnly metadata
-      ToolRegistry.getInstance().register({
-        tool: plusTool,
-        metadata: {
-          id: "plusTool",
-          displayName: "Plus Tool",
-          description: "Plus-only tool",
-          category: "custom",
-          isPlusOnly: true,
-        },
-      });
-
-      mockCheckIsPlusUser.mockResolvedValueOnce(true);
-      mockCallTool.mockResolvedValueOnce("Plus tool executed");
-
-      const result = await executeSequentialToolCall({ name: "plusTool", args: {} }, [plusTool]);
-
-      expect(result).toEqual({
-        toolName: "plusTool",
-        result: "Plus tool executed",
-        success: true,
-      });
-      expect(mockCheckIsPlusUser).toHaveBeenCalled();
-      expect(mockCallTool).toHaveBeenCalled();
     });
 
     it("should handle tool not found", async () => {

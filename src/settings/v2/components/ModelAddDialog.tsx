@@ -1,7 +1,6 @@
 import { CustomModel } from "@/aiParams";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -32,22 +31,16 @@ import {
 } from "@/constants";
 import { useTab } from "@/contexts/TabContext";
 import { logError } from "@/logger";
-import { getSettings } from "@/settings/model";
-import { err2String, getProviderInfo, getProviderLabel, omit } from "@/utils";
+import { err2String, getProviderInfo, getProviderLabel } from "@/utils";
 import { buildCurlCommandForModel } from "@/utils/curlCommand";
-import { CheckCircle2, ChevronDown, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { getApiKeyForProvider } from "@/utils/modelUtils";
 import { Notice } from "obsidian";
 import React, { useState } from "react";
 
 interface FormErrors {
   name: boolean;
-  instanceName: boolean;
-  deploymentName: boolean;
-  embeddingDeploymentName: boolean;
-  apiVersion: boolean;
   displayName: boolean;
-  bedrockRegion: boolean;
 }
 
 interface ModelAddDialogProps {
@@ -66,28 +59,16 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
   isEmbeddingModel = false,
 }) => {
   const { modalContainer } = useTab();
-  const settings = getSettings();
   const defaultProvider = isEmbeddingModel
-    ? EmbeddingModelProviders.OPENAI
-    : ChatModelProviders.OPENROUTERAI;
-
-  // 判断 Provider 是否有必填的额外设置
-  const hasRequiredExtraSettings = (provider: string) => {
-    return provider === ChatModelProviders.AZURE_OPENAI && !model.baseUrl;
-  };
+    ? EmbeddingModelProviders.OLLAMA
+    : ChatModelProviders.OPENAI_COMPATIBLE;
 
   const [dialogElement, setDialogElement] = useState<HTMLDivElement | null>(null);
-  const [isOpen, setIsOpen] = useState(hasRequiredExtraSettings(defaultProvider));
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState<"idle" | "success" | "failed">("idle");
   const [errors, setErrors] = useState<FormErrors>({
     name: false,
-    instanceName: false,
-    deploymentName: false,
-    embeddingDeploymentName: false,
-    apiVersion: false,
     displayName: false,
-    bedrockRegion: false,
   });
 
   const setError = (field: keyof FormErrors, value: boolean) => {
@@ -97,12 +78,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
   const clearErrors = () => {
     setErrors({
       name: false,
-      instanceName: false,
-      deploymentName: false,
-      embeddingDeploymentName: false,
-      apiVersion: false,
       displayName: false,
-      bedrockRegion: false,
     });
   };
 
@@ -113,36 +89,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
     // Validate name
     newErrors.name = !model.name;
     if (!model.name) isValid = false;
-
-    // Validate Azure OpenAI specific fields.
-    // Embedding models always require the legacy fields because EmbeddingManager
-    // does not consume baseUrl and still reads azureOpenAIApiInstanceName,
-    // azureOpenAIApiEmbeddingDeploymentName, and azureOpenAIApiVersion directly.
-    // Chat models may skip legacy fields when a full base URL is supplied instead.
-    const isAzure = model.provider === ChatModelProviders.AZURE_OPENAI;
-    const azureRequiresLegacyFields = isAzure && (isEmbeddingModel || !model.baseUrl?.trim());
-    if (azureRequiresLegacyFields) {
-      newErrors.instanceName = !model.azureOpenAIApiInstanceName;
-      newErrors.apiVersion = !model.azureOpenAIApiVersion;
-
-      if (isEmbeddingModel) {
-        newErrors.embeddingDeploymentName = !model.azureOpenAIApiEmbeddingDeploymentName;
-        if (!model.azureOpenAIApiEmbeddingDeploymentName) isValid = false;
-      } else {
-        newErrors.deploymentName = !model.azureOpenAIApiDeploymentName;
-        if (!model.azureOpenAIApiDeploymentName) isValid = false;
-      }
-
-      if (!model.azureOpenAIApiInstanceName || !model.azureOpenAIApiVersion) {
-        isValid = false;
-      }
-    }
-
-    if (model.provider === ChatModelProviders.AMAZON_BEDROCK) {
-      newErrors.bedrockRegion = false;
-    } else {
-      newErrors.bedrockRegion = false;
-    }
 
     setErrors(newErrors);
     return isValid;
@@ -161,19 +107,10 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
     };
 
     if (!isEmbeddingModel) {
-      const chatModel = {
+      return {
         ...baseModel,
         stream: true,
       };
-
-      if (provider === ChatModelProviders.AMAZON_BEDROCK) {
-        return {
-          ...chatModel,
-          bedrockRegion: settings.amazonBedrockRegion,
-        };
-      }
-
-      return chatModel;
     }
 
     return baseModel;
@@ -197,13 +134,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
       name: modelData.name?.trim(),
       baseUrl: modelData.baseUrl?.trim(),
       apiKey: modelData.apiKey?.trim(),
-      openAIOrgId: modelData.openAIOrgId?.trim(),
-      azureOpenAIApiInstanceName: modelData.azureOpenAIApiInstanceName?.trim(),
-      azureOpenAIApiDeploymentName: modelData.azureOpenAIApiDeploymentName?.trim(),
-      azureOpenAIApiEmbeddingDeploymentName:
-        modelData.azureOpenAIApiEmbeddingDeploymentName?.trim(),
-      azureOpenAIApiVersion: modelData.azureOpenAIApiVersion?.trim(),
-      bedrockRegion: modelData.bedrockRegion?.trim(),
     };
   };
 
@@ -233,7 +163,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
     setModel(getInitialModel());
     clearErrors();
     setVerifyStatus("idle");
-    setIsOpen(false);
   };
 
   const handleProviderChange = (provider: ChatModelProviders) => {
@@ -243,32 +172,13 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
       ...model,
       provider,
       apiKey: getApiKeyForProvider(provider as SettingKeyProviders),
-      ...(provider === ChatModelProviders.OPENAI ? { openAIOrgId: settings.openAIOrgId } : {}),
-      ...(provider === ChatModelProviders.AZURE_OPENAI
-        ? {
-            azureOpenAIApiInstanceName: settings.azureOpenAIApiInstanceName,
-            azureOpenAIApiDeploymentName: settings.azureOpenAIApiDeploymentName,
-            azureOpenAIApiVersion: settings.azureOpenAIApiVersion,
-            azureOpenAIApiEmbeddingDeploymentName: settings.azureOpenAIApiEmbeddingDeploymentName,
-          }
-        : {}),
-      ...(provider === ChatModelProviders.AMAZON_BEDROCK
-        ? {
-            bedrockRegion: settings.amazonBedrockRegion,
-          }
-        : {
-            bedrockRegion: undefined,
-          }),
     });
-    // 当 Provider 有必填额外设置时自动展开
-    setIsOpen(hasRequiredExtraSettings(provider));
   };
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setModel(getInitialModel());
       clearErrors();
       setVerifyStatus("idle");
-      setIsOpen(false);
     }
     onOpenChange(open);
   };
@@ -322,192 +232,8 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
     }
   };
 
-  const renderProviderSpecificFields = () => {
-    const fields = () => {
-      switch (model.provider) {
-        case ChatModelProviders.OPENAI:
-          return (
-            <FormField
-              label="OpenAI Organization ID"
-              description="Enter OpenAI Organization ID if applicable"
-            >
-              <Input
-                type="text"
-                placeholder="Enter OpenAI Organization ID if applicable"
-                value={model.openAIOrgId || ""}
-                onChange={(e) => updateModelWithReset({ openAIOrgId: e.target.value })}
-              />
-            </FormField>
-          );
-        case ChatModelProviders.AZURE_OPENAI:
-          // Chat models with a base URL use the new flow and skip legacy fields.
-          // Embedding models always require legacy fields since EmbeddingManager
-          // reads them directly and does not consume baseUrl.
-          if (model.baseUrl?.trim() && !isEmbeddingModel) return null;
-          return (
-            <>
-              <FormField
-                label="Instance Name"
-                required
-                error={errors.instanceName}
-                errorMessage="Instance name is required"
-              >
-                <Input
-                  type="text"
-                  placeholder="Enter Azure OpenAI API Instance Name"
-                  value={model.azureOpenAIApiInstanceName || ""}
-                  onChange={(e) => {
-                    updateModelWithReset({ azureOpenAIApiInstanceName: e.target.value });
-                    setError("instanceName", false);
-                  }}
-                />
-              </FormField>
-
-              {!isEmbeddingModel ? (
-                <FormField
-                  label="Deployment Name"
-                  required
-                  error={errors.deploymentName}
-                  errorMessage="Deployment name is required"
-                  description="This is your actual model, no need to pass a model name separately."
-                >
-                  <Input
-                    type="text"
-                    placeholder="Enter Azure OpenAI API Deployment Name"
-                    value={model.azureOpenAIApiDeploymentName || ""}
-                    onChange={(e) => {
-                      updateModelWithReset({ azureOpenAIApiDeploymentName: e.target.value });
-                      setError("deploymentName", false);
-                    }}
-                  />
-                </FormField>
-              ) : (
-                <FormField
-                  label="Embedding Deployment Name"
-                  required
-                  error={errors.embeddingDeploymentName}
-                  errorMessage="Embedding deployment name is required"
-                >
-                  <Input
-                    type="text"
-                    placeholder="Enter Azure OpenAI API Embedding Deployment Name"
-                    value={model.azureOpenAIApiEmbeddingDeploymentName || ""}
-                    onChange={(e) => {
-                      updateModelWithReset({
-                        azureOpenAIApiEmbeddingDeploymentName: e.target.value,
-                      });
-                      setError("embeddingDeploymentName", false);
-                    }}
-                  />
-                </FormField>
-              )}
-
-              <FormField
-                label="API Version"
-                required
-                error={errors.apiVersion}
-                errorMessage="API version is required"
-              >
-                <Input
-                  type="text"
-                  placeholder="Enter Azure OpenAI API Version"
-                  value={model.azureOpenAIApiVersion || ""}
-                  onChange={(e) => {
-                    updateModelWithReset({ azureOpenAIApiVersion: e.target.value });
-                    setError("apiVersion", false);
-                  }}
-                />
-              </FormField>
-            </>
-          );
-        case ChatModelProviders.AMAZON_BEDROCK:
-          return (
-            <FormField
-              label="Region (optional)"
-              description="Defaults to us-east-1 when left blank. With inference profiles (global., us., eu., apac.), region is auto-managed."
-            >
-              <div className="tw-flex tw-gap-2">
-                <Input
-                  className="tw-flex-1"
-                  type="text"
-                  placeholder="Enter AWS region (e.g. us-east-1)"
-                  value={model.bedrockRegion || ""}
-                  onChange={(e) => {
-                    updateModelWithReset({ bedrockRegion: e.target.value });
-                    setError("bedrockRegion", false);
-                  }}
-                />
-                <Select
-                  onValueChange={(value) => {
-                    updateModelWithReset({ bedrockRegion: value });
-                    setError("bedrockRegion", false);
-                  }}
-                >
-                  <SelectTrigger className="tw-w-[140px]">
-                    <SelectValue placeholder="Presets" />
-                  </SelectTrigger>
-                  <SelectContent container={dialogElement}>
-                    {[
-                      "us-east-1",
-                      "us-west-2",
-                      "eu-west-1",
-                      "ap-northeast-1",
-                      "ap-southeast-1",
-                    ].map((region) => (
-                      <SelectItem key={region} value={region}>
-                        {region}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </FormField>
-          );
-        default:
-          return null;
-      }
-    };
-
-    const content = fields();
-    if (!content) return null;
-
-    return (
-      <Collapsible
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        className="tw-rounded-lg tw-border tw-bg-secondary/30 tw-border-border/60"
-      >
-        <CollapsibleTrigger asChild>
-          <button
-            type="button"
-            className="tw-flex tw-w-full tw-cursor-pointer tw-items-center tw-justify-between tw-rounded-lg tw-p-3 tw-text-left hover:tw-bg-modifier-hover"
-          >
-            <span className="tw-text-sm tw-font-medium">
-              Additional {getProviderLabel(model.provider)} Settings
-            </span>
-            <ChevronDown
-              className={`tw-size-4 tw-text-muted tw-transition-transform tw-duration-200 ${isOpen ? "tw-rotate-180" : ""}`}
-            />
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="tw-space-y-4 tw-px-3 tw-pb-3">{content}</CollapsibleContent>
-      </Collapsible>
-    );
-  };
-
   const getPlaceholderUrl = () => {
-    if (model.provider !== ChatModelProviders.AZURE_OPENAI) {
-      return providerInfo.host;
-    }
-
-    const instanceName = model.azureOpenAIApiInstanceName || "[instance]";
-    const deploymentName = isEmbeddingModel
-      ? model.azureOpenAIApiEmbeddingDeploymentName || "[deployment]"
-      : model.azureOpenAIApiDeploymentName || "[deployment]";
-    const apiVersion = model.azureOpenAIApiVersion || "[api-version]";
-    const endpoint = isEmbeddingModel ? "embeddings" : "chat/completions";
-
-    return `https://${instanceName}.openai.azure.com/openai/deployments/${deploymentName}/${endpoint}?api-version=${apiVersion}`;
+    return providerInfo.host;
   };
 
   const capabilityOptions = Object.entries(MODEL_CAPABILITIES).map(([id, description]) => ({
@@ -534,20 +260,11 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
             required
             error={errors.name}
             errorMessage="Model name is required"
-            description={
-              model.provider === ChatModelProviders.AMAZON_BEDROCK && !isEmbeddingModel
-                ? "For Bedrock, use cross-region inference profile IDs (global., us., eu., or apac. prefix) for better reliability. Regional IDs without prefixes may fail."
-                : undefined
-            }
           >
             <Input
               type="text"
               placeholder={`Enter model name (e.g. ${
-                model.provider === ChatModelProviders.AMAZON_BEDROCK && !isEmbeddingModel
-                  ? "global.anthropic.claude-sonnet-4-6-v1:0"
-                  : isEmbeddingModel
-                    ? "text-embedding-3-small"
-                    : "gpt-4"
+                isEmbeddingModel ? "text-embedding-3-small" : "gpt-4"
               })`}
               value={model.name}
               onChange={(e) => {
@@ -569,7 +286,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
                       <div className="tw-text-[12px]">
                         Example:
                         <li>Direct-Paid:Ds-r1</li>
-                        <li>OpenRouter-Paid:Ds-r1</li>
+                        <li>Proxy-Paid:Ds-r1</li>
                         <li>Perplexity-Paid:lg</li>
                       </div>
                     </div>
@@ -595,15 +312,13 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
               <SelectContent container={dialogElement}>
-                {Object.values(
-                  isEmbeddingModel
-                    ? omit(EmbeddingModelProviders, ["COPILOT_PLUS", "COPILOT_PLUS_JINA"])
-                    : omit(ChatModelProviders, ["COPILOT_PLUS"])
-                ).map((provider) => (
-                  <SelectItem key={provider} value={provider}>
-                    {getProviderLabel(provider)}
-                  </SelectItem>
-                ))}
+                {Object.values(isEmbeddingModel ? EmbeddingModelProviders : ChatModelProviders).map(
+                  (provider) => (
+                    <SelectItem key={provider} value={provider}>
+                      {getProviderLabel(provider)}
+                    </SelectItem>
+                  )
+                )}
               </SelectContent>
             </Select>
           </FormField>
@@ -674,8 +389,6 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
               </div>
             </FormField>
           )}
-
-          {renderProviderSpecificFields()}
         </div>
 
         <div className="tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-center sm:tw-justify-between">
@@ -701,8 +414,7 @@ export const ModelAddDialog: React.FC<ModelAddDialogProps> = ({
                 </div>
               </Label>
             </div>
-            {(model.provider === ChatModelProviders.OPENAI_FORMAT ||
-              model.provider === ChatModelProviders.LM_STUDIO) && (
+            {model.provider === ChatModelProviders.OPENAI_COMPATIBLE && (
               <div className="tw-flex tw-items-center tw-gap-2">
                 <Checkbox
                   id="stream-usage"

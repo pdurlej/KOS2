@@ -49,30 +49,7 @@ export interface LegacyCommandSettings {
 
 export interface CopilotSettings {
   userId: string;
-  plusLicenseKey: string;
-  openAIApiKey: string;
-  openAIOrgId: string;
-  huggingfaceApiKey: string;
-  cohereApiKey: string;
-  anthropicApiKey: string;
-  azureOpenAIApiKey: string;
-  azureOpenAIApiInstanceName: string;
-  azureOpenAIApiDeploymentName: string;
-  azureOpenAIApiVersion: string;
-  azureOpenAIApiEmbeddingDeploymentName: string;
-  googleApiKey: string;
   ollamaCloudApiKey: string;
-  openRouterAiApiKey: string;
-  xaiApiKey: string;
-  mistralApiKey: string;
-  deepseekApiKey: string;
-  amazonBedrockApiKey: string;
-  amazonBedrockRegion: string;
-  siliconflowApiKey: string;
-  // GitHub Copilot OAuth tokens
-  githubCopilotAccessToken: string;
-  githubCopilotToken: string;
-  githubCopilotTokenExpiresAt: number;
   defaultChainType: ChainType;
   defaultModelKey: string;
   embeddingModelKey: string;
@@ -86,8 +63,6 @@ export interface CopilotSettings {
   lastDismissedVersion: string | null;
   // DEPRECATED: Do not use this directly, migrated to file-based system prompts
   userSystemPrompt: string;
-  openAIProxyBaseUrl: string;
-  openAIEmbeddingProxyBaseUrl: string;
   stream: boolean;
   defaultSaveFolder: string;
   defaultConversationTag: string;
@@ -109,7 +84,6 @@ export interface CopilotSettings {
   enableInlineCitations: boolean;
   qaExclusions: string;
   qaInclusions: string;
-  groqApiKey: string;
   activeModels: Array<CustomModel>;
   activeEmbeddingModels: Array<CustomModel>;
   promptUsageTimestamps: Record<string, number>;
@@ -131,8 +105,6 @@ export interface CopilotSettings {
   lastKOSSetupCheckStatus: "pass" | "warn" | "fail" | null;
   numPartitions: number;
   defaultConversationNoteName: string;
-  // undefined means never checked
-  isPlusUser: boolean | undefined;
   inlineEditCommands: LegacyCommandSettings[] | undefined;
   projectList: Array<ProjectConfig>;
   passMarkdownImages: boolean;
@@ -456,17 +428,8 @@ export function sanitizeSettings(settings: CopilotSettings): CopilotSettings {
     settingsToSanitize.activeModels = [];
   }
 
-  // fix: Maintain consistency between EmbeddingModelProviders.AZURE_OPENAI and ChatModelProviders.AZURE_OPENAI,
-  // where it was 'azure_openai' before EmbeddingModelProviders.AZURE_OPENAI.
   if (!settingsToSanitize.activeEmbeddingModels) {
     settingsToSanitize.activeEmbeddingModels = [];
-  } else {
-    settingsToSanitize.activeEmbeddingModels = settingsToSanitize.activeEmbeddingModels.map((m) => {
-      return {
-        ...m,
-        provider: m.provider === "azure_openai" ? EmbeddingModelProviders.AZURE_OPENAI : m.provider,
-      };
-    });
   }
 
   const sanitizedSettings: CopilotSettings = { ...settingsToSanitize };

@@ -13,7 +13,7 @@ interface AtMentionTypeaheadProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (category: AtMentionCategory, data: any) => void;
-  isCopilotPlus?: boolean;
+  isKOS2Agent?: boolean;
   currentActiveFile?: TFile | null;
 }
 
@@ -30,7 +30,7 @@ export function AtMentionTypeahead({
   isOpen,
   onClose,
   onSelect,
-  isCopilotPlus = false,
+  isKOS2Agent = false,
   currentActiveFile = null,
 }: AtMentionTypeaheadProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,14 +42,14 @@ export function AtMentionTypeahead({
     mode: "category",
   });
 
-  const availableCategoryOptions = useAtMentionCategories(isCopilotPlus);
+  const availableCategoryOptions = useAtMentionCategories(isKOS2Agent);
 
   // Get search results based on current state using unified search
   const searchResults = useAtMentionSearch(
     searchQuery,
     extendedState.mode,
     extendedState.selectedCategory,
-    isCopilotPlus,
+    isKOS2Agent,
     availableCategoryOptions,
     currentActiveFile
   );

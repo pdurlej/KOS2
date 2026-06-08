@@ -60,26 +60,12 @@ export function ModelParametersEditor({
   const reasoningEffort = model.reasoningEffort;
   const verbosity = model.verbosity;
 
-  // Check if this is an OpenAI native reasoning model
-  const isOpenAIReasoningModel =
-    (model.name.startsWith("o1") ||
-      model.name.startsWith("o3") ||
-      model.name.startsWith("o4") ||
-      model.name.startsWith("gpt-5")) &&
-    model.provider === ChatModelProviders.OPENAI;
-
   // Check if model has REASONING capability enabled
   const hasReasoningCapability = model.capabilities?.includes(ModelCapability.REASONING) ?? false;
 
-  // Show reasoning effort for: OpenAI reasoning models, OpenRouter, LM Studio, or any model with REASONING capability
-  const showReasoningEffort =
-    isOpenAIReasoningModel ||
-    model.provider === ChatModelProviders.OPENROUTERAI ||
-    model.provider === "lm_studio" ||
-    model.provider === ChatModelProviders.LM_STUDIO ||
-    hasReasoningCapability;
-  const showVerbosity =
-    model.name.startsWith("gpt-5") && model.provider === ChatModelProviders.OPENAI;
+  // Show reasoning effort for any model with REASONING capability
+  const showReasoningEffort = hasReasoningCapability;
+  const showVerbosity = false;
 
   return (
     <div className="tw-space-y-4">
@@ -229,17 +215,11 @@ export function ModelParametersEditor({
                   more thorough reasoning but takes longer.
                 </p>
                 <ul className="tw-mt-2 tw-space-y-1 tw-text-xs">
-                  {model.name.startsWith("gpt-5") && model.provider === "openai" && (
-                    <li>Minimal: Fastest responses, minimal reasoning (GPT-5 only)</li>
-                  )}
                   <li>Low: Faster responses, basic reasoning (default)</li>
                   <li>Medium: Balanced performance</li>
                   <li>High: Thorough reasoning, slower responses</li>
-                  {model.name.startsWith("gpt-5.4") && model.provider === "openai" && (
-                    <li>Extra High: Maximum reasoning depth (GPT-5.4 only)</li>
-                  )}
                 </ul>
-                {!hasReasoningCapability && !isOpenAIReasoningModel && (
+                {!hasReasoningCapability && (
                   <p className="tw-mt-2 tw-text-warning">
                     Enable the &quot;Reasoning&quot; capability above to use this feature.
                   </p>

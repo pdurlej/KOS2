@@ -2,7 +2,6 @@ import { ChainType, Document } from "@/chainFactory";
 import {
   ALLOWED_NOTE_CONTEXT_EXTENSIONS,
   ChatModelProviders,
-  EmbeddingModelProviders,
   NOMIC_EMBED_TEXT,
   Provider,
   ProviderInfo,
@@ -522,7 +521,7 @@ export interface ChatHistoryEntry {
  * Extract text-only chat history from memory variables.
  * This function pairs messages by index (i, i+1) and returns only string content.
  *
- * Note: For multimodal chains (CopilotPlus, AutonomousAgent), use
+ * Note: For multimodal chains (KOS2Agent, AutonomousAgent), use
  * chatHistoryUtils.processRawChatHistory instead to preserve image content.
  *
  * @param memoryVariables Memory variables from LangChain memory
@@ -965,12 +964,8 @@ export function getProviderInfo(provider: string): ProviderMetadata {
   };
 }
 
-export function getProviderLabel(provider: string, model?: CustomModel): string {
-  const baseLabel = ProviderInfo[provider as Provider]?.label || provider;
-  const isLegacyCloudProvider =
-    provider === EmbeddingModelProviders.COPILOT_PLUS ||
-    provider === EmbeddingModelProviders.COPILOT_PLUS_JINA;
-  return baseLabel + (model?.believerExclusive && isLegacyCloudProvider ? " (Believer)" : "");
+export function getProviderLabel(provider: string): string {
+  return ProviderInfo[provider as Provider]?.label || provider;
 }
 
 export function getProviderHost(provider: string): string {
@@ -1221,13 +1216,8 @@ export function getMessageRole(
 export function getNeedSetKeyProvider(): Provider[] {
   // List of providers to exclude
   const excludeProviders: Provider[] = [
-    ChatModelProviders.OPENAI_FORMAT,
+    ChatModelProviders.OPENAI_COMPATIBLE,
     ChatModelProviders.OLLAMA,
-    ChatModelProviders.LM_STUDIO,
-    ChatModelProviders.AZURE_OPENAI,
-    ChatModelProviders.GITHUB_COPILOT,
-    EmbeddingModelProviders.COPILOT_PLUS,
-    EmbeddingModelProviders.COPILOT_PLUS_JINA,
   ];
 
   const settings = getSettings();
@@ -1250,35 +1240,6 @@ export function checkModelApiKey(
   hasApiKey: boolean;
   errorNotice?: string;
 } {
-  if (model.provider === ChatModelProviders.AMAZON_BEDROCK) {
-    const apiKey = model.apiKey || settings.amazonBedrockApiKey;
-    if (!apiKey) {
-      return {
-        hasApiKey: false,
-        errorNotice:
-          "Amazon Bedrock API key is missing. Please add a key in Settings > API Keys or update the model configuration.",
-      };
-    }
-
-    // Region defaults to us-east-1 if not specified, so API key is the only required check
-    return { hasApiKey: true };
-  }
-
-  // GitHub Copilot uses OAuth, not API key
-  if (model.provider === ChatModelProviders.GITHUB_COPILOT) {
-    const hasAuth = Boolean(
-      model.apiKey || settings.githubCopilotToken || settings.githubCopilotAccessToken
-    );
-    if (!hasAuth) {
-      return {
-        hasApiKey: false,
-        errorNotice:
-          "GitHub Copilot is not authenticated. Please connect it in Settings > Copilot > Basic Tab > Set Keys.",
-      };
-    }
-    return { hasApiKey: true };
-  }
-
   const needSetKeyPath = !!getNeedSetKeyProvider().find((provider) => provider === model.provider);
   const hasNoApiKey = !getApiKeyForProvider(model.provider as SettingKeyProviders, model);
 

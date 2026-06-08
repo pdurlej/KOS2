@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
-import { PLUS_UTM_MEDIUMS } from "@/constants";
 import {
   getConfiguredOllamaBaseUrl,
   parseOllamaTagsResponse,
@@ -14,10 +13,10 @@ import {
   getOllamaMachineProfileLabel,
   getOllamaPullRecommendations,
   getOllamaProfileGuidance,
-  navigateToPlusPage,
+  navigateToOllama,
   pickRecommendedOllamaChatModelName,
   pickRecommendedOllamaEmbeddingModelName,
-} from "@/plusUtils";
+} from "@/localRuntimeUtils";
 import { err2String } from "@/utils";
 import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Notice, requestUrl } from "obsidian";
@@ -190,7 +189,7 @@ export function PlusSettings() {
 
         {(runtime.state === "unreachable" || runtime.state === "empty") && (
           <div className="tw-flex tw-flex-wrap tw-gap-2">
-            <Button variant="default" onClick={() => navigateToPlusPage(PLUS_UTM_MEDIUMS.SETTINGS)}>
+            <Button variant="default" onClick={() => navigateToOllama()}>
               Open Ollama
               <ExternalLink className="tw-size-4" />
             </Button>

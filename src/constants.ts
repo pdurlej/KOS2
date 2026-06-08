@@ -5,8 +5,6 @@ import { v4 as uuidv4 } from "uuid";
 import { ChainType } from "./chainFactory";
 import { PromptSortStrategy } from "./types";
 
-export const BREVILABS_API_BASE_URL = "https://api.brevilabs.com/v1";
-export const BREVILABS_MODELS_BASE_URL = "https://models.brevilabs.com/v1";
 export const CHAT_VIEWTYPE = "kos2-chat-view";
 export const USER_SENDER = "user";
 export const AI_SENDER = "ai";
@@ -138,14 +136,6 @@ export const LOADING_MESSAGES = {
   READING_FILE_TREE: "Reading file tree",
   COMPACTING: "Compacting",
 };
-export const PLUS_UTM_MEDIUMS = {
-  SETTINGS: "settings",
-  EXPIRED_MODAL: "expired_modal",
-  CHAT_MODE_SELECT: "chat_mode_select",
-  MODE_SELECT_TOOLTIP: "mode_select_tooltip",
-};
-export type PlusUtmMedium = (typeof PLUS_UTM_MEDIUMS)[keyof typeof PLUS_UTM_MEDIUMS];
-
 /**
  * Reasoning effort levels for OpenAI reasoning models
  */
@@ -180,57 +170,12 @@ export const DEFAULT_OLLAMA_NUM_CTX = 131072;
 export enum ChatModels {
   KOS2_QWEN3_CODER_30B = "qwen3-coder:30b",
   KOS2_BIELIK_7B = "SpeakLeash/bielik-7b-instruct-v0.1-gguf:Q5_K_M",
-  COPILOT_PLUS_FLASH = "copilot-plus-flash",
-  GPT_5_4 = "gpt-5.4",
-  GPT_5_mini = "gpt-5-mini",
-  GPT_5_nano = "gpt-5-nano",
-  GPT_41 = "gpt-4.1",
-  GPT_41_mini = "gpt-4.1-mini",
-  GPT_41_nano = "gpt-4.1-nano",
-  O4_mini = "o4-mini",
-  GEMINI_3_PRO_PREVIEW = "gemini-3.1-pro-preview",
-  GEMINI_3_FLASH_PREVIEW = "gemini-3-flash-preview",
-  GEMINI_3_FLASH_LITE_PREVIEW = "gemini-3.1-flash-lite-preview",
-  GEMINI_PRO = "gemini-2.5-pro",
-  GEMINI_FLASH = "gemini-2.5-flash",
-  CLAUDE_OPUS_4_6 = "claude-opus-4-6",
-  CLAUDE_SONNET_4_6 = "claude-sonnet-4-6",
-  GROK_4_1_FAST = "grok-4-1-fast",
-  GROQ_LLAMA_8b = "llama3-8b-8192",
-  COMMAND_R = "command-r",
-  MISTRAL_TINY = "mistral-tiny-latest",
-  DEEPSEEK_REASONER = "deepseek-reasoner",
-  DEEPSEEK_CHAT = "deepseek-chat",
-  OPENROUTER_GEMINI_3_FLASH_PREVIEW = "google/gemini-3-flash-preview",
-  OPENROUTER_GEMINI_3_PRO_PREVIEW = "google/gemini-3.1-pro-preview",
-  OPENROUTER_GEMINI_2_5_FLASH = "google/gemini-2.5-flash",
-  OPENROUTER_GEMINI_2_5_PRO = "google/gemini-2.5-pro",
-  OPENROUTER_GPT_5_4 = "openai/gpt-5.4",
-  OPENROUTER_GPT_5_MINI = "openai/gpt-5-mini",
-  OPENROUTER_GROK_4_1_FAST = "x-ai/grok-4.1-fast",
-  SILICONFLOW_DEEPSEEK_V3 = "deepseek-ai/DeepSeek-V3",
-  SILICONFLOW_DEEPSEEK_R1 = "deepseek-ai/DeepSeek-R1",
 }
 
 // Model Providers
 export enum ChatModelProviders {
-  OPENROUTERAI = "openrouterai",
-  OPENAI = "openai",
-  OPENAI_FORMAT = "3rd party (openai-format)",
-  ANTHROPIC = "anthropic",
-  GOOGLE = "google",
-  XAI = "xai",
-  AMAZON_BEDROCK = "amazon-bedrock",
-  AZURE_OPENAI = "azure openai",
-  GROQ = "groq",
+  OPENAI_COMPATIBLE = "3rd party (openai-format)",
   OLLAMA = "ollama",
-  LM_STUDIO = "lm-studio",
-  COPILOT_PLUS = "copilot-plus",
-  MISTRAL = "mistralai",
-  DEEPSEEK = "deepseek",
-  COHEREAI = "cohereai",
-  SILICONFLOW = "siliconflow",
-  GITHUB_COPILOT = "github-copilot",
 }
 
 export enum ModelCapability {
@@ -267,34 +212,12 @@ export const BUILTIN_CHAT_MODELS: CustomModel[] = [
 ];
 
 export enum EmbeddingModelProviders {
-  OPENAI = "openai",
-  OPENROUTERAI = "openrouterai",
-  COHEREAI = "cohereai",
-  GOOGLE = "google",
-  AZURE_OPENAI = "azure openai",
   OLLAMA = "ollama",
-  LM_STUDIO = "lm-studio",
-  OPENAI_FORMAT = "3rd party (openai-format)",
-  COPILOT_PLUS = "copilot-plus",
-  COPILOT_PLUS_JINA = "copilot-plus-jina",
-  SILICONFLOW = "siliconflow",
+  OPENAI_COMPATIBLE = "3rd party (openai-format)",
 }
 
 export enum EmbeddingModels {
   KOS2_BGE_M3 = "bge-m3:latest",
-  OPENAI_EMBEDDING_ADA_V2 = "text-embedding-ada-002",
-  OPENAI_EMBEDDING_SMALL = "text-embedding-3-small",
-  OPENAI_EMBEDDING_LARGE = "text-embedding-3-large",
-  AZURE_OPENAI = "azure-openai",
-  COHEREAI_EMBED_MULTILINGUAL_LIGHT_V3_0 = "embed-multilingual-light-v3.0",
-  GOOGLE_ENG = "text-embedding-004",
-  GOOGLE_GEMINI_EMBEDDING = "gemini-embedding-001",
-  GOOGLE_GEMINI_EMBEDDING_2_PREVIEW = "gemini-embedding-2-preview",
-  COPILOT_PLUS_SMALL = "copilot-plus-small",
-  COPILOT_PLUS_LARGE = "copilot-plus-large",
-  COPILOT_PLUS_MULTILINGUAL = "copilot-plus-multilingual",
-  SILICONFLOW_QWEN3_EMBEDDING_0_6B = "Qwen/Qwen3-Embedding-0.6B",
-  OPENROUTER_OPENAI_EMBEDDING_SMALL = "openai/text-embedding-3-small",
 }
 
 export const BUILTIN_EMBEDDING_MODELS: CustomModel[] = [
@@ -316,10 +239,8 @@ export const NOMIC_EMBED_TEXT = "nomic-embed-text";
 
 export type Provider = ChatModelProviders | EmbeddingModelProviders;
 
-export type SettingKeyProviders = Exclude<
-  ChatModelProviders,
-  ChatModelProviders.OPENAI_FORMAT | ChatModelProviders.LM_STUDIO | ChatModelProviders.OLLAMA
->;
+/** All cloud API-key providers have been removed; kept as string alias for call-site compatibility. */
+export type SettingKeyProviders = string;
 
 // Provider metadata interface
 export interface ProviderMetadata {
@@ -338,77 +259,6 @@ export interface ProviderMetadata {
 
 // Unified provider information
 export const ProviderInfo: Record<Provider, ProviderMetadata> = {
-  [ChatModelProviders.OPENROUTERAI]: {
-    label: "OpenRouter",
-    host: "https://openrouter.ai/api/v1/",
-    curlBaseURL: "https://openrouter.ai/api/v1",
-    keyManagementURL: "https://openrouter.ai/keys",
-    listModelURL: "https://openrouter.ai/api/v1/models",
-    testModel: ChatModels.OPENROUTER_GPT_5_MINI,
-  },
-  [ChatModelProviders.GOOGLE]: {
-    label: "Gemini",
-    host: "https://generativelanguage.googleapis.com",
-    curlBaseURL: "https://generativelanguage.googleapis.com/v1beta",
-    keyManagementURL: "https://makersuite.google.com/app/apikey",
-    listModelURL: "https://generativelanguage.googleapis.com/v1beta/models",
-    testModel: ChatModels.GEMINI_FLASH,
-  },
-  [ChatModelProviders.ANTHROPIC]: {
-    label: "Anthropic",
-    host: "https://api.anthropic.com/",
-    curlBaseURL: "https://api.anthropic.com",
-    keyManagementURL: "https://console.anthropic.com/settings/keys",
-    listModelURL: "https://api.anthropic.com/v1/models",
-    testModel: ChatModels.CLAUDE_SONNET_4_6,
-  },
-  [ChatModelProviders.OPENAI]: {
-    label: "OpenAI",
-    host: "https://api.openai.com",
-    curlBaseURL: "https://api.openai.com/v1",
-    keyManagementURL: "https://platform.openai.com/api-keys",
-    listModelURL: "https://api.openai.com/v1/models",
-    testModel: ChatModels.GPT_5_4,
-  },
-  [ChatModelProviders.XAI]: {
-    label: "XAI",
-    host: "https://api.x.ai/v1",
-    curlBaseURL: "https://api.x.ai/v1",
-    keyManagementURL: "https://console.x.ai",
-    listModelURL: "https://api.x.ai/v1/models",
-    testModel: ChatModels.GROK_4_1_FAST,
-  },
-  [ChatModelProviders.AZURE_OPENAI]: {
-    label: "Azure",
-    host: "https://<resource>.services.ai.azure.com/models",
-    curlBaseURL: "https://<resource>.services.ai.azure.com/models",
-    keyManagementURL: "https://ai.azure.com",
-    listModelURL: "",
-  },
-  [ChatModelProviders.GROQ]: {
-    label: "Groq",
-    host: "https://api.groq.com/openai",
-    curlBaseURL: "https://api.groq.com/openai/v1",
-    keyManagementURL: "https://console.groq.com/keys",
-    listModelURL: "https://api.groq.com/openai/v1/models",
-    testModel: ChatModels.GROQ_LLAMA_8b,
-  },
-  [ChatModelProviders.COHEREAI]: {
-    label: "Cohere",
-    host: "https://api.cohere.com",
-    curlBaseURL: "https://api.cohere.com/v1",
-    keyManagementURL: "https://dashboard.cohere.ai/api-keys",
-    listModelURL: "https://api.cohere.com/v1/models",
-    testModel: ChatModels.COMMAND_R,
-  },
-  [ChatModelProviders.SILICONFLOW]: {
-    label: "SiliconFlow",
-    host: "https://api.siliconflow.com/v1",
-    curlBaseURL: "https://api.siliconflow.com/v1",
-    keyManagementURL: "https://cloud.siliconflow.com/me/account/ak",
-    listModelURL: "https://api.siliconflow.com/v1/models",
-    testModel: ChatModels.SILICONFLOW_DEEPSEEK_V3,
-  },
   [ChatModelProviders.OLLAMA]: {
     label: "Ollama (Local / Remote)",
     host: "http://localhost:11434/v1/",
@@ -416,83 +266,17 @@ export const ProviderInfo: Record<Provider, ProviderMetadata> = {
     keyManagementURL: "",
     listModelURL: "",
   },
-  [ChatModelProviders.LM_STUDIO]: {
-    label: "LM Studio",
-    host: "http://localhost:1234/v1",
-    curlBaseURL: "http://localhost:1234/v1",
-    keyManagementURL: "",
-    listModelURL: "",
-  },
-  [ChatModelProviders.OPENAI_FORMAT]: {
+  [ChatModelProviders.OPENAI_COMPATIBLE]: {
     label: "OpenAI Format",
     host: "https://api.example.com/v1",
     curlBaseURL: "https://api.example.com/v1",
     keyManagementURL: "",
     listModelURL: "",
   },
-  [ChatModelProviders.MISTRAL]: {
-    label: "Mistral",
-    host: "https://api.mistral.ai/v1",
-    curlBaseURL: "https://api.mistral.ai/v1",
-    keyManagementURL: "https://console.mistral.ai/api-keys",
-    listModelURL: "https://api.mistral.ai/v1/models",
-    testModel: ChatModels.MISTRAL_TINY,
-  },
-  [ChatModelProviders.DEEPSEEK]: {
-    label: "DeepSeek",
-    host: "https://api.deepseek.com/",
-    curlBaseURL: "https://api.deepseek.com",
-    keyManagementURL: "https://platform.deepseek.com/api-keys",
-    listModelURL: "https://api.deepseek.com/models",
-    testModel: ChatModels.DEEPSEEK_CHAT,
-  },
-  [ChatModelProviders.AMAZON_BEDROCK]: {
-    label: "Amazon Bedrock",
-    host: "https://bedrock-runtime.{region}.amazonaws.com",
-    curlBaseURL: "https://bedrock-runtime.{region}.amazonaws.com",
-    keyManagementURL: "https://console.aws.amazon.com/iam/home#/security_credentials",
-    listModelURL: "",
-  },
-  [EmbeddingModelProviders.COPILOT_PLUS]: {
-    label: "Legacy Cloud",
-    host: BREVILABS_MODELS_BASE_URL,
-    curlBaseURL: BREVILABS_MODELS_BASE_URL,
-    keyManagementURL: "",
-    listModelURL: "",
-  },
-  [EmbeddingModelProviders.COPILOT_PLUS_JINA]: {
-    label: "Legacy Cloud",
-    host: BREVILABS_MODELS_BASE_URL,
-    curlBaseURL: BREVILABS_MODELS_BASE_URL,
-    keyManagementURL: "",
-    listModelURL: "",
-  },
-  [ChatModelProviders.GITHUB_COPILOT]: {
-    label: "GitHub Copilot",
-    host: "https://api.githubcopilot.com",
-    curlBaseURL: "https://api.githubcopilot.com",
-    keyManagementURL: "https://github.com/settings/apps/authorizations",
-    listModelURL: "",
-  },
 };
 
-// Map provider to its settings key for API key
-export const ProviderSettingsKeyMap: Record<SettingKeyProviders, keyof CopilotSettings> = {
-  anthropic: "anthropicApiKey",
-  openai: "openAIApiKey",
-  "azure openai": "azureOpenAIApiKey",
-  google: "googleApiKey",
-  groq: "groqApiKey",
-  openrouterai: "openRouterAiApiKey",
-  cohereai: "cohereApiKey",
-  xai: "xaiApiKey",
-  "copilot-plus": "plusLicenseKey",
-  mistralai: "mistralApiKey",
-  deepseek: "deepseekApiKey",
-  "amazon-bedrock": "amazonBedrockApiKey",
-  siliconflow: "siliconflowApiKey",
-  "github-copilot": "githubCopilotToken",
-};
+// Map provider to its settings key for API key (empty — no global-key providers remain)
+export const ProviderSettingsKeyMap: Record<string, keyof CopilotSettings> = {};
 
 export enum VAULT_VECTOR_STORE_STRATEGY {
   NEVER = "NEVER",
@@ -654,31 +438,7 @@ export const RESTRICTION_MESSAGES = {
 
 export const DEFAULT_SETTINGS: CopilotSettings = {
   userId: uuidv4(),
-  isPlusUser: true,
-  plusLicenseKey: "",
-  openAIApiKey: "",
-  openAIOrgId: "",
-  huggingfaceApiKey: "",
-  cohereApiKey: "",
-  anthropicApiKey: "",
-  azureOpenAIApiKey: "",
-  azureOpenAIApiInstanceName: "",
-  azureOpenAIApiDeploymentName: "",
-  azureOpenAIApiVersion: "",
-  azureOpenAIApiEmbeddingDeploymentName: "",
-  googleApiKey: "",
   ollamaCloudApiKey: "",
-  openRouterAiApiKey: "",
-  xaiApiKey: "",
-  mistralApiKey: "",
-  deepseekApiKey: "",
-  amazonBedrockApiKey: "",
-  amazonBedrockRegion: "",
-  siliconflowApiKey: "",
-  // GitHub Copilot OAuth tokens
-  githubCopilotAccessToken: "",
-  githubCopilotToken: "",
-  githubCopilotTokenExpiresAt: 0,
   defaultChainType: ChainType.COPILOT_PLUS_CHAIN,
   defaultModelKey: ChatModels.KOS2_QWEN3_CODER_30B + "|" + ChatModelProviders.OLLAMA,
   embeddingModelKey: EmbeddingModels.KOS2_BGE_M3 + "|" + EmbeddingModelProviders.OLLAMA,
@@ -688,8 +448,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   maxTokens: DEFAULT_MODEL_SETTING.MAX_TOKENS,
   contextTurns: 15,
   userSystemPrompt: "",
-  openAIProxyBaseUrl: "",
-  openAIEmbeddingProxyBaseUrl: "",
   stream: true,
   defaultSaveFolder: DEFAULT_CHAT_HISTORY_FOLDER,
   defaultConversationTag: "kos2-conversation",
@@ -709,7 +467,6 @@ export const DEFAULT_SETTINGS: CopilotSettings = {
   enableEncryption: false,
   maxSourceChunks: DEFAULT_MAX_SOURCE_CHUNKS,
   enableInlineCitations: true,
-  groqApiKey: "",
   activeModels: [],
   activeEmbeddingModels: [],
   embeddingRequestsPerMin: 60,

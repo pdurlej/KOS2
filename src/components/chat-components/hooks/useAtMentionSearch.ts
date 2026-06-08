@@ -21,12 +21,12 @@ export function useAtMentionSearch(
   query: string,
   mode: "category" | "search",
   selectedCategory: AtMentionCategory | undefined,
-  isCopilotPlus: boolean,
+  isKOS2Agent: boolean,
   availableCategoryOptions: CategoryOption[],
   currentActiveFile: TFile | null = null
 ): (CategoryOption | AtMentionOption)[] {
   // Get raw data without pre-filtering
-  const allNotes = useAllNotes(isCopilotPlus);
+  const allNotes = useAllNotes(isKOS2Agent);
   const allFolders = useAllFolders();
 
   // Only enable web tab polling when actually needed:
@@ -59,7 +59,7 @@ export function useAtMentionSearch(
 
   const toolItems: AtMentionOption[] = useMemo(
     () =>
-      isCopilotPlus
+      isKOS2Agent
         ? AVAILABLE_TOOLS.map((tool) => ({
             key: `tool-${tool}`,
             title: tool,
@@ -70,7 +70,7 @@ export function useAtMentionSearch(
             icon: React.createElement(Wrench, { className: "tw-size-4" }),
           }))
         : [],
-    [isCopilotPlus]
+    [isKOS2Agent]
   );
 
   const folderItems: AtMentionOption[] = useMemo(

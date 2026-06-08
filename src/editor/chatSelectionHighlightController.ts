@@ -9,7 +9,7 @@
 import { EditorView } from "@codemirror/view";
 import { MarkdownView, type WorkspaceLeaf } from "obsidian";
 
-import type CopilotPlugin from "@/main";
+import type KOS2Plugin from "@/main";
 import { CHAT_VIEWTYPE } from "@/constants";
 import type { SelectedTextContext } from "@/types/message";
 import { logError, logWarn } from "@/logger";
@@ -79,7 +79,7 @@ export interface ChatSelectionHighlightControllerOptions {
  * - Idempotent: avoids redundant dispatches
  */
 export class ChatSelectionHighlightController {
-  private readonly plugin: CopilotPlugin;
+  private readonly plugin: KOS2Plugin;
   private readonly closeQuickAskOnChatFocus: boolean;
 
   /** Last active Markdown leaf, used for fallback when active view is already Chat */
@@ -91,10 +91,10 @@ export class ChatSelectionHighlightController {
 
   /**
    * Creates a new ChatSelectionHighlightController.
-   * @param plugin - The CopilotPlugin instance
+   * @param plugin - The KOS2Plugin instance
    * @param options - Optional configuration
    */
-  constructor(plugin: CopilotPlugin, options?: ChatSelectionHighlightControllerOptions) {
+  constructor(plugin: KOS2Plugin, options?: ChatSelectionHighlightControllerOptions) {
     this.plugin = plugin;
     this.closeQuickAskOnChatFocus = options?.closeQuickAskOnChatFocus ?? false;
   }

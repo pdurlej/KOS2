@@ -1,5 +1,5 @@
 import { selfHostYoutube4llm } from "@/LLMProviders/selfHostServices";
-import { hasTranscriptApiKeyConfigured } from "@/plusUtils";
+import { hasTranscriptApiKeyConfigured } from "@/localRuntimeUtils";
 import { logError } from "@/logger";
 import { extractAllYoutubeUrls } from "@/utils";
 import { z } from "zod";

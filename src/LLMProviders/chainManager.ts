@@ -11,7 +11,7 @@ import { USER_SENDER } from "@/constants";
 import {
   AutonomousAgentChainRunner,
   ChainRunner,
-  CopilotPlusChainRunner,
+  KOS2AgentChainRunner,
   LLMChainRunner,
   ProjectChainRunner,
   VaultQAChainRunner,
@@ -320,7 +320,7 @@ export default class ChainManager {
         if (settings.enableAutonomousAgent) {
           return new AutonomousAgentChainRunner(this);
         }
-        return new CopilotPlusChainRunner(this);
+        return new KOS2AgentChainRunner(this);
       case ChainType.PROJECT_CHAIN:
         return new ProjectChainRunner(this);
       default:

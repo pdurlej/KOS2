@@ -20,24 +20,24 @@ import { setChainType, setModelKey } from "@/aiParams";
 import { ChainType } from "@/chainFactory";
 import { ChatModelProviders, EmbeddingModelProviders } from "@/constants";
 import {
-  DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY,
-  DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY,
-  applyPlusSettings,
+  DEFAULT_KOS2_CHAT_MODEL_KEY,
+  DEFAULT_KOS2_EMBEDDING_MODEL_KEY,
+  applyOllamaDefaults,
   getLocalTranscriptSetup,
   getOllamaCatalogRecommendations,
   hasTranscriptApiKeyConfigured,
   refreshSelfHostModeValidation,
   validateSelfHostMode,
-} from "@/plusUtils";
+} from "@/localRuntimeUtils";
 import { getSettings, resetSettings, updateSetting } from "@/settings/model";
 
-describe("plusUtils compatibility shim", () => {
+describe("localRuntimeUtils", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     resetSettings();
     updateSetting("activeModels", [
       {
-        name: DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY.split("|")[0],
+        name: DEFAULT_KOS2_CHAT_MODEL_KEY.split("|")[0],
         provider: ChatModelProviders.OLLAMA,
         enabled: true,
         projectEnabled: true,
@@ -45,7 +45,7 @@ describe("plusUtils compatibility shim", () => {
     ]);
     updateSetting("activeEmbeddingModels", [
       {
-        name: DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY.split("|")[0],
+        name: DEFAULT_KOS2_EMBEDDING_MODEL_KEY.split("|")[0],
         provider: EmbeddingModelProviders.OLLAMA,
         enabled: true,
         isEmbeddingModel: true,
@@ -54,14 +54,13 @@ describe("plusUtils compatibility shim", () => {
   });
 
   it("applies the KOS2 Ollama defaults for the agent runtime", () => {
-    applyPlusSettings();
+    applyOllamaDefaults();
 
-    expect(setModelKey).toHaveBeenCalledWith(DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY);
+    expect(setModelKey).toHaveBeenCalledWith(DEFAULT_KOS2_CHAT_MODEL_KEY);
     expect(setChainType).toHaveBeenCalledWith(ChainType.COPILOT_PLUS_CHAIN);
-    expect(getSettings().defaultModelKey).toBe(DEFAULT_COPILOT_PLUS_CHAT_MODEL_KEY);
-    expect(getSettings().embeddingModelKey).toBe(DEFAULT_COPILOT_PLUS_EMBEDDING_MODEL_KEY);
+    expect(getSettings().defaultModelKey).toBe(DEFAULT_KOS2_CHAT_MODEL_KEY);
+    expect(getSettings().embeddingModelKey).toBe(DEFAULT_KOS2_EMBEDDING_MODEL_KEY);
     expect(getSettings().defaultChainType).toBe(ChainType.COPILOT_PLUS_CHAIN);
-    expect(getSettings().isPlusUser).toBe(true);
   });
 
   it("marks self-host mode as validated", async () => {

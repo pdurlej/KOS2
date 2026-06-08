@@ -14,7 +14,7 @@ import {
   getOllamaMachineProfileLabel,
   getOllamaProfileGuidance,
   navigateToOllamaLibrary,
-} from "@/plusUtils";
+} from "@/localRuntimeUtils";
 import {
   fetchOllamaModelNames,
   getConfiguredOllamaBaseUrl,

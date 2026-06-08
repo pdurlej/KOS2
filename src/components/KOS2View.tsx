@@ -3,14 +3,14 @@ import Chat from "@/components/Chat";
 import { ChatViewLayout } from "@/components/chat-components/ChatViewLayout";
 import { CHAT_VIEWTYPE } from "@/constants";
 import { AppContext, EventTargetContext } from "@/context";
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { FileParserManager } from "@/tools/FileParserManager";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { ItemView, Platform, WorkspaceLeaf } from "obsidian";
 import * as React from "react";
 import { createRoot, Root } from "react-dom/client";
 
-export default class CopilotView extends ItemView {
+export default class KOS2View extends ItemView {
   private get chainManager(): ChainManager {
     return this.plugin.projectManager.getCurrentChainManager();
   }
@@ -26,7 +26,7 @@ export default class CopilotView extends ItemView {
 
   constructor(
     leaf: WorkspaceLeaf,
-    private plugin: CopilotPlugin
+    private plugin: KOS2Plugin
   ) {
     super(leaf);
     this.app = plugin.app;

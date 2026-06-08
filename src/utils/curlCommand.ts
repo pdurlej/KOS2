@@ -22,30 +22,14 @@ interface CurlRequestSpec {
 // Constants
 // ============================================================================
 
-const DEFAULT_ANTHROPIC_VERSION = "2023-06-01";
-const DEFAULT_BEDROCK_ANTHROPIC_VERSION = "bedrock-2023-05-31";
 const DEFAULT_CHAT_MESSAGE = "Hello!";
 const DEFAULT_EMBEDDING_INPUT = "Hello!";
 const DEFAULT_OPENAI_MAX_TOKENS = 64;
-const DEFAULT_ANTHROPIC_MAX_TOKENS = 256;
-const DEFAULT_BEDROCK_MAX_TOKENS = 256;
-const DEFAULT_GOOGLE_MAX_OUTPUT_TOKENS = 256;
 
 /** Providers that use OpenAI-compatible API format */
 const OPENAI_COMPATIBLE_PROVIDERS = new Set<string>([
-  ChatModelProviders.OPENAI,
-  EmbeddingModelProviders.OPENAI,
-  ChatModelProviders.OPENROUTERAI,
-  ChatModelProviders.GROQ,
-  ChatModelProviders.XAI,
-  ChatModelProviders.SILICONFLOW,
-  EmbeddingModelProviders.SILICONFLOW,
-  ChatModelProviders.OPENAI_FORMAT,
-  EmbeddingModelProviders.OPENAI_FORMAT,
-  ChatModelProviders.LM_STUDIO,
-  EmbeddingModelProviders.LM_STUDIO,
-  ChatModelProviders.MISTRAL,
-  ChatModelProviders.DEEPSEEK,
+  ChatModelProviders.OPENAI_COMPATIBLE,
+  EmbeddingModelProviders.OPENAI_COMPATIBLE,
   // Note: Ollama uses native API (/api/chat), not OpenAI-compatible
 ]);
 
@@ -56,15 +40,6 @@ const OPENAI_COMPATIBLE_PROVIDERS = new Set<string>([
 /** Removes trailing slashes from a string */
 function trimTrailingSlashes(value: string): string {
   return value.replace(/\/+$/g, "");
-}
-
-/** Attempts to parse a URL, returning null when invalid */
-function tryParseUrl(value: string): URL | null {
-  try {
-    return new URL(value);
-  } catch {
-    return null;
-  }
 }
 
 /** Escapes a string for safe inclusion in a single-quoted shell string */
@@ -117,27 +92,6 @@ function stripOpenAIEndpointSuffix(baseUrl: string): string {
     }
   }
   return trimmed;
-}
-
-/**
- * Normalizes Google API base URL for curl generation.
- * - Strips trailing slashes and /models suffix
- * - Ensures /v1beta is present (SDK auto-appends it, so curl should simulate this)
- */
-function normalizeGoogleBaseUrl(baseUrl: string): string {
-  let normalized = trimTrailingSlashes(baseUrl);
-
-  // Strip /models suffix if present
-  if (normalized.endsWith("/models")) {
-    normalized = normalized.slice(0, -7);
-  }
-
-  // If URL doesn't contain version path, append /v1beta to simulate SDK behavior
-  if (!normalized.includes("/v1beta") && !normalized.includes("/v1")) {
-    normalized = `${normalized}/v1beta`;
-  }
-
-  return normalized;
 }
 
 /**
@@ -245,17 +199,6 @@ async function buildOpenAICompatibleRequestSpec(
     Authorization: `Bearer ${apiKeyResolved.apiKey}`,
   };
 
-  // Add OpenAI org ID if present
-  if (model.openAIOrgId?.trim()) {
-    headers["OpenAI-Organization"] = model.openAIOrgId.trim();
-  }
-
-  // Add OpenRouter-specific headers (see chatModelManager.ts:259-262)
-  if (provider === ChatModelProviders.OPENROUTERAI) {
-    headers["HTTP-Referer"] = "https://obsidiancopilot.com";
-    headers["X-Title"] = "Obsidian Copilot";
-  }
-
   if (isEmbeddingModel) {
     return {
       ok: true,
@@ -287,355 +230,6 @@ async function buildOpenAICompatibleRequestSpec(
       },
     },
   };
-}
-
-// ============================================================================
-// Azure OpenAI Builder
-// ============================================================================
-
-/** Builds Azure OpenAI endpoint URL */
-function buildAzureEndpointUrl(
-  model: CustomModel,
-  deploymentName: string,
-  endpoint: string,
-  apiVersion: string
-): { url: string; warnings: string[] } {
-  const warnings: string[] = [];
-  const instanceName = model.azureOpenAIApiInstanceName?.trim() || "[instance]";
-
-  if (!model.azureOpenAIApiInstanceName?.trim()) {
-    warnings.push("Azure instance name is empty; using placeholder.");
-  }
-
-  const baseOverride = model.baseUrl?.trim();
-  if (baseOverride) {
-    const parsed = tryParseUrl(baseOverride);
-    if (parsed) {
-      let basePath = trimTrailingSlashes(parsed.pathname || "");
-
-      // Avoid duplicating /openai/deployments/ path
-      if (basePath.includes("/openai/deployments/")) {
-        basePath = basePath.split("/openai/deployments/")[0];
-      }
-
-      const base = `${parsed.origin}${basePath}`;
-      return {
-        warnings,
-        url: `${base}/openai/deployments/${encodeURIComponent(deploymentName)}/${endpoint}?api-version=${encodeURIComponent(apiVersion)}`,
-      };
-    }
-  }
-
-  return {
-    warnings,
-    url: `https://${instanceName}.openai.azure.com/openai/deployments/${encodeURIComponent(deploymentName)}/${endpoint}?api-version=${encodeURIComponent(apiVersion)}`,
-  };
-}
-
-/** Builds curl request spec for Azure OpenAI */
-async function buildAzureOpenAIRequestSpec(
-  model: CustomModel,
-  isEmbeddingModel: boolean
-): Promise<
-  | { ok: true; spec: CurlRequestSpec; warnings: string[] }
-  | { ok: false; error: string; warnings: string[] }
-> {
-  const warnings: string[] = [];
-
-  const apiKeyResolved = await resolveApiKeyForCurl(model.apiKey);
-  warnings.push(...apiKeyResolved.warnings);
-
-  const endpoint = isEmbeddingModel ? "embeddings" : "chat/completions";
-
-  // When a base URL is provided, use it directly (new flow)
-  if (model.baseUrl?.trim()) {
-    const { normalizeAzureUrl } = await import("@/LLMProviders/chatModelManager");
-    const { baseUrl, apiVersion } = normalizeAzureUrl(model.baseUrl.trim());
-    const version = apiVersion || model.azureOpenAIApiVersion?.trim() || "2024-05-01-preview";
-    const url = `${baseUrl}/${endpoint}?api-version=${encodeURIComponent(version)}`;
-
-    const modelName = model.name?.trim();
-    const body = isEmbeddingModel
-      ? { input: DEFAULT_EMBEDDING_INPUT, ...(modelName ? { model: modelName } : {}) }
-      : {
-          messages: [{ role: "user", content: DEFAULT_CHAT_MESSAGE }],
-          stream: false,
-          max_tokens: DEFAULT_OPENAI_MAX_TOKENS,
-          ...(modelName ? { model: modelName } : {}),
-        };
-
-    return {
-      ok: true,
-      warnings,
-      spec: {
-        method: "POST",
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          "api-key": apiKeyResolved.apiKey,
-        },
-        body,
-      },
-    };
-  }
-
-  // Legacy flow: construct from instance/deployment/version fields
-  const deploymentName = isEmbeddingModel
-    ? model.azureOpenAIApiEmbeddingDeploymentName?.trim() || "[deployment]"
-    : model.azureOpenAIApiDeploymentName?.trim() || "[deployment]";
-
-  if (!deploymentName || deploymentName === "[deployment]") {
-    warnings.push("Azure deployment name is empty; using placeholder.");
-  }
-
-  const apiVersion = model.azureOpenAIApiVersion?.trim() || "[api-version]";
-  if (!model.azureOpenAIApiVersion?.trim()) {
-    warnings.push("Azure api-version is empty; using placeholder.");
-  }
-
-  const endpointUrl = buildAzureEndpointUrl(model, deploymentName, endpoint, apiVersion);
-  warnings.push(...endpointUrl.warnings);
-
-  const body = isEmbeddingModel
-    ? { input: DEFAULT_EMBEDDING_INPUT }
-    : {
-        messages: [{ role: "user", content: DEFAULT_CHAT_MESSAGE }],
-        stream: false,
-        max_tokens: DEFAULT_OPENAI_MAX_TOKENS,
-      };
-
-  return {
-    ok: true,
-    warnings,
-    spec: {
-      method: "POST",
-      url: endpointUrl.url,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "api-key": apiKeyResolved.apiKey,
-      },
-      body,
-    },
-  };
-}
-
-// ============================================================================
-// Anthropic Builder
-// ============================================================================
-
-/** Builds curl request spec for Anthropic Messages API */
-async function buildAnthropicRequestSpec(
-  model: CustomModel
-): Promise<
-  | { ok: true; spec: CurlRequestSpec; warnings: string[] }
-  | { ok: false; error: string; warnings: string[] }
-> {
-  const warnings: string[] = [];
-
-  const baseOverride = model.baseUrl?.trim() ?? "";
-  const providerBase = getProviderCurlBaseURL(ChatModelProviders.ANTHROPIC);
-  let apiBase = trimTrailingSlashes(baseOverride || providerBase || "https://api.anthropic.com");
-  // Strip known suffixes to avoid duplication
-  const anthropicSuffixes = ["/v1/messages", "/v1"];
-  for (const suffix of anthropicSuffixes) {
-    if (apiBase.endsWith(suffix)) {
-      apiBase = apiBase.slice(0, -suffix.length);
-      break;
-    }
-  }
-  const url = `${apiBase}/v1/messages`;
-
-  const apiKeyResolved = await resolveApiKeyForCurl(model.apiKey);
-  warnings.push(...apiKeyResolved.warnings);
-
-  const modelName = model.name?.trim() || "<MODEL_NAME>";
-  if (!model.name?.trim()) {
-    warnings.push("Model name is empty; using placeholder.");
-  }
-
-  return {
-    ok: true,
-    warnings,
-    spec: {
-      method: "POST",
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "x-api-key": apiKeyResolved.apiKey,
-        "anthropic-version": DEFAULT_ANTHROPIC_VERSION,
-      },
-      body: {
-        model: modelName,
-        max_tokens: DEFAULT_ANTHROPIC_MAX_TOKENS,
-        messages: [{ role: "user", content: DEFAULT_CHAT_MESSAGE }],
-      },
-    },
-  };
-}
-
-// ============================================================================
-// Google Gemini Builder
-// ============================================================================
-
-/**
- * Builds curl request spec for Google Generative Language API (Gemini).
- * Uses x-goog-api-key header for authentication.
- */
-async function buildGoogleGenerativeAIRequestSpec(
-  model: CustomModel,
-  isEmbeddingModel: boolean
-): Promise<
-  | { ok: true; spec: CurlRequestSpec; warnings: string[] }
-  | { ok: false; error: string; warnings: string[] }
-> {
-  const warnings: string[] = [];
-
-  // Build base URL - normalize to ensure /v1beta is present (simulates SDK behavior)
-  const baseOverride = model.baseUrl?.trim() ?? "";
-  const providerBase = getProviderCurlBaseURL(ChatModelProviders.GOOGLE);
-  const baseCandidate = baseOverride || providerBase || "https://generativelanguage.googleapis.com";
-  const apiBase = normalizeGoogleBaseUrl(baseCandidate);
-
-  // Model name - Gemini expects "models/{model}" format
-  const modelName = model.name?.trim() || "<MODEL_NAME>";
-  if (!model.name?.trim()) {
-    warnings.push("Model name is empty; using placeholder.");
-  }
-  const modelPath = modelName.includes("/") ? modelName : `models/${modelName}`;
-
-  // API key
-  const apiKeyResolved = await resolveApiKeyForCurl(model.apiKey);
-  warnings.push(...apiKeyResolved.warnings);
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "x-goog-api-key": apiKeyResolved.apiKey,
-  };
-
-  if (isEmbeddingModel) {
-    return {
-      ok: true,
-      warnings,
-      spec: {
-        method: "POST",
-        url: `${apiBase}/${modelPath}:embedContent`,
-        headers,
-        body: {
-          content: {
-            parts: [{ text: DEFAULT_EMBEDDING_INPUT }],
-          },
-        },
-      },
-    };
-  }
-
-  return {
-    ok: true,
-    warnings,
-    spec: {
-      method: "POST",
-      url: `${apiBase}/${modelPath}:generateContent`,
-      headers,
-      body: {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: DEFAULT_CHAT_MESSAGE }],
-          },
-        ],
-        generationConfig: {
-          maxOutputTokens: DEFAULT_GOOGLE_MAX_OUTPUT_TOKENS,
-        },
-      },
-    },
-  };
-}
-
-// ============================================================================
-// Amazon Bedrock Builder
-// ============================================================================
-
-/** Checks if Bedrock model ID is Anthropic-based */
-function isBedrockAnthropicModel(modelId: string): boolean {
-  return /(^|\.)anthropic\./.test(modelId);
-}
-
-/** Builds curl command for Amazon Bedrock (provides both auth options) */
-async function buildBedrockCurlText(model: CustomModel): Promise<BuildCurlCommandResult> {
-  const warnings: string[] = [];
-
-  const modelId = model.name?.trim() || "<MODEL_ID>";
-  if (!model.name?.trim()) {
-    warnings.push("Model name is empty; using placeholder.");
-  }
-
-  const region = model.bedrockRegion?.trim() || "us-east-1";
-  if (!model.bedrockRegion?.trim()) {
-    warnings.push("Bedrock region is empty; defaulting to us-east-1.");
-  }
-
-  const baseOverride = model.baseUrl?.trim();
-  const endpointBase = trimTrailingSlashes(
-    baseOverride || `https://bedrock-runtime.${region}.amazonaws.com`
-  );
-  const invokeUrl = `${endpointBase}/model/${encodeURIComponent(modelId)}/invoke`;
-
-  // Build request body
-  const body: Record<string, unknown> = {
-    messages: [{ role: "user", content: [{ type: "text", text: DEFAULT_CHAT_MESSAGE }] }],
-    max_tokens: DEFAULT_BEDROCK_MAX_TOKENS,
-  };
-
-  if (isBedrockAnthropicModel(modelId)) {
-    body.anthropic_version = DEFAULT_BEDROCK_ANTHROPIC_VERSION;
-  } else {
-    warnings.push("Model ID does not look like Anthropic; request body may need adjustment.");
-  }
-
-  const apiKeyResolved = await resolveApiKeyForCurl(model.apiKey);
-  warnings.push(...apiKeyResolved.warnings);
-
-  // Option A: Bearer token auth
-  const bearerSpec: CurlRequestSpec = {
-    method: "POST",
-    url: invokeUrl,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Authorization: `Bearer ${apiKeyResolved.apiKey}`,
-    },
-    body,
-  };
-
-  // Option B: AWS SigV4 auth
-  const sigV4Spec: CurlRequestSpec = {
-    method: "POST",
-    url: invokeUrl,
-    curlArgs: [
-      `--aws-sigv4 'aws:amz:${escapeForSingleQuotedString(region)}:bedrock'`,
-      `--user '<AWS_ACCESS_KEY_ID>:<AWS_SECRET_ACCESS_KEY>'`,
-    ],
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body,
-  };
-
-  const commandText = [
-    "# Amazon Bedrock InvokeModel",
-    "# Option A: Bearer token auth (matches Obsidian Copilot)",
-    formatCurlCommand(bearerSpec),
-    "",
-    "# Option B: IAM auth (AWS SigV4)",
-    formatCurlCommand(sigV4Spec),
-  ].join("\n");
-
-  return { ok: true, command: commandText, warnings };
 }
 
 // ============================================================================
@@ -738,42 +332,6 @@ export async function buildCurlCommandForModel(
   }
 
   const isEmbeddingModel = Boolean(model.isEmbeddingModel);
-
-  // Azure OpenAI
-  if (provider === ChatModelProviders.AZURE_OPENAI) {
-    const result = await buildAzureOpenAIRequestSpec(model, isEmbeddingModel);
-    if (!result.ok) return result;
-    return { ok: true, command: formatCurlCommand(result.spec), warnings: result.warnings };
-  }
-
-  // Anthropic
-  if (provider === ChatModelProviders.ANTHROPIC) {
-    if (isEmbeddingModel) {
-      return { ok: false, error: "Anthropic does not support embeddings.", warnings };
-    }
-    const result = await buildAnthropicRequestSpec(model);
-    if (!result.ok) return result;
-    return { ok: true, command: formatCurlCommand(result.spec), warnings: result.warnings };
-  }
-
-  // Amazon Bedrock
-  if (provider === ChatModelProviders.AMAZON_BEDROCK) {
-    if (isEmbeddingModel) {
-      return {
-        ok: false,
-        error: "Bedrock embeddings are not supported by this generator.",
-        warnings,
-      };
-    }
-    return await buildBedrockCurlText(model);
-  }
-
-  // Google Gemini
-  if (provider === ChatModelProviders.GOOGLE || provider === EmbeddingModelProviders.GOOGLE) {
-    const result = await buildGoogleGenerativeAIRequestSpec(model, isEmbeddingModel);
-    if (!result.ok) return result;
-    return { ok: true, command: formatCurlCommand(result.spec), warnings: result.warnings };
-  }
 
   // Ollama (native API)
   if (provider === ChatModelProviders.OLLAMA || provider === EmbeddingModelProviders.OLLAMA) {

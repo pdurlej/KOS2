@@ -109,19 +109,8 @@ export interface ModelConfig {
   maxConcurrency: number;
   maxTokens?: number;
   maxCompletionTokens?: number;
-  openAIApiKey?: string;
-  openAIOrgId?: string;
-  anthropicApiKey?: string;
-  cohereApiKey?: string;
-  azureOpenAIApiKey?: string;
-  azureOpenAIApiInstanceName?: string;
-  azureOpenAIApiDeploymentName?: string;
-  azureOpenAIApiVersion?: string;
-  // Google and TogetherAI API key share this property
+  // Generic API key (used by Google, TogetherAI, and OpenAI-compatible providers)
   apiKey?: string;
-  openAIProxyBaseUrl?: string;
-  groqApiKey?: string;
-  mistralApiKey?: string;
   enableCors?: boolean;
 }
 
@@ -153,11 +142,8 @@ export interface CustomModel {
   // Ollama specific fields
   numCtx?: number;
 
-  // LM Studio specific fields
+  // OpenAI Responses API (used for GPT-5 verbosity support)
   useResponsesApi?: boolean;
-
-  // OpenRouter specific fields
-  enablePromptCaching?: boolean;
 
   projectEnabled?: boolean;
   plusExclusive?: boolean;
@@ -167,17 +153,6 @@ export interface CustomModel {
 
   // Embedding models only (Jina at the moment)
   dimensions?: number;
-  // OpenAI specific fields
-  openAIOrgId?: string;
-
-  // Azure OpenAI specific fields
-  azureOpenAIApiInstanceName?: string;
-  azureOpenAIApiDeploymentName?: string;
-  azureOpenAIApiVersion?: string;
-  azureOpenAIApiEmbeddingDeploymentName?: string;
-
-  // Amazon Bedrock specific fields
-  bedrockRegion?: string;
 
   // OpenAI GPT-5 and O-series specific fields
   reasoningEffort?: ReasoningEffort;

@@ -613,7 +613,7 @@ Remember: The user has already told you what to do. Execute it NOW with the avai
 /**
  * Copilot Plus adapter for Flash models with anti-hallucination focus
  */
-class CopilotPlusModelAdapter extends BaseModelAdapter {
+class KOS2AgentModelAdapter extends BaseModelAdapter {
   buildSystemPromptSections(
     basePrompt: string,
     toolDescriptions: string,
@@ -631,7 +631,7 @@ class CopilotPlusModelAdapter extends BaseModelAdapter {
       id: "copilot-plus-guidelines",
       label: "Copilot Plus model guidance",
       source:
-        "src/LLMProviders/chainRunner/utils/modelAdapter.ts#CopilotPlusModelAdapter.buildSystemPromptSections",
+        "src/LLMProviders/chainRunner/utils/modelAdapter.ts#KOS2AgentModelAdapter.buildSystemPromptSections",
       content: `🚨 CRITICAL: NO HALLUCINATED TOOL CALLS OR SOURCES 🚨
 
 You are a Copilot Plus model. You MUST follow these rules strictly:
@@ -704,8 +704,8 @@ export class ModelAdapterFactory {
 
     // Copilot Plus models (Flash-based, needs anti-hallucination guidance)
     if (modelName.includes("copilot-plus")) {
-      logInfo("Using CopilotPlusModelAdapter");
-      return new CopilotPlusModelAdapter(modelName);
+      logInfo("Using KOS2AgentModelAdapter");
+      return new KOS2AgentModelAdapter(modelName);
     }
 
     // Default adapter for unknown models

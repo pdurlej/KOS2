@@ -23,9 +23,8 @@ import { YoutubeTranscriptModal } from "@/components/modals/YoutubeTranscriptMod
 import { KOSDoctorModal } from "@/components/modals/KOSDoctorModal";
 import { buildDisableAdvancedFeaturesPatch, buildResetSetupStatePatch } from "@/kos/recovery";
 import { runWorkflowCommand } from "@/kos/workflows";
-import { checkIsPlusUser } from "@/plusUtils";
 // Debug modals removed with search v3
-import CopilotPlugin from "@/main";
+import KOS2Plugin from "@/main";
 import { shouldUseMiyo } from "@/miyo/miyoUtils";
 import { getAllQAMarkdownContent } from "@/search/searchUtils";
 import { CopilotSettings, getSettings, setSettings } from "@/settings/model";
@@ -39,7 +38,7 @@ import { setSelectedTextContexts } from "@/aiParams";
 /**
  * Add a command to the plugin.
  */
-export function addCommand(plugin: CopilotPlugin, id: CommandId, callback: () => void) {
+export function addCommand(plugin: KOS2Plugin, id: CommandId, callback: () => void) {
   plugin.addCommand({
     id,
     name: COMMAND_NAMES[id],
@@ -51,11 +50,7 @@ export function addCommand(plugin: CopilotPlugin, id: CommandId, callback: () =>
 /**
  * Add an editor command to the plugin.
  */
-function addEditorCommand(
-  plugin: CopilotPlugin,
-  id: CommandId,
-  callback: (editor: Editor) => void
-) {
+function addEditorCommand(plugin: KOS2Plugin, id: CommandId, callback: (editor: Editor) => void) {
   plugin.addCommand({
     id,
     name: COMMAND_NAMES[id],
@@ -68,7 +63,7 @@ function addEditorCommand(
  * Add a check command to the plugin.
  */
 export function addCheckCommand(
-  plugin: CopilotPlugin,
+  plugin: KOS2Plugin,
   id: CommandId,
   callback: (checking: boolean) => boolean | void
 ) {
@@ -81,7 +76,7 @@ export function addCheckCommand(
 }
 
 export function registerCommands(
-  plugin: CopilotPlugin,
+  plugin: KOS2Plugin,
   prev: CopilotSettings | undefined,
   next: CopilotSettings
 ) {
@@ -707,16 +702,8 @@ export function registerCommands(
     modal.open();
   });
 
-  // Add command to download YouTube script (Copilot Plus only)
+  // Add command to download YouTube script
   addCommand(plugin, COMMAND_IDS.DOWNLOAD_YOUTUBE_SCRIPT, async () => {
-    const isPlusUser = await checkIsPlusUser();
-    if (!isPlusUser) {
-      new Notice(
-        "YouTube transcript import is not available in the current KOS2 bootstrap. It stays in the later ingest/transcript milestone."
-      );
-      return;
-    }
-
     const modal = new YoutubeTranscriptModal(plugin.app);
     modal.open();
   });

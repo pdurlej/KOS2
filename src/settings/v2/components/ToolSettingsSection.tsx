@@ -2,7 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { SettingItem } from "@/components/ui/setting-item";
 import { AGENT_MAX_ITERATIONS_LIMIT } from "@/constants";
-import { hasTranscriptApiKeyConfigured } from "@/plusUtils";
+import { hasTranscriptApiKeyConfigured } from "@/localRuntimeUtils";
 import { updateSetting, useSettingsValue } from "@/settings/model";
 import { ToolDefinition } from "@/tools/ToolRegistry";
 import { ToolRegistry } from "@/tools/ToolRegistry";
