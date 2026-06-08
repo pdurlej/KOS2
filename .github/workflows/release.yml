@@ -1,5 +1,5 @@
-# Release workflow: triggered when a PR targeting master is merged and its title
-# is a strict semver string (e.g. "3.2.3"). The PR title becomes the release tag
+# Release workflow: triggered when a PR targeting main is merged and its title
+# is a strict semver string (e.g. "26.6.0"). The PR title becomes the release tag
 # and title; the PR body becomes the release notes.
 #
 # Non-semver PR titles (feature PRs, bug fixes, etc.) are silently ignored —
@@ -11,7 +11,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - master
+      - main
 
 jobs:
   release:
