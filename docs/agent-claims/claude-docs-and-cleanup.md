@@ -4,7 +4,7 @@
 - Branch: `claude/docs-and-cleanup`
 - Worktree: `.claude/worktrees/claude-docs-and-cleanup` (isolated; Codex untouched)
 - Started: 2026-05-06 CEST
-- Status: active
+- Status: COMPLETE (2026-06-08) — Ollama-only refactor finished (B-1…B-8, C, D, E, F), all gates green, ready to merge to `main` and release. See [`docs/cleanup/ollama-only-refactor-plan.md`](../cleanup/ollama-only-refactor-plan.md) status banner.
 
 ## Owned paths
 

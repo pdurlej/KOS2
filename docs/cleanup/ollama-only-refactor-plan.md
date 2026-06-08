@@ -1,5 +1,24 @@
 # Ollama-only Refactor — Execution Plan
 
+> **STATUS: COMPLETE (2026-06-08).** All phases below have landed on `claude/docs-and-cleanup`.
+> End state: `ChatModelProviders`/`EmbeddingModelProviders` = `OLLAMA` + `OPENAI_COMPATIBLE` only;
+> `grep -ri brevilabs src/` = 0; no `isPlusUser`/`checkIsPlusUser`; `crypto-js`/`next-i18next` removed;
+> `main.js` 5.3 MB → 3.4 MB; tsc 0 errors; 113 suites / 1931 tests green.
+>
+> **Corrections to the original plan (discovered during execution):**
+>
+> - **Miyo is KEPT** (not removed). It is a _local_ self-hosted vector backend (`127.0.0.1:8742`,
+>   service-discovery, opt-in `enableMiyo`, clean fallback to the local v3 index). The B-7 "remove" label was a misread.
+> - **`selfHostServices.ts` is KEPT** (not deleted). It is the replacement layer for web search
+>   (Firecrawl/Perplexity) and YouTube transcripts (Supadata) after Brevilabs.
+> - **`plusUtils.ts` was renamed, not deleted** → `localRuntimeUtils.ts`. It hosts the Ollama/self-host/
+>   transcript helpers used by 14 files. The Plus paradigm itself was a no-op shim and was stripped.
+> - **Brevilabs was already a local shim**, not a live cloud proxy. It was renamed `BrevilabsClient` →
+>   `KOS2ToolsClient` (working local tooling kept), not deleted. No `api.brevilabs.com` calls existed.
+> - **`CopilotPlusWelcomeModal` is KEPT** (renamed `OllamaWelcomeModal`) — it is the live Ollama onboarding modal.
+> - **Phase F became a no-op for encryption** — `encryptionService.ts` was already on Web Crypto;
+>   the real `crypto-js` footprint was the cache-key hashes (→ FNV-1a).
+
 This is an executable plan for finishing the Ollama-only refactor that the [Bedrock removal commit](https://github.com/pdurlej/KOS2/commit/HEAD) started. It is written so a follow-up agent (Sonnet / Haiku) can carry it out without re-discovering the structure of the codebase.
 
 ## Why this exists
@@ -26,57 +45,57 @@ Remaining cloud surfaces (full list):
 
 ### Chat providers in `ChatModelProviders` enum (`src/constants.ts`)
 
-| value | runtime impact | local? |
-|---|---|---|
-| `OLLAMA` | **keep** | yes |
-| `OPENROUTERAI` | drop | no |
-| `LM_STUDIO` | drop (Ollama covers local) | local-but-redundant |
-| `OPENAI` | drop | no |
-| `OPENAI_FORMAT` | drop or keep as Ollama-compat? — see §"Open question" | mixed |
-| `ANTHROPIC` | drop | no |
-| `GOOGLE` | drop | no |
-| `XAI` | drop | no |
-| `AZURE_OPENAI` | drop | no |
-| `GROQ` | drop | no |
-| `COPILOT_PLUS` | drop (Brevilabs proxy) | no |
-| `MISTRAL` | drop | no |
-| `DEEPSEEK` | drop | no |
-| `COHEREAI` | drop | no |
-| `SILICONFLOW` | drop | no |
-| `GITHUB_COPILOT` | drop | no |
+| value            | runtime impact                                        | local?              |
+| ---------------- | ----------------------------------------------------- | ------------------- |
+| `OLLAMA`         | **keep**                                              | yes                 |
+| `OPENROUTERAI`   | drop                                                  | no                  |
+| `LM_STUDIO`      | drop (Ollama covers local)                            | local-but-redundant |
+| `OPENAI`         | drop                                                  | no                  |
+| `OPENAI_FORMAT`  | drop or keep as Ollama-compat? — see §"Open question" | mixed               |
+| `ANTHROPIC`      | drop                                                  | no                  |
+| `GOOGLE`         | drop                                                  | no                  |
+| `XAI`            | drop                                                  | no                  |
+| `AZURE_OPENAI`   | drop                                                  | no                  |
+| `GROQ`           | drop                                                  | no                  |
+| `COPILOT_PLUS`   | drop (Brevilabs proxy)                                | no                  |
+| `MISTRAL`        | drop                                                  | no                  |
+| `DEEPSEEK`       | drop                                                  | no                  |
+| `COHEREAI`       | drop                                                  | no                  |
+| `SILICONFLOW`    | drop                                                  | no                  |
+| `GITHUB_COPILOT` | drop                                                  | no                  |
 
 ### Embedding providers in `EmbeddingModelProviders` enum
 
-| value | drop? |
-|---|---|
-| `OLLAMA` | **keep** |
-| `OPENAI`, `COHEREAI`, `GOOGLE`, `AZURE_OPENAI`, `LM_STUDIO`, `OPENAI_FORMAT`, `SILICONFLOW`, `OPENROUTERAI` | drop |
-| `COPILOT_PLUS`, `COPILOT_PLUS_JINA` | drop (Brevilabs) |
+| value                                                                                                       | drop?            |
+| ----------------------------------------------------------------------------------------------------------- | ---------------- |
+| `OLLAMA`                                                                                                    | **keep**         |
+| `OPENAI`, `COHEREAI`, `GOOGLE`, `AZURE_OPENAI`, `LM_STUDIO`, `OPENAI_FORMAT`, `SILICONFLOW`, `OPENROUTERAI` | drop             |
+| `COPILOT_PLUS`, `COPILOT_PLUS_JINA`                                                                         | drop (Brevilabs) |
 
 ### Standalone modules to remove
 
-| path | reason |
-|---|---|
-| `src/LLMProviders/ChatOpenRouter.ts` | OpenRouter-only |
-| `src/LLMProviders/ChatLMStudio.ts` | LM Studio-only (Ollama covers it) |
-| `src/LLMProviders/CustomJinaEmbeddings.ts` | Brevilabs Jina embeddings |
-| `src/LLMProviders/CustomOpenAIEmbeddings.ts` | only consumed by cloud providers |
-| `src/LLMProviders/githubCopilot/**` | GitHub Copilot — its own folder, ~4 files |
-| `src/LLMProviders/brevilabsClient.ts` | Brevilabs cloud proxy backend |
-| `src/LLMProviders/selfHostServices.ts` | upstream Plus self-host shim |
-| `src/miyo/**` | Miyo cloud index client (5 files) |
-| `src/search/miyo/**` | Miyo retriever and tests |
-| `src/search/indexBackend/MiyoIndexBackend.ts` | Miyo index backend |
-| `src/plusUtils.ts` (+ test) | Plus subscription paradigm |
-| `src/components/modals/CopilotPlusWelcomeModal.tsx` | upstream onboarding modal |
-| `src/settings/v2/components/CopilotPlusSettings.tsx` | Plus settings tab |
-| `src/settings/v2/components/GitHubCopilotAuth.tsx` | GitHub Copilot OAuth UI |
+| path                                                 | reason                                    |
+| ---------------------------------------------------- | ----------------------------------------- |
+| `src/LLMProviders/ChatOpenRouter.ts`                 | OpenRouter-only                           |
+| `src/LLMProviders/ChatLMStudio.ts`                   | LM Studio-only (Ollama covers it)         |
+| `src/LLMProviders/CustomJinaEmbeddings.ts`           | Brevilabs Jina embeddings                 |
+| `src/LLMProviders/CustomOpenAIEmbeddings.ts`         | only consumed by cloud providers          |
+| `src/LLMProviders/githubCopilot/**`                  | GitHub Copilot — its own folder, ~4 files |
+| `src/LLMProviders/brevilabsClient.ts`                | Brevilabs cloud proxy backend             |
+| `src/LLMProviders/selfHostServices.ts`               | upstream Plus self-host shim              |
+| `src/miyo/**`                                        | Miyo cloud index client (5 files)         |
+| `src/search/miyo/**`                                 | Miyo retriever and tests                  |
+| `src/search/indexBackend/MiyoIndexBackend.ts`        | Miyo index backend                        |
+| `src/plusUtils.ts` (+ test)                          | Plus subscription paradigm                |
+| `src/components/modals/CopilotPlusWelcomeModal.tsx`  | upstream onboarding modal                 |
+| `src/settings/v2/components/CopilotPlusSettings.tsx` | Plus settings tab                         |
+| `src/settings/v2/components/GitHubCopilotAuth.tsx`   | GitHub Copilot OAuth UI                   |
 
 ### Cross-cutting touch-points
 
 - `src/main.ts` — bootstrap, imports `BrevilabsClient`, `CopilotPlusWelcomeModal`, `checkIsPlusUser`
-- `src/aiParams.ts` — `ModelConfig` and `CustomModel` carry cloud-only fields (openAIApiKey, anthropicApiKey, cohereApiKey, azureOpenAIApi*, apiKey, openAIProxyBaseUrl, groqApiKey, mistralApiKey)
-- `src/constants.ts` — enum, ProviderInfo, ProviderSettingsKeyMap, DEFAULT_SETTINGS, BREVILABS_*_BASE_URL
+- `src/aiParams.ts` — `ModelConfig` and `CustomModel` carry cloud-only fields (openAIApiKey, anthropicApiKey, cohereApiKey, azureOpenAIApi\*, apiKey, openAIProxyBaseUrl, groqApiKey, mistralApiKey)
+- `src/constants.ts` — enum, ProviderInfo, ProviderSettingsKeyMap, DEFAULT*SETTINGS, BREVILABS*\*\_BASE_URL
 - `src/settings/model.ts` — settings interface (15+ cloud key fields)
 - `src/settings/providerModels.ts` — per-provider model fetchers (~250 LOC of cloud-only response parsing)
 - `src/settings/v2/components/ModelAddDialog.tsx`, `ModelEditDialog.tsx` — provider-specific UI sections
@@ -392,7 +411,7 @@ After Phase D the AWS SDK / Brevilabs / cloud SDK transitive vulns are gone. Rem
 const enc = new TextEncoder();
 const keyMaterial = await crypto.subtle.importKey(
   "raw",
-  enc.encode(passphrase).slice(0, 32),  // pad/truncate to 32 bytes
+  enc.encode(passphrase).slice(0, 32), // pad/truncate to 32 bytes
   "AES-GCM",
   false,
   ["encrypt", "decrypt"]
@@ -446,13 +465,13 @@ Every other provider is the same shape. Don't reinvent — copy the Bedrock clea
 
 ## Quick risk register
 
-| risk | likelihood | mitigation |
-|---|---|---|
-| user with `provider: "openai"` model loses it after Phase B-4 | high | settings migration in `sanitizeSettings` that drops unsupported provider configs with a one-time Notice |
-| user's `plusLicenseKey` setting sticks around in persisted settings | low (visual) | sanitizeSettings drops removed keys |
-| view type rename in Phase C breaks workspace layouts | medium | migration that replaces the old type string in `app.workspace.getLayout()` |
-| crypto-js migration loses encrypted keys | high if rushed | dual-decrypt fallback for ≥ 3 release cycles |
-| AWS SDK still pulled by `@langchain/community` after Phase D | medium | confirm with `npm ls @aws-sdk/client-bedrock` after; if so, file an upstream issue or pin |
+| risk                                                                | likelihood     | mitigation                                                                                              |
+| ------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------- |
+| user with `provider: "openai"` model loses it after Phase B-4       | high           | settings migration in `sanitizeSettings` that drops unsupported provider configs with a one-time Notice |
+| user's `plusLicenseKey` setting sticks around in persisted settings | low (visual)   | sanitizeSettings drops removed keys                                                                     |
+| view type rename in Phase C breaks workspace layouts                | medium         | migration that replaces the old type string in `app.workspace.getLayout()`                              |
+| crypto-js migration loses encrypted keys                            | high if rushed | dual-decrypt fallback for ≥ 3 release cycles                                                            |
+| AWS SDK still pulled by `@langchain/community` after Phase D        | medium         | confirm with `npm ls @aws-sdk/client-bedrock` after; if so, file an upstream issue or pin               |
 
 ## Success criteria
 
