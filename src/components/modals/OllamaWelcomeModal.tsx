@@ -285,10 +285,7 @@ export class OllamaWelcomeModal extends Modal {
     };
 
     this.root.render(
-      <OllamaWelcomeModalContent
-        onApplyDefaults={handleApplyDefaults}
-        onDismiss={handleDismiss}
-      />
+      <OllamaWelcomeModalContent onApplyDefaults={handleApplyDefaults} onDismiss={handleDismiss} />
     );
   }
 

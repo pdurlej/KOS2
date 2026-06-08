@@ -42,15 +42,6 @@ function trimTrailingSlashes(value: string): string {
   return value.replace(/\/+$/g, "");
 }
 
-/** Attempts to parse a URL, returning null when invalid */
-function tryParseUrl(value: string): URL | null {
-  try {
-    return new URL(value);
-  } catch {
-    return null;
-  }
-}
-
 /** Escapes a string for safe inclusion in a single-quoted shell string */
 function escapeForSingleQuotedString(value: string): string {
   return value.replace(/'/g, "'\"'\"'");

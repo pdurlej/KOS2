@@ -210,10 +210,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
           {currentChain && currentChain !== ChainType.LLM_CHAIN && (
             <TagCommandPlugin onTagSelected={onTagSelected} />
           )}
-          <AtMentionCommandPlugin
-            isKOS2Agent={isKOS2Agent}
-            currentActiveFile={currentActiveFile}
-          />
+          <AtMentionCommandPlugin isKOS2Agent={isKOS2Agent} currentActiveFile={currentActiveFile} />
           <TextInsertionPlugin />
         </div>
       </ActiveFileProvider>

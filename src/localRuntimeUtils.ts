@@ -426,4 +426,3 @@ export function navigateToOllama(): void {
 export function navigateToOllamaLibrary(): void {
   window.open(createOllamaLibraryUrl(), "_blank");
 }
-

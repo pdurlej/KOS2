@@ -213,10 +213,7 @@ export function LocalServicesSection() {
 
           {(runtime.state === "unreachable" || runtime.state === "empty") && (
             <div className="tw-flex tw-flex-wrap tw-gap-2">
-              <Button
-                variant="default"
-                onClick={() => navigateToOllama()}
-              >
+              <Button variant="default" onClick={() => navigateToOllama()}>
                 Open Ollama
                 <ExternalLink className="tw-size-4" />
               </Button>

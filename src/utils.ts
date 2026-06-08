@@ -2,7 +2,6 @@ import { ChainType, Document } from "@/chainFactory";
 import {
   ALLOWED_NOTE_CONTEXT_EXTENSIONS,
   ChatModelProviders,
-  EmbeddingModelProviders,
   NOMIC_EMBED_TEXT,
   Provider,
   ProviderInfo,

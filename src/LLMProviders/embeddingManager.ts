@@ -144,7 +144,6 @@ export default class EmbeddingManager {
   }
 
   private async getEmbeddingConfig(customModel: CustomModel): Promise<any> {
-    const settings = getSettings();
     const modelName = customModel.name;
 
     const baseConfig = {

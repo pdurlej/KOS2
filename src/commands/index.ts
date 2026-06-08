@@ -50,11 +50,7 @@ export function addCommand(plugin: KOS2Plugin, id: CommandId, callback: () => vo
 /**
  * Add an editor command to the plugin.
  */
-function addEditorCommand(
-  plugin: KOS2Plugin,
-  id: CommandId,
-  callback: (editor: Editor) => void
-) {
+function addEditorCommand(plugin: KOS2Plugin, id: CommandId, callback: (editor: Editor) => void) {
   plugin.addCommand({
     id,
     name: COMMAND_NAMES[id],

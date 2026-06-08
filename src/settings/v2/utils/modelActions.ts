@@ -35,7 +35,7 @@ export async function fetchModelsForProvider(
 
     apiKey = await getDecryptedKey(apiKey);
 
-    let url = getProviderInfo(provider).listModelURL;
+    const url = getProviderInfo(provider).listModelURL;
     if (!url) {
       return { success: false, models: [], error: "Provider does not support model listing" };
     }

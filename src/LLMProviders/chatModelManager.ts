@@ -1,9 +1,5 @@
 import { CustomModel, getModelKey, ModelConfig } from "@/aiParams";
-import {
-  ChatModelProviders,
-  DEFAULT_OLLAMA_NUM_CTX,
-  ModelCapability,
-} from "@/constants";
+import { ChatModelProviders, DEFAULT_OLLAMA_NUM_CTX, ModelCapability } from "@/constants";
 import { getDecryptedKey } from "@/encryptionService";
 import { logError, logInfo } from "@/logger";
 import {
@@ -12,13 +8,7 @@ import {
   getSettings,
   subscribeToSettingsChange,
 } from "@/settings/model";
-import {
-  err2String,
-  findCustomModel,
-  getModelInfo,
-  ModelInfo,
-  safeFetch,
-} from "@/utils";
+import { err2String, findCustomModel, getModelInfo, ModelInfo, safeFetch } from "@/utils";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import { ChatOllama } from "@langchain/ollama";
@@ -248,12 +238,7 @@ export default class ChatModelManager {
     // Add topP only if defined
     if (customModel.topP !== undefined) {
       // These providers support topP
-      if (
-        [
-          ChatModelProviders.OLLAMA,
-          ChatModelProviders.OPENAI_COMPATIBLE,
-        ].includes(provider)
-      ) {
+      if ([ChatModelProviders.OLLAMA, ChatModelProviders.OPENAI_COMPATIBLE].includes(provider)) {
         params.topP = customModel.topP;
       }
     }
@@ -261,12 +246,7 @@ export default class ChatModelManager {
     // Add frequencyPenalty only if defined
     if (customModel.frequencyPenalty !== undefined) {
       // These providers support frequencyPenalty
-      if (
-        [
-          ChatModelProviders.OLLAMA,
-          ChatModelProviders.OPENAI_COMPATIBLE,
-        ].includes(provider)
-      ) {
+      if ([ChatModelProviders.OLLAMA, ChatModelProviders.OPENAI_COMPATIBLE].includes(provider)) {
         params.frequencyPenalty = customModel.frequencyPenalty;
       }
     }

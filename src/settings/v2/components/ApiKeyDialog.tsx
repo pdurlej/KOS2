@@ -154,7 +154,6 @@ function ApiKeyModalContent({ onClose, onGoToModelTab }: ApiKeyModalContentProps
                   );
                 })}
               </div>
-
             </CollapsibleContent>
           </Collapsible>
         </div>

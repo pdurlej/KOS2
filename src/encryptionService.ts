@@ -40,9 +40,7 @@ export async function encryptAllKeys(
     return settings;
   }
   const newSettings = { ...settings };
-  const keysToEncrypt = Object.keys(settings).filter((key) =>
-    key.toLowerCase().includes("apikey")
-  );
+  const keysToEncrypt = Object.keys(settings).filter((key) => key.toLowerCase().includes("apikey"));
 
   for (const key of keysToEncrypt) {
     const apiKey = settings[key as keyof CopilotSettings] as string;
